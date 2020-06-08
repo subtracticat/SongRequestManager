@@ -1,8 +1,8 @@
-﻿using BeatSaberMarkupLanguage;
+﻿using System.Linq;
+using BeatSaberMarkupLanguage;
 using HMUI;
 using IPA.Utilities;
 using SongRequestManager.UI;
-using System.Linq;
 using UnityEngine;
 
 namespace SongRequestManager

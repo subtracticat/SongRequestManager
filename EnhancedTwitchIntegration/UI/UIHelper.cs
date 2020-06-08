@@ -1,10 +1,10 @@
-﻿using HMUI;
-using System.Linq;
+﻿using System.Linq;
+using BeatSaberMarkupLanguage;
+using HMUI;
+using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using IPA.Utilities;
-using BeatSaberMarkupLanguage;
 
 namespace SongRequestManager.UI
 {
@@ -24,7 +24,10 @@ namespace SongRequestManager.UI
             Button btn = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == buttonTemplate)), parent, false);
             btn.onClick = new Button.ButtonClickedEvent();
             if (onClick != null)
+            {
                 btn.onClick.AddListener(onClick);
+            }
+
             btn.name = "VersusUIButton";
 
             (btn.transform as RectTransform).anchorMin = new Vector2(0.5f, 0.5f);
@@ -34,7 +37,9 @@ namespace SongRequestManager.UI
 
             btn.SetButtonText(buttonText);
             if (icon != null)
+            {
                 btn.SetButtonIcon(icon);
+            }
 
             return btn;
         }
@@ -45,7 +50,10 @@ namespace SongRequestManager.UI
             get
             {
                 if (!_blankSprite)
+                {
                     _blankSprite = Sprite.Create(Texture2D.blackTexture, new Rect(), Vector2.zero);
+                }
+
                 return _blankSprite;
             }
         }

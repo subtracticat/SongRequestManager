@@ -1,16 +1,14 @@
-﻿using HMUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatSaberMarkupLanguage;
+using HMUI;
+using IPA.Utilities;
+using SongRequestManager.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
-using SongRequestManager.UI;
-using IPA.Utilities;
-using BeatSaberMarkupLanguage;
-using Utilities = StreamCore.Utils.Utilities;
-using System.Threading.Tasks;
 
 namespace SongRequestManager
 {
@@ -48,13 +46,17 @@ namespace SongRequestManager
 
         private int _selectedRow
         {
-            get { return isShowingHistory ? _historyRow : _requestRow; }
+            get => isShowingHistory ? _historyRow : _requestRow;
             set
             {
                 if (isShowingHistory)
+                {
                     _historyRow = value;
+                }
                 else
+                {
                     _requestRow = value;
+                }
             }
         }
 
@@ -72,7 +74,7 @@ namespace SongRequestManager
 
 [Random song!]/0'!decklist draw%CR%'";
 
-        public static void InvokeBeatSaberButton(String buttonName)
+        public static void InvokeBeatSaberButton(string buttonName)
         {
             Button buttonInstance = Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == buttonName));
             buttonInstance.onClick.Invoke();
@@ -85,7 +87,11 @@ namespace SongRequestManager
 
         public void ColorDeckButtons(KEYBOARD kb, Color basecolor, Color Present)
         {
-            if (RequestHistory.Songs.Count == 0) return;
+            if (RequestHistory.Songs.Count == 0)
+            {
+                return;
+            }
+
             foreach (KEYBOARD.KEY key in kb.keys)
             {
                 foreach (var item in RequestBot.deck)
@@ -241,7 +247,10 @@ namespace SongRequestManager
                         {
                             RequestBot.Blacklist(_selectedRow, isShowingHistory, true);
                             if (_selectedRow > 0)
+                            {
                                 _selectedRow--;
+                            }
+
                             confirmDialogActive = false;
                         }
 
@@ -316,7 +325,7 @@ namespace SongRequestManager
                         currentsong = SongInfoForRow(_selectedRow);
                         RequestBot.played.Add(currentsong.song);
                         RequestBot.WriteJSON(RequestBot.playedfilename, ref RequestBot.played);
-                        
+
                         SetUIInteractivity(false);
                         RequestBot.Process(_selectedRow, isShowingHistory);
                         _selectedRow = -1;
@@ -332,7 +341,8 @@ namespace SongRequestManager
                 _queueButton.SetButtonTextSize(3.5f);
                 (_queueButton.transform as RectTransform).anchoredPosition = new Vector2(90f, -30f);
                 _queueButton.SetButtonText(RequestBotConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
-                _queueButton.GetComponentInChildren<Image>().color = RequestBotConfig.Instance.RequestQueueOpen ? Color.green : Color.red; ;
+                _queueButton.GetComponentInChildren<Image>().color = RequestBotConfig.Instance.RequestQueueOpen ? Color.green : Color.red;
+                ;
                 _queueButton.interactable = true;
                 _queueButton.onClick.RemoveAllListeners();
                 _queueButton.onClick.AddListener(delegate ()
@@ -393,7 +403,8 @@ namespace SongRequestManager
         {
             _playButton.GetComponentInChildren<Image>().color = ((isShowingHistory && RequestHistory.Songs.Count > 0) || (!isShowingHistory && RequestQueue.Songs.Count > 0)) ? Color.green : Color.red;
             _queueButton.SetButtonText(RequestBotConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
-            _queueButton.GetComponentInChildren<Image>().color = RequestBotConfig.Instance.RequestQueueOpen ? Color.green : Color.red; ;
+            _queueButton.GetComponentInChildren<Image>().color = RequestBotConfig.Instance.RequestQueueOpen ? Color.green : Color.red;
+            ;
             _historyHintText.text = isShowingHistory ? "Go back to your current song request queue." : "View the history of song requests from the current session.";
             _historyButton.SetButtonText(isShowingHistory ? "Requests" : "History");
             _playButton.SetButtonText(isShowingHistory ? "Replay" : "Play");
@@ -402,7 +413,10 @@ namespace SongRequestManager
 
             _songListTableView.ReloadData();
 
-            if (_selectedRow == -1) return;
+            if (_selectedRow == -1)
+            {
+                return;
+            }
 
             if (NumberOfCells() > _selectedRow)
             {
@@ -432,7 +446,7 @@ namespace SongRequestManager
             SetUIInteractivity();
         }
 
-        private void SongLoader_SongsLoadedEvent(SongCore.Loader arg1, Dictionary <string,CustomPreviewBeatmapLevel> arg2)
+        private void SongLoader_SongsLoadedEvent(SongCore.Loader arg1, Dictionary<string, CustomPreviewBeatmapLevel> arg2)
         {
             _songListTableView?.ReloadData();
         }
@@ -447,7 +461,10 @@ namespace SongRequestManager
         {
             var toggled = interactive;
 
-            if (_selectedRow >= (isShowingHistory ? RequestHistory.Songs : RequestQueue.Songs).Count()) _selectedRow = -1;
+            if (_selectedRow >= (isShowingHistory ? RequestHistory.Songs : RequestQueue.Songs).Count())
+            {
+                _selectedRow = -1;
+            }
 
             if (NumberOfCells() == 0 || _selectedRow == -1 || _selectedRow >= Songs.Count())
             {
@@ -489,8 +506,11 @@ namespace SongRequestManager
         {
             // get level id from hash
             var levelIds = SongCore.Collections.levelIDsForHash(SongInfoForRow(row).song["hash"]);
-            if (levelIds.Count == 0) return null;
-            
+            if (levelIds.Count == 0)
+            {
+                return null;
+            }
+
             // lookup song from level id
             return SongCore.Loader.CustomLevels.FirstOrDefault(s => string.Equals(s.Value.levelID, levelIds.First(), StringComparison.OrdinalIgnoreCase)).Value ?? null;
         }
@@ -541,8 +561,11 @@ namespace SongRequestManager
             var isChallenge = request.requestInfo.IndexOf("!challenge", StringComparison.OrdinalIgnoreCase) >= 0;
 
             var beatmapCharacteristicImages = _tableCell.GetField<UnityEngine.UI.Image[], LevelListTableCell>("_beatmapCharacteristicImages"); // NEW VERSION
-            foreach (var i in beatmapCharacteristicImages) i.enabled = false;
-            
+            foreach (var i in beatmapCharacteristicImages)
+            {
+                i.enabled = false;
+            }
+
             // causing a nullex?
             //_tableCell.SetField("_beatmapCharacteristicAlphas", new float[5] { 1f, 1f, 1f, 1f, 1f });
 
@@ -564,7 +587,10 @@ namespace SongRequestManager
 
             string pp = "";
             int ppvalue = request.song["pp"].AsInt;
-            if (ppvalue > 0) pp = $" {ppvalue} PP";
+            if (ppvalue > 0)
+            {
+                pp = $" {ppvalue} PP";
+            }
 
             var dt = new RequestBot.DynamicText().AddSong(request.song).AddUser(ref request.requestor); // Get basic fields
             dt.Add("Status", request.status.ToString());
@@ -612,7 +638,6 @@ namespace SongRequestManager
                     }
                     catch (Exception)
                     {
-
                     }
                 }
 

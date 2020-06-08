@@ -1,6 +1,6 @@
-﻿using StreamCore.SimpleJSON;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using StreamCore.SimpleJSON;
 
 namespace SongRequestManager
 {
@@ -15,7 +15,9 @@ namespace SongRequestManager
                 if (!json.IsNull)
                 {
                     foreach (JSONObject j in json.AsArray)
+                    {
                         songs.Add(new SongRequest().FromJson(j));
+                    }
                 }
             }
             return songs;
@@ -24,11 +26,15 @@ namespace SongRequestManager
         public static void Write(string path, ref List<SongRequest> songs)
         {
             if (!Directory.Exists(Path.GetDirectoryName(path)))
+            {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
 
             JSONArray arr = new JSONArray();
             foreach (SongRequest song in songs)
+            {
                 arr.Add(song.ToJson());
+            }
 
             File.WriteAllText(path, arr.ToString());
         }
@@ -48,7 +54,6 @@ namespace SongRequestManager
             {
                 RequestBot.Instance.QueueChatMessage("There was an error reading the request queue.");
             }
-
         }
 
         public static void Write()
@@ -71,7 +76,6 @@ namespace SongRequestManager
             {
                 RequestBot.Instance.QueueChatMessage("There was an error reading the request history.");
             }
-
         }
 
         public static void Write()
@@ -79,5 +83,4 @@ namespace SongRequestManager
             RequestManager.Write(historyPath, ref Songs);
         }
     }
-
 }

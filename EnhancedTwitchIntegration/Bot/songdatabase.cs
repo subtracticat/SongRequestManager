@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Runtime;
-using StreamCore.SimpleJSON;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
-using System.Collections.Concurrent;
-
-using System.Security.Cryptography;
+using StreamCore.SimpleJSON;
 using StreamCore.Twitch;
+using UnityEngine;
 // Feature requests: Add Reason for being banned to banlist
 //  
 
@@ -33,34 +32,53 @@ namespace SongRequestManager
 
             public static int hashcount = 0;
 
-            void IndexFields(bool Add,int id,params string[] parameters)
+            void IndexFields(bool Add, int id, params string[] parameters)
+            {
+                foreach (var field in parameters)
                 {
-                    foreach (var field in parameters)
+                    string[] parts = normalize.Split(field);
+                    foreach (var part in parts)
                     {
-                        string[] parts = normalize.Split(field);
-                        foreach (var part in parts)
+                        if (part.Length < partialhash)
                         {
-                            if (part.Length < partialhash) UpdateSearchEntry(part,id, Add);
-                            for (int i = partialhash; i <= part.Length; i++)
-                            {
-                                UpdateSearchEntry(part.Substring(0, i), id,Add);
-                            }
+                            UpdateSearchEntry(part, id, Add);
+                        }
+
+                        for (int i = partialhash; i <= part.Length; i++)
+                        {
+                            UpdateSearchEntry(part.Substring(0, i), id, Add);
                         }
                     }
                 }
-
-            void UpdateSearchEntry(string key, int id,bool Add = true)
-            {
-
-            if (Add) hashcount++; else hashcount--;
-
-            if (Add)
-                MapDatabase.SearchDictionary.AddOrUpdate(key, (k) => { HashSet<int> va = new HashSet<int>(); va.Add(id); return va; }, (k, va) => { va.Add(id); return va; });
-            else
-            {
-                MapDatabase.SearchDictionary[key].Remove(id); // An empty keyword is fine, and actually uncommon
             }
 
+            void UpdateSearchEntry(string key, int id, bool Add = true)
+            {
+
+                if (Add)
+                {
+                    hashcount++;
+                }
+                else
+                {
+                    hashcount--;
+                }
+
+                if (Add)
+                {
+                    MapDatabase.SearchDictionary.AddOrUpdate(key, (k) =>
+                    {
+                        HashSet<int> va = new HashSet<int>
+                        {
+                            id
+                        };
+                        return va;
+                    }, (k, va) => { va.Add(id); return va; });
+                }
+                else
+                {
+                    MapDatabase.SearchDictionary[key].Remove(id); // An empty keyword is fine, and actually uncommon
+                }
             }
 
             public SongMap(string id, string version, string songName, string songSubName, string authorName, string duration, string rating)
@@ -70,12 +88,11 @@ namespace SongRequestManager
                 //IndexSong(song);
             }
 
-
             public SongMap(JSONObject song, string LevelId = "", string path = "")
             {
- 
+
                 if (!song["version"].IsString)
-                    {
+                {
                     //RequestBot.Instance.QueueChatMessage($"{song["key"].Value}: {song["metadata"]}");
                     song.Add("id", song["key"]);
                     song.Add("version", song["key"]);
@@ -85,7 +102,7 @@ namespace SongRequestManager
                     song.Add("songSubName", metadata["songSubName"].Value);
                     song.Add("authorName", metadata["songAuthorName"].Value);
                     song.Add("levelAuthor", metadata["levelAuthorName"].Value);
-                    song.Add("rating", song["stats"]["rating"].AsFloat*100);
+                    song.Add("rating", song["stats"]["rating"].AsFloat * 100);
 
                     bool degrees90 = false;
                     bool degrees360 = false;
@@ -99,19 +116,31 @@ namespace SongRequestManager
 
                         foreach (var entry in metadata["characteristics"])
                         {
-                            if (entry.Value["name"] == "360Degree") degrees360 = true;
-                            if (entry.Value["name"] == "90Degree") degrees90 = true;
+                            if (entry.Value["name"] == "360Degree")
+                            {
+                                degrees360 = true;
+                            }
+
+                            if (entry.Value["name"] == "90Degree")
+                            {
+                                degrees90 = true;
+                            }
                         }
 
                         int maxnjs = 0;
                         foreach (var entry in characteristics)
                         {
-                            if (entry.Value.IsNull) continue;
+                            if (entry.Value.IsNull)
+                            {
+                                continue;
+                            }
+
                             var diff = entry.Value["length"].AsInt;
                             var njs = entry.Value["njs"].AsInt;
-                            if (njs > maxnjs) maxnjs = njs;
-
-
+                            if (njs > maxnjs)
+                            {
+                                maxnjs = njs;
+                            }
 
                             if (diff > 0)
                             {
@@ -121,29 +150,29 @@ namespace SongRequestManager
                             }
                         }
 
-                        if (maxnjs>0)
+                        if (maxnjs > 0)
                         {
                             song.Add("njs", maxnjs);
                         }
-                        if (degrees360 || degrees90) song.Add("maptype", "360");
+                        if (degrees360 || degrees90)
+                        {
+                            song.Add("maptype", "360");
+                        }
                     }
                     catch
                     {
                     }
-
                 }
 
-
-                float songpp = 0;
-                if (ppmap.TryGetValue(song["id"].Value,out songpp))
-                    {
+                if (ppmap.TryGetValue(song["id"].Value, out float songpp))
+                {
                     song.Add("pp", songpp);
-                    }
+                }
 
                 //SongMap oldmap;
                 //if (MapDatabase.MapLibrary.TryGetValue(song["id"].Value,out oldmap))
                 //{
-                
+
                 //    if (LevelId == oldmap.LevelId && song["version"].Value == oldmap.song["version"].Value)
                 //    {
                 //        oldmap.song = song;
@@ -162,12 +191,11 @@ namespace SongRequestManager
 
             void UnIndexSong(int id)
             {
-                SongMap temp;
                 string indexpp = (song["pp"].AsFloat > 0) ? "PP" : "";
 
-                IndexFields(false,id, song["songName"].Value, song["songSubName"].Value, song["authorName"].Value , song["levelAuthor"].Value, indexpp,song["maptype"].Value);
+                IndexFields(false, id, song["songName"].Value, song["songSubName"].Value, song["authorName"].Value, song["levelAuthor"].Value, indexpp, song["maptype"].Value);
 
-                MapDatabase.MapLibrary.TryRemove(song["id"].Value, out temp);
+                MapDatabase.MapLibrary.TryRemove(song["id"].Value, out SongMap temp);
                 MapDatabase.MapLibrary.TryRemove(song["version"].Value, out temp);
                 //MapDatabase.LevelId.TryRemove(LevelId, out temp);
             }
@@ -179,11 +207,11 @@ namespace SongRequestManager
                     this.song = song;
                     string indexpp = (song["pp"].AsFloat > 0) ? "PP" : "";
 
-                    int id=int.Parse(song["id"].Value.ToUpper(), System.Globalization.NumberStyles.HexNumber);
+                    int id = int.Parse(song["id"].Value.ToUpper(), System.Globalization.NumberStyles.HexNumber);
 
                     //Instance.QueueChatMessage($"id={song["id"].Value} = {id}");
 
-                    IndexFields(true,id, song["songName"].Value, song["songSubName"].Value, song["authorName"].Value,song ["levelAuthor"],indexpp, song["maptype"].Value);
+                    IndexFields(true, id, song["songName"].Value, song["songSubName"].Value, song["authorName"].Value, song["levelAuthor"], indexpp, song["maptype"].Value);
 
                     MapDatabase.MapLibrary.TryAdd(song["id"].Value, this);
                     MapDatabase.MapLibrary.TryAdd(song["version"].Value, this);
@@ -195,8 +223,6 @@ namespace SongRequestManager
                 }
             }
         }
-
-           
 
         // Song primary key can be song ID/version , or level hashes. This dictionary is many:1
         public class MapDatabase
@@ -210,21 +236,19 @@ namespace SongRequestManager
             static bool DatabaseImported = false;
             public static bool DatabaseLoading = false;
 
-
             // Fast? Full Text Search
             public static List<SongMap> Search(string SearchKey)
             {
-                if (!DatabaseImported && RequestBotConfig.Instance.LocalSearch )
+                if (!DatabaseImported && RequestBotConfig.Instance.LocalSearch)
                 {
-                    LoadCustomSongs();                  
+                    LoadCustomSongs();
                 }
 
                 List<SongMap> result = new List<SongMap>();
 
                 if (RequestBot.Instance.GetBeatSaverId(SearchKey) != "")
                 {
-                    SongMap song;
-                    if (MapDatabase.MapLibrary.TryGetValue(normalize.RemoveSymbols(ref SearchKey,normalize._SymbolsNoDash), out song))
+                    if (MapDatabase.MapLibrary.TryGetValue(normalize.RemoveSymbols(ref SearchKey, normalize._SymbolsNoDash), out SongMap song))
                     {
                         result.Add(song);
                         return result;
@@ -237,9 +261,12 @@ namespace SongRequestManager
 
                 foreach (var part in SearchParts)
                 {
-                     HashSet<int>  idset;
 
-                    if (!SearchDictionary.TryGetValue(part, out idset)) return result; // Keyword must be found
+                    if (!SearchDictionary.TryGetValue(part, out HashSet<int> idset))
+                    {
+                        return result; // Keyword must be found
+                    }
+
                     resultlist.Add(idset);
                 }
 
@@ -254,15 +281,17 @@ namespace SongRequestManager
                 {
                     for (int i = 1; i < resultlist.Count; i++)
                     {
-                        if (!resultlist[i].Contains(map)) goto next; // We can't continue from here :(    
+                        if (!resultlist[i].Contains(map))
+                        {
+                            goto next; // We can't continue from here :(    
+                        }
                     }
-
 
                     try
                     {
                         result.Add(MapDatabase.MapLibrary[map.ToString("x")]);
                     }
-                catch
+                    catch
                     {
                         RequestBot.Instance.QueueChatMessage($"map fail = {map}");
                     }
@@ -274,44 +303,40 @@ namespace SongRequestManager
                 return result;
             }
 
-
             public void RemoveMap(JSONObject song)
             {
-
-
             }
             public void AddDirectory()
             {
-
             }
 
             public void DownloadSongs()
             {
-
             }
 
-            public static  void SaveDatabase()
+            public static void SaveDatabase()
             {
-            try
-            {
-                DateTime start = DateTime.Now;
-                //JSONArray arr = new JSONArray();
-                JSONObject arr = new JSONObject();
-                foreach (var entry in MapLibrary)
-                arr.Add(entry.Value.song["id"],entry.Value.song);
-                File.WriteAllText(Path.Combine(Plugin.DataPath, "SongDatabase.dat"), arr.ToString());
-                Instance.QueueChatMessage($"Saved Song Databse in  {(DateTime.Now - start).Seconds} secs.");
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log(ex.ToString());
-            }
+                try
+                {
+                    DateTime start = DateTime.Now;
+                    //JSONArray arr = new JSONArray();
+                    JSONObject arr = new JSONObject();
+                    foreach (var entry in MapLibrary)
+                    {
+                        arr.Add(entry.Value.song["id"], entry.Value.song);
+                    }
 
+                    File.WriteAllText(Path.Combine(Plugin.DataPath, "SongDatabase.dat"), arr.ToString());
+                    Instance.QueueChatMessage($"Saved Song Databse in  {(DateTime.Now - start).Seconds} secs.");
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log(ex.ToString());
+                }
             }
 
             public static void LoadDatabase()
             {
-
 
                 try
                 {
@@ -321,11 +346,10 @@ namespace SongRequestManager
 
                     if (File.Exists(path))
                     {
-   
+
                         JSONNode json = JSON.Parse(File.ReadAllText(path));
                         if (!json.IsNull)
                         {
-                            
 
                             int Count = json.Count;
 
@@ -334,29 +358,24 @@ namespace SongRequestManager
                             //    new SongMap(j);
                             //}
 
-
                             foreach (KeyValuePair<string, JSONNode> kvp in json)
                             {
-                                new SongMap((JSONObject) kvp.Value);
+                                new SongMap((JSONObject)kvp.Value);
                             }
-
 
                             json = 0; // BUG: This doesn't actually help. The problem is that the json object is still being referenced.
 
                             Instance.QueueChatMessage($"Finished reading {Count} in {(DateTime.Now - start).Seconds} secs.");
                         }
+                    }
                 }
-                }
-            catch (Exception ex)
+                catch (Exception ex)
                 {
                     Plugin.Log(ex.ToString());
                     Instance.QueueChatMessage($"{ex.ToString()}");
                 }
-
-
             }
 
- 
             public static void ImportLoaderDatabase()
             {
                 //foreach (var level in SongLoader.CustomLevels)
@@ -365,22 +384,27 @@ namespace SongRequestManager
                 }
             }
 
-            public static string readzipjson(ZipArchive archive,string filename="info.json")
-                {
+            public static string readzipjson(ZipArchive archive, string filename = "info.json")
+            {
                 var info = archive.Entries.First<ZipArchiveEntry>(e => (e.Name.EndsWith(filename)));
-                if (info == null) return "";
+                if (info == null)
+                {
+                    return "";
+                }
 
                 StreamReader reader = new StreamReader(info.Open());
-                string result=reader.ReadToEnd();
+                string result = reader.ReadToEnd();
                 reader.Close();
                 return result;
             }
 
-
             // Early code... index a full zip archive.
             public static async void LoadZIPDirectory(string folder = @"d:\beatsaver")
             {
-                if (MapDatabase.DatabaseLoading) return;
+                if (MapDatabase.DatabaseLoading)
+                {
+                    return;
+                }
 
                 await Task.Run(() =>
                 {
@@ -395,23 +419,27 @@ namespace SongRequestManager
 
                     foreach (FileInfo f in di.GetFiles("*.zip"))
                     {
- 
+
                         try
                         {
                             var x = System.IO.Compression.ZipFile.OpenRead(f.FullName);
                             var info = x.Entries.First<ZipArchiveEntry>(e => (e.Name.EndsWith("info.json")));
 
-                             string id = "";
+                            string id = "";
                             string version = "";
                             GetIdFromPath(f.Name, ref id, ref version);
 
                             if (MapDatabase.MapLibrary.ContainsKey(id))
+                            {
+                                if (MapLibrary[id].path != "")
                                 {
-                                if (MapLibrary[id].path!="") MapLibrary[id].path = f.FullName;
-                                continue;
+                                    MapLibrary[id].path = f.FullName;
                                 }
 
-                           JSONObject song = JSONObject.Parse(readzipjson(x)).AsObject;
+                                continue;
+                            }
+
+                            JSONObject song = JSONObject.Parse(readzipjson(x)).AsObject;
 
                             string hash;
 
@@ -421,7 +449,7 @@ namespace SongRequestManager
                             {
                                 try
                                 {
-                                    FileAccumulator.Append(readzipjson(x,level.Value));
+                                    FileAccumulator.Append(readzipjson(x, level.Value));
                                 }
                                 catch
                                 {
@@ -450,44 +478,46 @@ namespace SongRequestManager
                             new SongMap(song, levelId, f.FullName);
 
                             x = null;
-
                         }
                         catch (Exception)
                         {
-                            Instance.QueueChatMessage($"Failed to process {f.FullName}");   
+                            Instance.QueueChatMessage($"Failed to process {f.FullName}");
                             //Instance.QueueChatMessage(ex.ToString());
                         }
-
- 
                     }
-                    Instance.QueueChatMessage($"Archive indexing done, {addcount} files added. ({(DateTime.Now-StarTime).TotalSeconds} secs.");
+                    Instance.QueueChatMessage($"Archive indexing done, {addcount} files added. ({(DateTime.Now - StarTime).TotalSeconds} secs.");
                     GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                     GC.Collect();
                     Instance.QueueChatMessage($"hashentries: {SongMap.hashcount} memory: {(GC.GetTotalMemory(false) - startingmem) / 1048576} MB");
-
-
                 });
 
- 
                 MapDatabase.DatabaseLoading = false;
             }
 
-
             // Update Database from Directory
-            public static async Task LoadCustomSongs(string folder = "",string songid="")
+            public static async Task LoadCustomSongs(string folder = "", string songid = "")
             {
-                if (MapDatabase.DatabaseLoading) return;
+                if (MapDatabase.DatabaseLoading)
+                {
+                    return;
+                }
 
                 DatabaseLoading = true;
 
                 await Task.Run(() =>
                 {
 
-                    if (songid=="") Instance.QueueChatMessage($"Starting song indexing {folder}");
+                    if (songid == "")
+                    {
+                        Instance.QueueChatMessage($"Starting song indexing {folder}");
+                    }
 
                     var StarTime = DateTime.UtcNow;
 
-                    if (folder == "") folder = Path.Combine(Environment.CurrentDirectory, "customsongs");
+                    if (folder == "")
+                    {
+                        folder = Path.Combine(Environment.CurrentDirectory, "customsongs");
+                    }
 
                     List<FileInfo> files = new List<FileInfo>();  // List that will hold the files and subfiles in path
                     List<DirectoryInfo> folders = new List<DirectoryInfo>(); // List that hold direcotries that cannot be accessed
@@ -495,7 +525,7 @@ namespace SongRequestManager
                     DirectoryInfo di = new DirectoryInfo(folder);
                     FullDirList(di, "*");
 
-                    if (RequestBotConfig.Instance.additionalsongpath!="")
+                    if (RequestBotConfig.Instance.additionalsongpath != "")
                     {
                         di = new DirectoryInfo(RequestBotConfig.Instance.additionalsongpath);
                         FullDirList(di, "*");
@@ -508,7 +538,9 @@ namespace SongRequestManager
                             foreach (FileInfo f in dir.GetFiles(searchPattern))
                             {
                                 if (f.FullName.EndsWith("info.json"))
+                                {
                                     files.Add(f);
+                                }
                             }
                         }
                         catch
@@ -526,7 +558,6 @@ namespace SongRequestManager
 
                     // This might need some optimization
 
-
                     Instance.QueueChatMessage($"Processing {files.Count} maps. ");
                     foreach (var item in files)
                     {
@@ -539,7 +570,10 @@ namespace SongRequestManager
 
                         try
                         {
-                            if (MapDatabase.MapLibrary.ContainsKey(id)) continue;
+                            if (MapDatabase.MapLibrary.ContainsKey(id))
+                            {
+                                continue;
+                            }
 
                             JSONObject song = JSONObject.Parse(File.ReadAllText(item.FullName)).AsObject;
 
@@ -581,10 +615,12 @@ namespace SongRequestManager
                         {
                             Instance.QueueChatMessage($"Failed to process {item}.");
                         }
-
                     }
                     var duration = DateTime.UtcNow - StarTime;
-                    if (songid=="") Instance.QueueChatMessage($"Song indexing done. ({duration.TotalSeconds} secs.");
+                    if (songid == "")
+                    {
+                        Instance.QueueChatMessage($"Song indexing done. ({duration.TotalSeconds} secs.");
+                    }
 
                     DatabaseImported = true;
                     DatabaseLoading = false;
@@ -612,15 +648,16 @@ namespace SongRequestManager
                 version = $"{id}-0";
                 return false;
             }
-
-
         }
-
 
         public static bool CreateMD5FromFile(string path, out string hash)
         {
             hash = "";
-            if (!File.Exists(path)) return false;
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+
             using (MD5 md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(path))
@@ -639,23 +676,21 @@ namespace SongRequestManager
             }
         }
 
-
-     
-
-
-
-        private List<JSONObject> GetSongListFromResults(JSONNode result,string SearchString, ref string errorMessage, SongFilter filter = SongFilter.All, string sortby = "-rating", int reverse = 1)
+        private List<JSONObject> GetSongListFromResults(JSONNode result, string SearchString, ref string errorMessage, SongFilter filter = SongFilter.All, string sortby = "-rating", int reverse = 1)
         {
             List<JSONObject> songs = new List<JSONObject>();
 
             if (result != null)
             {
                 // Add query results to out song database.
-                if (result["docs"].IsArray)    
+                if (result["docs"].IsArray)
                 {
                     var downloadedsongs = result["docs"].AsArray;
-                    for (int i = 0; i < downloadedsongs.Count; i++) new SongMap(downloadedsongs[i].AsObject);
-                        
+                    for (int i = 0; i < downloadedsongs.Count; i++)
+                    {
+                        new SongMap(downloadedsongs[i].AsObject);
+                    }
+
                     foreach (JSONObject currentSong in result["docs"].AsArray)
                     {
                         new SongMap(currentSong);
@@ -668,7 +703,7 @@ namespace SongRequestManager
             }
 
             var list = MapDatabase.Search(SearchString);
-    
+
             try
             {
                 string[] sortorder = sortby.Split(' ');
@@ -685,17 +720,20 @@ namespace SongRequestManager
             }
 
             foreach (var song in list)
-                {
+            {
                 errorMessage = SongSearchFilter(song.song, false, filter);
-                if (errorMessage == "") songs.Add(song.song);
+                if (errorMessage == "")
+                {
+                    songs.Add(song.song);
                 }
+            }
 
             return songs;
         }
 
         public IEnumerator RefreshSongs(ParseState state)
         {
-           
+
             MapDatabase.LoadCustomSongs();
 
             yield break;
@@ -706,9 +744,8 @@ namespace SongRequestManager
 
             state.msg($"Gc0:{GC.CollectionCount(0)} GC1:{GC.CollectionCount(1)} GC2:{GC.CollectionCount(2)}");
             state.msg($"{GC.GetTotalMemory(false)}");
-            return success;     
+            return success;
         }
-
 
         public IEnumerator ReadArchive(ParseState state)
         {
@@ -722,7 +759,6 @@ namespace SongRequestManager
             MapDatabase.SaveDatabase();
             yield break;
         }
-
 
         /*
 
@@ -786,8 +822,6 @@ namespace SongRequestManager
          // Beatsaver.com filtered characters
          '@', '*', '+', '-', '<', '~', '>', '(', ')'
 
-
-
          */
 
         public static string CreateMD5FromString(string input)
@@ -808,16 +842,18 @@ namespace SongRequestManager
             }
         }
 
-
         //SongLoader.Instance.RemoveSongWithLevelID(level.levelID);
         //SongLoader.CustomLevelCollectionSO.beatmapLevels.FirstOrDefault(x => x.levelID == levelId) as BeatmapLevelSO;
 
-        public static ConcurrentDictionary<String, float> ppmap = new ConcurrentDictionary<string, float>();
+        public static ConcurrentDictionary<string, float> ppmap = new ConcurrentDictionary<string, float>();
         public static bool pploading = false;
 
         public async Task GetPPData()
         {
-            if (pploading) return;
+            if (pploading)
+            {
+                return;
+            }
 
             pploading = true;
 
@@ -870,10 +906,16 @@ namespace SongRequestManager
                     //Instance.QueueChatMessage($"{node}");
 
                     float.TryParse(node["pp"], style, System.Globalization.CultureInfo.InvariantCulture, out float pp);
-                    if (pp > maxpp) maxpp = pp;
+                    if (pp > maxpp)
+                    {
+                        maxpp = pp;
+                    }
 
                     float.TryParse(node["star"], style, System.Globalization.CultureInfo.InvariantCulture, out float starDifficulty);
-                    if (starDifficulty > maxstar) maxstar = starDifficulty;
+                    if (starDifficulty > maxstar)
+                    {
+                        maxstar = starDifficulty;
+                    }
                 }
 
                 if (maxpp > 0)
@@ -882,14 +924,16 @@ namespace SongRequestManager
 
                     ppmap.TryAdd(id, (int)(maxpp));
 
-                    if (id != "" && maxpp > 200) listcollection.add("pp.deck", id);
+                    if (id != "" && maxpp > 200)
+                    {
+                        listcollection.add("pp.deck", id);
+                    }
 
                     if (MapDatabase.MapLibrary.TryGetValue(id, out SongMap map))
                     {
                         map.pp = (int)(maxpp);
                         map.song.Add("pp", maxpp);
                         map.IndexSong(map.song);
-
                     }
                 }
             }
@@ -898,6 +942,5 @@ namespace SongRequestManager
             Instance.QueueChatMessage("PP Data indexed");
             pploading = false;
         }
-
     }
 }

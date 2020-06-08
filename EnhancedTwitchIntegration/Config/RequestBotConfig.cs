@@ -9,7 +9,6 @@ namespace SongRequestManager
     {
         private string FilePath = Path.Combine(Plugin.DataPath, "RequestBotSettings.ini");
 
-
         public bool RequestQueueOpen = true;
         public bool PersistentRequestQueue = true;
 
@@ -30,7 +29,7 @@ namespace SongRequestManager
 
         public int MaxiumScanRange = 5; // How far down the list to scan for new songs
 
-        public int PPDeckMiniumumPP=150; // Minimum PP to add to pp deck
+        public int PPDeckMiniumumPP = 150; // Minimum PP to add to pp deck
 
         public string DeckList = "fun hard brutal dance chill";
 
@@ -39,7 +38,7 @@ namespace SongRequestManager
         public bool SendNextSongBeingPlayedtoChat = true; // Enable chat message when you hit play
         public bool UpdateQueueStatusFiles = true; // Create and update queue list and open/close status files for OBS *IMPLEMENTED*, needs UI
         public int MaximumQueueTextEntries = 8;
-        public string BotPrefix ="";
+        public string BotPrefix = "";
 
         public bool ModFullRights = false; // Allow moderator full broadcaster rights. Use at own risk!
 
@@ -50,7 +49,7 @@ namespace SongRequestManager
         public string backuppath = Path.Combine(Environment.CurrentDirectory, "userdata", "backup");
 
         public bool OfflineMode = false;
-        public bool SavedatabaseOnNewest=false;
+        public bool SavedatabaseOnNewest = false;
         public string offlinepath = "d:\\customsongs";
 
         public bool LocalSearch = false;
@@ -69,14 +68,14 @@ namespace SongRequestManager
             get
             {
                 if (_instance == null)
+                {
                     _instance = new RequestBotConfig();
+                }
+
                 return _instance;
             }
 
-            private set
-            {
-                _instance = value;
-            }
+            private set => _instance = value;
         }
 
         public RequestBotConfig()
@@ -88,7 +87,9 @@ namespace SongRequestManager
             Task.Run(() =>
             {
                 while (!Directory.Exists(Path.GetDirectoryName(FilePath)))
+                {
                     Thread.Sleep(100);
+                }
 
                 Plugin.Log("FilePath exists! Continuing initialization!");
 
@@ -120,7 +121,10 @@ namespace SongRequestManager
         public void Save(bool callback = false)
         {
             if (!callback)
+            {
                 _saving = true;
+            }
+
             ConfigSerializer.SaveConfig(this, FilePath);
         }
 

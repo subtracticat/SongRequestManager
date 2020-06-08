@@ -34,7 +34,6 @@ namespace SongRequestManager.UI
 
 #endif
 
-
                 mykeyboard.SetButtonType("OkButton"); // Adding this alters button positions??! Why?
                 mykeyboard.AddKeys(SEARCH, 0.75f);
 
@@ -42,7 +41,6 @@ namespace SongRequestManager.UI
                 mykeyboard.SetAction("UNFILTERED", RequestBot.UnfilteredSearch);
                 mykeyboard.SetAction("SEARCH", RequestBot.MSD);
                 mykeyboard.SetAction("NEWEST", RequestBot.Newest);
-
 
 #if UNRELEASED
                 RequestBot.AddKeyboard(mykeyboard, "decks.kbd", 0.4f);

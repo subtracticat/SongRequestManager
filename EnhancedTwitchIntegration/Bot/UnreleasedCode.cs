@@ -28,5 +28,4 @@ namespace SongRequestManager
     public partial class RequestBot : MonoBehaviour
     {
     }
-
 }

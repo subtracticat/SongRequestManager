@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System;
-using UnityEngine;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
 
 namespace SongRequestManager
 {
@@ -59,7 +59,9 @@ namespace SongRequestManager
                 }
 
                 foreach (var action in _actions)
+                {
                     action();
+                }
 
                 _actions.Clear();
             }

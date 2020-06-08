@@ -1,5 +1,5 @@
-﻿using StreamCore.Twitch;
-using System;
+﻿using System;
+using StreamCore.Twitch;
 
 namespace SongRequestManager
 {
@@ -14,7 +14,7 @@ namespace SongRequestManager
         public RequestBot.ParseState state;
         public SongRequest toReplace;
 
-        public RequestInfo(TwitchUser requestor, string request, DateTime requestTime, bool isBeatSaverId,  RequestBot.ParseState state,RequestBot.CmdFlags flags = 0,string userstring = "",SongRequest toReplace = null)
+        public RequestInfo(TwitchUser requestor, string request, DateTime requestTime, bool isBeatSaverId, RequestBot.ParseState state, RequestBot.CmdFlags flags = 0, string userstring = "", SongRequest toReplace = null)
         {
             this.requestor = requestor;
             this.request = request;

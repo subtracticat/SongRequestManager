@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using UnityEngine;
-using System.IO.Compression;
 // Feature requests: Add Reason for being banned to banlist
 
 namespace SongRequestManager
@@ -21,22 +21,26 @@ namespace SongRequestManager
             foreach (FileInfo file in source.GetFiles())
             {
                 string newFilePath = Path.Combine(target.FullName, file.Name);
-                    try
-                    {
-                        file.CopyTo(newFilePath);
-                    }
-                    catch (Exception)
-                    {
-                    }
+                try
+                {
+                    file.CopyTo(newFilePath);
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
         public static string BackupStreamcore(ParseState state)
         {
             string errormsg = Backup();
-            if (errormsg=="") state.msg("SRManager files backed up.");
+            if (errormsg == "")
+            {
+                state.msg("SRManager files backed up.");
+            }
+
             return errormsg;
-        } 
+        }
         public static string Backup()
         {
             DateTime Now = DateTime.Now;
@@ -46,7 +50,9 @@ namespace SongRequestManager
             try
             {
                 if (!Directory.Exists(RequestBotConfig.Instance.backuppath))
+                {
                     Directory.CreateDirectory(RequestBotConfig.Instance.backuppath);
+                }
 
                 ZipFile.CreateFromDirectory(Plugin.DataPath, BackupName, System.IO.Compression.CompressionLevel.Fastest, true);
                 RequestBotConfig.Instance.LastBackup = DateTime.Now.ToString();
@@ -57,7 +63,6 @@ namespace SongRequestManager
             }
             catch
             {
-
             }
             Plugin.Log($"Backup failed writing {BackupName}");
             return $"Failed to backup to {BackupName}";
@@ -72,7 +77,10 @@ namespace SongRequestManager
                 for (int i = 0; i < text.Length; i++)
                 {
                     char c = text[i];
-                    if (c < 128) text[i] = mask[c];
+                    if (c < 128)
+                    {
+                        text[i] = mask[c];
+                    }
                 }
             }
 
@@ -82,7 +90,10 @@ namespace SongRequestManager
 
                 foreach (var c in text)
                 {
-                    if (c>127 || mask[c] != ' ') o.Append(c);
+                    if (c > 127 || mask[c] != ' ')
+                    {
+                        o.Append(c);
+                    }
                 }
                 return o.ToString();
             }
@@ -94,7 +105,10 @@ namespace SongRequestManager
 
                 foreach (var c in text)
                 {
-                    if (c > 127 || mask[c] !='\0') o.Append(c);
+                    if (c > 127 || mask[c] != '\0')
+                    {
+                        o.Append(c);
+                    }
                 }
                 return o.ToString();
             }
@@ -106,16 +120,27 @@ namespace SongRequestManager
                 StringBuilder result = new StringBuilder();
                 foreach (var word in words)
                 {
-                    if (word.Length < 3) continue;
-                    if (BeatsaverBadWords.Contains(word.ToLower())) continue;
+                    if (word.Length < 3)
+                    {
+                        continue;
+                    }
+
+                    if (BeatsaverBadWords.Contains(word.ToLower()))
+                    {
+                        continue;
+                    }
+
                     result.Append(word);
                     result.Append(' ');
                 }
 
                 //RequestBot.Instance.QueueChatMessage($"Search string: {result.ToString()}");
 
+                if (result.Length == 0)
+                {
+                    return "qwesartysasasdsdaa";
+                }
 
-                if (result.Length == 0) return "qwesartysasasdsdaa";
                 return result.ToString().Trim();
             }
 
@@ -124,7 +149,7 @@ namespace SongRequestManager
                 var sb = new StringBuilder(text);
                 ReplaceSymbols(sb, _SymbolsMap);
                 string[] result = sb.ToString().ToLower().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-               
+
                 return result;
             }
 
@@ -135,15 +160,36 @@ namespace SongRequestManager
             public StringNormalization()
             {
                 for (char i = (char)0; i < 128; i++)
-                { 
+                {
                     _SymbolsMap[i] = i;
                     _SymbolsNoDash[i] = i;
-                    _SymbolsValidDirectory[i] = i ; 
+                    _SymbolsValidDirectory[i] = i;
                 }
 
-                foreach (var c in new char[] { '@', '*', '+', ':', '-', '<', '~', '>', '(', ')', '[', ']', '/', '\\', '.', ',' }) if (c < 128) _SymbolsMap[c] = ' ';
-                foreach (var c in new char[] { '@', '*', '+', ':',  '<', '~', '>', '(', ')', '[', ']', '/', '\\', '.', ',' }) if (c < 128) _SymbolsNoDash[c] = ' ';
-                foreach (var c in Path.GetInvalidPathChars()) if (c<128) _SymbolsValidDirectory[c] = '\0';
+                foreach (var c in new char[] { '@', '*', '+', ':', '-', '<', '~', '>', '(', ')', '[', ']', '/', '\\', '.', ',' })
+                {
+                    if (c < 128)
+                    {
+                        _SymbolsMap[c] = ' ';
+                    }
+                }
+
+                foreach (var c in new char[] { '@', '*', '+', ':', '<', '~', '>', '(', ')', '[', ']', '/', '\\', '.', ',' })
+                {
+                    if (c < 128)
+                    {
+                        _SymbolsNoDash[c] = ' ';
+                    }
+                }
+
+                foreach (var c in Path.GetInvalidPathChars())
+                {
+                    if (c < 128)
+                    {
+                        _SymbolsValidDirectory[c] = '\0';
+                    }
+                }
+
                 _SymbolsValidDirectory[':'] = '\0';
                 _SymbolsValidDirectory['\\'] = '\0';
                 _SymbolsValidDirectory['/'] = '\0';
@@ -161,11 +207,9 @@ namespace SongRequestManager
                 {
                     BeatsaverBadWords.Add(word.ToLower());
                 }
-
             }
         }
 
         public static StringNormalization normalize = new StringNormalization();
-
     }
 }

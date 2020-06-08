@@ -1,6 +1,6 @@
-﻿using StreamCore.SimpleJSON;
+﻿using System;
+using StreamCore.SimpleJSON;
 using StreamCore.Twitch;
-using System;
 using static SongRequestManager.RequestBot;
 
 namespace SongRequestManager

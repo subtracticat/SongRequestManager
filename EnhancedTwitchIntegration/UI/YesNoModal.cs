@@ -1,8 +1,8 @@
-﻿using BeatSaberMarkupLanguage;
+﻿using System;
+using System.Reflection;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
-using System;
-using System.Reflection;
 using TMPro;
 
 namespace SongRequestManager

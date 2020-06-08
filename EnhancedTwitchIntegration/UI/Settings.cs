@@ -46,7 +46,6 @@
 //            MaximumAllowedSongLength.SetValue += (scale) => { RequestBotConfig.Instance.MaximumSongLength =  scale; };
 //            MaximumAllowedSongLength.GetValue += () => { return RequestBotConfig.Instance.MaximumSongLength; };
 
-
 //            var MinimumNJS = menu.AddSlider("Minimum NJS allowed", "Disallow songs below a certain NJS", 0, 50, 1.0f, false);
 //            MinimumNJS.SetValue += (scale) => { RequestBotConfig.Instance.MinimumNJS= scale; };
 //            MinimumNJS.GetValue += () => { return RequestBotConfig.Instance.MinimumNJS; };
@@ -74,8 +73,6 @@
 //            var ModeratorRights = menu.AddBool("Full moderator rights", "Allow moderators access to ALL bot commands. Do you trust your mods?");
 //            ModeratorRights.SetValue += (requests) => { RequestBotConfig.Instance.ModFullRights = requests ; };
 //            ModeratorRights.GetValue += () => { return RequestBotConfig.Instance.ModFullRights; };
-
-
 
 //        }
 //    }

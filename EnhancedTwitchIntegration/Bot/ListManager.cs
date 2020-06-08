@@ -1,9 +1,9 @@
-using StreamCore.SimpleJSON;
-using StreamCore.Twitch;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using StreamCore.SimpleJSON;
+using StreamCore.Twitch;
 using UnityEngine;
 
 namespace SongRequestManager
@@ -14,7 +14,11 @@ namespace SongRequestManager
         {
             var msg = new QueueLongMessage();
             msg.Header("Loaded lists: ");
-            foreach (var entry in listcollection.ListCollection) msg.Add($"{entry.Key} ({entry.Value.Count()})", ", ");
+            foreach (var entry in listcollection.ListCollection)
+            {
+                msg.Add($"{entry.Key} ({entry.Value.Count()})", ", ");
+            }
+
             msg.end("...", "No lists loaded.");
         }
 
@@ -52,7 +56,6 @@ namespace SongRequestManager
 
                 listcollection.add(ref parts[0], ref parts[1]);
                 QueueChatMessage($"Added {parts[1]} to {parts[0]}");
-
             }
             catch
             {
@@ -67,7 +70,11 @@ namespace SongRequestManager
                 var list = listcollection.OpenList(request);
 
                 var msg = new QueueLongMessage();
-                foreach (var entry in list.list) msg.Add(entry, ", ");
+                foreach (var entry in list.list)
+                {
+                    msg.Add(entry, ", ");
+                }
+
                 msg.end("...", $"{request} is empty");
             }
             catch
@@ -91,7 +98,6 @@ namespace SongRequestManager
 
                 listcollection.remove(ref parts[0], ref parts[1]);
                 QueueChatMessage($"Removed {parts[1]} from {parts[0]}");
-
             }
             catch
             {
@@ -129,7 +135,6 @@ namespace SongRequestManager
 
         private void writelist(TwitchUser requestor, string request)
         {
-
         }
 
         // Add list to queue, filtered by InQueue and duplicatelist
@@ -138,7 +143,10 @@ namespace SongRequestManager
             try
             {
                 StringListManager list = listcollection.OpenList(state.parameter);
-                foreach (var entry in list.list) ProcessSongRequest(new ParseState(state, entry)); // Must use copies here, since these are all threads
+                foreach (var entry in list.list)
+                {
+                    ProcessSongRequest(new ParseState(state, entry)); // Must use copies here, since these are all threads
+                }
             }
             catch (Exception ex) { Plugin.Log(ex.ToString()); } // Going to try this form, to reduce code verbosity.              
             return success;
@@ -156,12 +164,7 @@ namespace SongRequestManager
             return success;
         }
 
-
-
-
-
         #endregion
-
 
         #region List Manager Related functions ...
         // List types:
@@ -181,9 +184,9 @@ namespace SongRequestManager
         {
             listcollection.OpenList(request.ToLower());
         }
-        
+
         public static ListCollectionManager listcollection = new ListCollectionManager();
-        
+
         [Flags] public enum ListFlags { ReadOnly = 1, InMemory = 2, Uncached = 4, Dynamic = 8, LineSeparator = 16, Unchanged = 256 };
 
         // The list collection maintains a dictionary of named, persistent lists. Accessing a collection by name automatically loads or crates it.
@@ -194,7 +197,7 @@ namespace SongRequestManager
             // BUG: List name case normalization is inconsistent. I'll probably fix it by changing the list interface (its currently just the filename)
 
             public Dictionary<string, StringListManager> ListCollection = new Dictionary<string, StringListManager>();
-            
+
             public ListCollectionManager()
             {
                 // Add an empty list so we can set various lists to empty
@@ -213,25 +216,32 @@ namespace SongRequestManager
                 {
                     //RequestBot.Instance.QueueChatMessage($"Clearing old session {request}");
                     list.Clear();
-                    if (!(flags.HasFlag(ListFlags.InMemory) | flags.HasFlag(ListFlags.ReadOnly))) list.Writefile(request);
-
+                    if (!(flags.HasFlag(ListFlags.InMemory) | flags.HasFlag(ListFlags.ReadOnly)))
+                    {
+                        list.Writefile(request);
+                    }
                 }
 
                 return list;
             }
-            
+
             public StringListManager OpenList(string request, ListFlags flags = ListFlags.Unchanged) // All lists are accessed through here, flags determine mode
             {
-                StringListManager list;
-                if (!ListCollection.TryGetValue(request, out list))
+                if (!ListCollection.TryGetValue(request, out StringListManager list))
                 {
                     list = new StringListManager();
                     ListCollection.Add(request, list);
-                    if (!flags.HasFlag(ListFlags.InMemory)) list.Readfile(request); // If in memory, we never read from disk
+                    if (!flags.HasFlag(ListFlags.InMemory))
+                    {
+                        list.Readfile(request); // If in memory, we never read from disk
+                    }
                 }
                 else
                 {
-                    if (flags.HasFlag(ListFlags.Uncached)) list.Readfile(request); // If Cache is off, ALWAYS re-read file.
+                    if (flags.HasFlag(ListFlags.Uncached))
+                    {
+                        list.Readfile(request); // If Cache is off, ALWAYS re-read file.
+                    }
                 }
                 return list;
             }
@@ -261,10 +271,12 @@ namespace SongRequestManager
 
                     list.Add(key);
 
+                    if (!(flags.HasFlag(ListFlags.InMemory) | flags.HasFlag(ListFlags.ReadOnly)))
+                    {
+                        list.Writefile(listname);
+                    }
 
-                    if (!(flags.HasFlag(ListFlags.InMemory) | flags.HasFlag(ListFlags.ReadOnly))) list.Writefile(listname);
                     return true;
-
                 }
                 catch (Exception ex) { Plugin.Log(ex.ToString()); }
 
@@ -283,10 +295,12 @@ namespace SongRequestManager
 
                     list.Removeentry(key);
 
-                    if (!(flags.HasFlag(ListFlags.InMemory) | flags.HasFlag(ListFlags.ReadOnly))) list.Writefile(listname);
+                    if (!(flags.HasFlag(ListFlags.InMemory) | flags.HasFlag(ListFlags.ReadOnly)))
+                    {
+                        list.Writefile(listname);
+                    }
 
                     return false;
-
                 }
                 catch (Exception ex) { Plugin.Log(ex.ToString()); } // Going to try this form, to reduce code verbosity.              
 
@@ -298,11 +312,10 @@ namespace SongRequestManager
                 try
                 {
                     OpenList(listname, flags).runscript();
-
                 }
                 catch (Exception ex) { Plugin.Log(ex.ToString()); } // Going to try this form, to reduce code verbosity.              
             }
-            
+
             public void ClearList(string listname, ListFlags flags = ListFlags.Unchanged)
             {
                 try
@@ -311,7 +324,6 @@ namespace SongRequestManager
                 }
                 catch (Exception ex) { Plugin.Log(ex.ToString()); } // Going to try this form, to reduce code verbosity.              
             }
-
         }
 
         // All variables are public for now until we finalize the interface
@@ -329,23 +341,33 @@ namespace SongRequestManager
 
             public StringListManager(ListFlags ReadOnly = ListFlags.Unchanged)
             {
-
             }
 
             public bool Readfile(string filename, bool ConvertToLower = false)
             {
-                if (flags.HasFlag(ListFlags.InMemory)) return false;
+                if (flags.HasFlag(ListFlags.InMemory))
+                {
+                    return false;
+                }
 
                 try
                 {
                     string listfilename = Path.Combine(Plugin.DataPath, filename);
                     string fileContent = File.ReadAllText(listfilename);
                     if (listfilename.EndsWith(".script"))
+                    {
                         list = fileContent.Split(lineseparator, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    }
                     else
+                    {
                         list = fileContent.Split(anyseparator, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    }
 
-                    if (ConvertToLower) LowercaseList();
+                    if (ConvertToLower)
+                    {
+                        LowercaseList();
+                    }
+
                     return true;
                 }
                 catch
@@ -362,7 +384,10 @@ namespace SongRequestManager
                 {
                     // BUG: A DynamicText context needs to be applied to each command to allow use of dynamic variables
 
-                    foreach (var line in list) COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, line, RequestBot.CmdFlags.Local);
+                    foreach (var line in list)
+                    {
+                        COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, line, RequestBot.CmdFlags.Local);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -378,7 +403,7 @@ namespace SongRequestManager
                 {
                     string listfilename = Path.Combine(Plugin.DataPath, filename);
 
-                    var output = String.Join(separator, list.ToArray());
+                    var output = string.Join(separator, list.ToArray());
                     File.WriteAllText(listfilename, output);
                     return true;
                 }
@@ -391,13 +416,21 @@ namespace SongRequestManager
 
             public bool Contains(string entry)
             {
-                if (list.Contains(entry)) return true;
+                if (list.Contains(entry))
+                {
+                    return true;
+                }
+
                 return false;
             }
 
             public bool Add(string entry)
             {
-                if (list.Contains(entry)) return false;
+                if (list.Contains(entry))
+                {
+                    return false;
+                }
+
                 list.Add(entry);
                 return true;
             }
@@ -410,7 +443,11 @@ namespace SongRequestManager
             // Picks a random entry and returns it, removing it from the list
             public string Drawentry()
             {
-                if (list.Count == 0) return "";
+                if (list.Count == 0)
+                {
+                    return "";
+                }
+
                 int entry = generator.Next(0, list.Count);
                 string result = list.ElementAt(entry);
                 list.RemoveAt(entry);
@@ -420,7 +457,11 @@ namespace SongRequestManager
             // Picks a random entry but does not remove it
             public string Randomentry()
             {
-                if (list.Count == 0) return "";
+                if (list.Count == 0)
+                {
+                    return "";
+                }
+
                 int entry = generator.Next(0, list.Count);
                 string result = list.ElementAt(entry);
                 return result;
@@ -445,9 +486,11 @@ namespace SongRequestManager
             }
             public void Outputlist(ref QueueLongMessage msg, string separator = ", ")
             {
-                foreach (string entry in list) msg.Add(entry, separator);
+                foreach (string entry in list)
+                {
+                    msg.Add(entry, separator);
+                }
             }
-
         }
 
         public static List<JSONObject> ReadJSON(string path)
@@ -459,7 +502,9 @@ namespace SongRequestManager
                 if (!json.IsNull)
                 {
                     foreach (JSONObject j in json.AsArray)
+                    {
                         objs.Add(j);
+                    }
                 }
             }
             return objs;
@@ -468,11 +513,15 @@ namespace SongRequestManager
         public static void WriteJSON(string path, ref List<JSONObject> objs)
         {
             if (!Directory.Exists(Path.GetDirectoryName(path)))
+            {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
 
             JSONArray arr = new JSONArray();
             foreach (JSONObject obj in objs)
+            {
                 arr.Add(obj);
+            }
 
             File.WriteAllText(path, arr.ToString());
         }

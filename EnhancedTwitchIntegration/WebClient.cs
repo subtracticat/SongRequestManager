@@ -1,5 +1,4 @@
-﻿using StreamCore.SimpleJSON;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -7,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using StreamCore.SimpleJSON;
 
 namespace SongRequestManager
 {
@@ -31,8 +31,16 @@ namespace SongRequestManager
             _content = body;
         }
 
-        public byte[] ContentToBytes() => _content;
-        public string ContentToString() => Encoding.UTF8.GetString(_content);
+        public byte[] ContentToBytes()
+        {
+            return _content;
+        }
+
+        public string ContentToString()
+        {
+            return Encoding.UTF8.GetString(_content);
+        }
+
         public JSONNode ConvertToJsonNode()
         {
             return JSONNode.Parse(ContentToString());
@@ -105,13 +113,17 @@ namespace SongRequestManager
             //    // rate limiting handling
             //}
 
-            if (token.IsCancellationRequested) throw new TaskCanceledException();
+            if (token.IsCancellationRequested)
+            {
+                throw new TaskCanceledException();
+            }
 
             using (var memoryStream = new MemoryStream())
             using (var stream = await resp.Content.ReadAsStreamAsync())
             {
                 var buffer = new byte[8192];
-                var bytesRead = 0; ;
+                var bytesRead = 0;
+                ;
 
                 long? contentLength = resp.Content.Headers.ContentLength;
                 var totalRead = 0;
@@ -121,11 +133,14 @@ namespace SongRequestManager
 
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
-                    if (token.IsCancellationRequested) throw new TaskCanceledException();
+                    if (token.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
 
                     if (contentLength != null)
                     {
-                        progress?.Report((double)totalRead / (double)contentLength);
+                        progress?.Report(totalRead / (double)contentLength);
                     }
 
                     await memoryStream.WriteAsync(buffer, 0, bytesRead);

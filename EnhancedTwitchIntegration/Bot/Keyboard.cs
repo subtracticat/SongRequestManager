@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatSaberMarkupLanguage;
+using HMUI;
+using SongRequestManager.UI;
+using StreamCore.Twitch;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using StreamCore.Twitch;
-using HMUI;
 using Image = UnityEngine.UI.Image;
-using BeatSaberMarkupLanguage;
-using SongRequestManager.UI;
 
 namespace SongRequestManager
 {
@@ -24,13 +24,12 @@ namespace SongRequestManager
         RectTransform container;
         Vector2 currentposition;
         Vector2 baseposition;
-        float scale=0.5f; // BUG: Effect of changing this has NOT beed tested. assume changing it doesn't work.
+        float scale = 0.5f; // BUG: Effect of changing this has NOT beed tested. assume changing it doesn't work.
         float padding = 0.5f;
         float buttonwidth = 12f;
         public TextMeshProUGUI KeyboardText;
         private TextMeshProUGUI KeyboardCursor;
         public Button BaseButton;
-
 
         KEY dummy = new KEY(); // This allows for some lazy programming, since unfound key searches will point to this instead of null. It still logs an error though
 
@@ -70,65 +69,83 @@ namespace SongRequestManager
 
         public KEY this[string index]
         {
-            get 
+            get
             {
-                foreach (KEY key in keys) if (key.name == index) return key;
+                foreach (KEY key in keys)
+                {
+                    if (key.name == index)
+                    {
+                        return key;
+                    }
+                }
+
                 Plugin.Log($"Keyboard: Unable to set property of Key  [{index}]");
 
                 return dummy;
             }
-
         }
 
-        public void SetButtonType(string ButtonName= "KeyboardButton")
+        public void SetButtonType(string ButtonName = "KeyboardButton")
         {
             BaseButton = Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == ButtonName));
-            if (BaseButton==null) BaseButton = Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "KeyboardButton"));
+            if (BaseButton == null)
+            {
+                BaseButton = Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "KeyboardButton"));
+            }
         }
 
-        public void SetValue (string keylabel, string value)
+        public void SetValue(string keylabel, string value)
         {
             bool found = false;
-            foreach (KEY key in keys) if (key.name == keylabel)
+            foreach (KEY key in keys)
             {
-                found = true;
-                key.value = value;
-                //key.shifted = value;
+                if (key.name == keylabel)
+                {
+                    found = true;
+                    key.value = value;
+                    //key.shifted = value;
+                }
             }
 
-            if (!found) Plugin.Log($"Keyboard: Unable to set property of Key  [{keylabel}]");
+            if (!found)
+            {
+                Plugin.Log($"Keyboard: Unable to set property of Key  [{keylabel}]");
+            }
         }
 
         public void SetAction(string keyname, Action<KEY> action)
         {
             bool found = false;
-            foreach (KEY key in keys) if (key.name == keyname)
+            foreach (KEY key in keys)
             {
-                found = true;
-                key.keyaction = action;
+                if (key.name == keyname)
+                {
+                    found = true;
+                    key.keyaction = action;
+                }
             }
 
             // BUG: This message was annoying if the keyboard didn't include those keys.
             //if (!found) Plugin.Log($"Keyboard: Unable to set action of Key  [{keyname}]");
         }
 
-        KEY AddKey(string keylabel, float width = 12,float height=10,int color=0xffffff)
+        KEY AddKey(string keylabel, float width = 12, float height = 10, int color = 0xffffff)
         {
             var position = currentposition;
             //position.x += width / 4;
-      
+
             Color co = Color.white;
 
             co.r = (float)(color & 0xff) / 255;
-            co.g = (float)((color>>8) & 0xff) / 255;
-            co.b = (float)((color>>16) & 0xff) / 255;
-            KEY key = new KEY(this,  position, keylabel, width, height,co);
+            co.g = (float)((color >> 8) & 0xff) / 255;
+            co.b = (float)((color >> 16) & 0xff) / 255;
+            KEY key = new KEY(this, position, keylabel, width, height, co);
             keys.Add(key);
             //currentposition.x += width / 2 + padding;
             return key;
         }
 
-        KEY AddKey(string keylabel, string Shifted, float width = 12,float height=10)
+        KEY AddKey(string keylabel, string Shifted, float width = 12, float height = 10)
         {
             KEY key = AddKey(keylabel, width);
             key.shifted = Shifted;
@@ -136,12 +153,19 @@ namespace SongRequestManager
         }
 
         // BUG: Refactor this within a keybard parser subclass once everything works.
-        void EmitKey(ref float spacing,ref float Width, ref string Label, ref string Key,ref bool space,ref string newvalue,ref float height,ref int color)
+        void EmitKey(ref float spacing, ref float Width, ref string Label, ref string Key, ref bool space, ref string newvalue, ref float height, ref int color)
         {
             currentposition.x += spacing;
-            
-            if (Label != "") AddKey(Label, Width,height,color).Set(newvalue);
-            else if (Key != "") AddKey(Key[0].ToString(), Key[1].ToString()).Set(newvalue);
+
+            if (Label != "")
+            {
+                AddKey(Label, Width, height, color).Set(newvalue);
+            }
+            else if (Key != "")
+            {
+                AddKey(Key[0].ToString(), Key[1].ToString()).Set(newvalue);
+            }
+
             spacing = 0;
             Width = buttonwidth;
             height = 10f;
@@ -153,18 +177,29 @@ namespace SongRequestManager
             return;
         }
 
-        bool ReadFloat(ref String data, ref int Position, ref float result)
+        bool ReadFloat(ref string data, ref int Position, ref float result)
         {
-            if (Position >= data.Length) return false;
+            if (Position >= data.Length)
+            {
+                return false;
+            }
+
             int start = Position;
             while (Position < data.Length)
             {
                 char c = data[Position];
-                if (!((c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.')) break;
+                if (!((c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.'))
+                {
+                    break;
+                }
+
                 Position++;
             }
 
-            if (float.TryParse(data.Substring(start, Position - start), out result)) return true;
+            if (float.TryParse(data.Substring(start, Position - start), out result))
+            {
+                return true;
+            }
 
             Position = start;
             return false;
@@ -209,12 +244,12 @@ namespace SongRequestManager
                             continue;
 
                         case 'S': // Scale
-                            {
-                                EmitKey(ref spacing, ref width, ref Label, ref Key, ref space, ref newvalue, ref height, ref color);
-                                p++;
-                                ReadFloat(ref Keyboard, ref p, ref this.scale);
-                                continue;
-                            }
+                        {
+                            EmitKey(ref spacing, ref width, ref Label, ref Key, ref space, ref newvalue, ref height, ref color);
+                            p++;
+                            ReadFloat(ref Keyboard, ref p, ref this.scale);
+                            continue;
+                        }
 
                         case '\r':
                             space = true;
@@ -237,7 +272,11 @@ namespace SongRequestManager
                             space = false;
                             p++;
                             int label = p;
-                            while (p < Keyboard.Length && Keyboard[p] != ']') p++;
+                            while (p < Keyboard.Length && Keyboard[p] != ']')
+                            {
+                                p++;
+                            }
+
                             Label = Keyboard.Substring(label, p - label);
                             break;
 
@@ -271,10 +310,18 @@ namespace SongRequestManager
 
                                 if (space)
                                 {
-                                    if (Label != "" || Key != "") EmitKey(ref spacing, ref width, ref Label, ref Key, ref space, ref newvalue, ref height, ref color);
+                                    if (Label != "" || Key != "")
+                                    {
+                                        EmitKey(ref spacing, ref width, ref Label, ref Key, ref space, ref newvalue, ref height, ref color);
+                                    }
+
                                     spacing = number;
                                 }
-                                else width = number;
+                                else
+                                {
+                                    width = number;
+                                }
+
                                 continue;
                             }
 
@@ -283,10 +330,13 @@ namespace SongRequestManager
                         case '\'':
                             p++;
                             int newvaluep = p;
-                            while (p < Keyboard.Length && Keyboard[p] != '\'') p++;
+                            while (p < Keyboard.Length && Keyboard[p] != '\'')
+                            {
+                                p++;
+                            }
+
                             newvalue = Keyboard.Substring(newvaluep, p - newvaluep);
                             break;
-
 
                         default:
                             Plugin.Log($"Unable to parse keyboard at position {p} char [{Keyboard[p]}]: [{Keyboard}]");
@@ -297,7 +347,6 @@ namespace SongRequestManager
                 }
 
                 EmitKey(ref spacing, ref width, ref Label, ref Key, ref space, ref newvalue, ref height, ref color);
-
             }
             catch (Exception ex)
             {
@@ -317,7 +366,7 @@ namespace SongRequestManager
             SetAction("<--", Backspace);
             SetAction("SHIFT", SHIFT);
             SetAction("CAPS", CAPS);
-            return this;    
+            return this;
         }
 
         public KEYBOARD(RectTransform container, string DefaultKeyboard = QWERTY, bool EnableInputField = true, float x = 0, float y = 0)
@@ -379,15 +428,15 @@ namespace SongRequestManager
         void Newest(KEY key)
         {
             ClearSearches();
-            RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, $"!addnew/top",RequestBot.CmdFlags.Local);
+            RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, $"!addnew/top", RequestBot.CmdFlags.Local);
         }
 
         void Search(KEY key)
         {
             if (key.kb.KeyboardText.text.StartsWith("!"))
-                {
+            {
                 Enter(key);
-                }
+            }
 
 #if UNRELEASED
             ClearSearches();
@@ -410,12 +459,11 @@ namespace SongRequestManager
         }
         void ClearSearch(KEY key)
         {
-            ClearSearches();          
-            
+            ClearSearches();
+
             RequestBot.UpdateRequestUI();
             RequestBot._refreshQueue = true;
         }
-
 
         public void Clear(KEY key)
         {
@@ -429,7 +477,7 @@ namespace SongRequestManager
             {
                 if (RequestBot.COMMAND.aliaslist.ContainsKey(RequestBot.ParseState.GetCommand(ref typedtext)))
                 {
-                    RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, typedtext,RequestBot.CmdFlags.Local);
+                    RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, typedtext, RequestBot.CmdFlags.Local);
                 }
                 else
                 {
@@ -442,8 +490,11 @@ namespace SongRequestManager
 
         void Backspace(KEY key)
         {
-                // BUG: This is terribly long winded... 
-                if (key.kb.KeyboardText.text.Length > 0) key.kb.KeyboardText.text = key.kb.KeyboardText.text.Substring(0, key.kb.KeyboardText.text.Length - 1); // Is there a cleaner way to say this?
+            // BUG: This is terribly long winded... 
+            if (key.kb.KeyboardText.text.Length > 0)
+            {
+                key.kb.KeyboardText.text = key.kb.KeyboardText.text.Substring(0, key.kb.KeyboardText.text.Length - 1); // Is there a cleaner way to say this?
+            }
         }
 
         void SHIFT(KEY key)
@@ -454,36 +505,44 @@ namespace SongRequestManager
             {
                 string x = key.kb.Shift ? k.shifted : k.value;
                 //if (key.kb.Caps) x = k.value.ToUpper();
-                if (k.shifted!="") k.mybutton.SetButtonText(x);
+                if (k.shifted != "")
+                {
+                    k.mybutton.SetButtonText(x);
+                }
 
-                if (k.name=="SHIFT") k.mybutton.GetComponentInChildren<Image>().color = key.kb.Shift ? Color.green : Color.white;
+                if (k.name == "SHIFT")
+                {
+                    k.mybutton.GetComponentInChildren<Image>().color = key.kb.Shift ? Color.green : Color.white;
+                }
             }
         }
 
         void CAPS(KEY key)
         {
-            key.kb.Caps = ! key.kb.Caps;
-            key.mybutton.GetComponentInChildren<Image>().color = key.kb.Caps? Color.green : Color.white;
+            key.kb.Caps = !key.kb.Caps;
+            key.mybutton.GetComponentInChildren<Image>().color = key.kb.Caps ? Color.green : Color.white;
         }
-
 
         void SABOTAGE(KEY key)
         {
             SabotageState = !SabotageState;
             key.mybutton.GetComponentInChildren<Image>().color = SabotageState ? Color.green : Color.red;
-            string text = "!sabotage "+ ( SabotageState ? "on" : "off");
+            string text = "!sabotage " + (SabotageState ? "on" : "off");
             RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, text, RequestBot.CmdFlags.Local);
         }
 
         void DrawCursor()
         {
-            if (!EnableInputField) return;
-            
-            Vector2 v = KeyboardText.GetPreferredValues(KeyboardText.text+"|");
+            if (!EnableInputField)
+            {
+                return;
+            }
+
+            Vector2 v = KeyboardText.GetPreferredValues(KeyboardText.text + "|");
 
             v.y = 30f; // BUG: This needs to be derived from the text position
             // BUG: I do not know why that 30f is here, It makes things work, but I can't understand WHY! Me stupid.
-            v.x = v.x / 2 + 30f-0.5f; // BUG: The .5 gets rid of the trailing |, but technically, we need to calculate its width and store it
+            v.x = v.x / 2 + 30f - 0.5f; // BUG: The .5 gets rid of the trailing |, but technically, we need to calculate its width and store it
             (KeyboardCursor.transform as RectTransform).anchoredPosition = v;
         }
 
@@ -511,7 +570,7 @@ namespace SongRequestManager
                 // This key is not intialized at all
             }
 
-            public KEY(KEYBOARD kb, Vector2 position, string text, float width,float height, Color color)
+            public KEY(KEYBOARD kb, Vector2 position, string text, float width, float height, Color color)
             {
                 value = text;
                 this.kb = kb;
@@ -519,8 +578,8 @@ namespace SongRequestManager
                 name = text;
                 mybutton = Button.Instantiate(kb.BaseButton, kb.container, false);
 
-                (mybutton.transform as RectTransform).anchorMin = new Vector2(0.5f,0.5f);
-                (mybutton.transform as RectTransform).anchorMax = new Vector2(0.5f,0.5f);
+                (mybutton.transform as RectTransform).anchorMin = new Vector2(0.5f, 0.5f);
+                (mybutton.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);
 
                 TMP_Text txt = mybutton.GetComponentInChildren<TMP_Text>();
                 mybutton.ToggleWordWrapping(false);
@@ -528,7 +587,7 @@ namespace SongRequestManager
                 mybutton.transform.localScale = new Vector3(kb.scale, kb.scale, 1.0f);
                 mybutton.SetButtonTextSize(5f);
                 mybutton.SetButtonText(text);
-                mybutton.GetComponentInChildren<Image>().color =  color;
+                mybutton.GetComponentInChildren<Image>().color = color;
 
                 if (width == 0)
                 {
@@ -540,20 +599,20 @@ namespace SongRequestManager
 
                 // Adjust starting position so button aligns to upper left of current drawing position
 
-                position.x += kb.scale*width / 2 ; 
+                position.x += kb.scale * width / 2;
                 position.y -= kb.scale * height / 2;
                 (mybutton.transform as RectTransform).anchoredPosition = position;
- 
+
                 (mybutton.transform as RectTransform).sizeDelta = new Vector2(width, height);
 
-                kb.currentposition.x += width *kb.scale + kb.padding;
+                kb.currentposition.x += width * kb.scale + kb.padding;
 
                 mybutton.onClick.RemoveAllListeners();
 
                 mybutton.onClick.AddListener(delegate ()
                 {
 
-                    if (keyaction!=null ) 
+                    if (keyaction != null)
                     {
                         keyaction(this);
                         kb.DrawCursor();
@@ -562,7 +621,7 @@ namespace SongRequestManager
 
                     if (value.EndsWith("%CR%"))
                     {
-                        kb.KeyboardText.text += value.Substring(0, value.Length-4);
+                        kb.KeyboardText.text += value.Substring(0, value.Length - 4);
                         kb.Enter(this);
                         kb.DrawCursor();
 
@@ -571,11 +630,18 @@ namespace SongRequestManager
 
                     {
                         string x = kb.Shift ? shifted : value;
-                        if (x == "") x = value;
-                        if (kb.Caps) x = value.ToUpper(); 
+                        if (x == "")
+                        {
+                            x = value;
+                        }
+
+                        if (kb.Caps)
+                        {
+                            x = value.ToUpper();
+                        }
+
                         kb.KeyboardText.text += x;
                         kb.DrawCursor();
-              
                     }
                 });
                 HoverHint _MyHintText = UIHelper.AddHintText(mybutton.transform as RectTransform, value);

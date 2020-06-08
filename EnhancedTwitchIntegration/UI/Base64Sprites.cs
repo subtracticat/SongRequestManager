@@ -55,13 +55,13 @@ namespace SongRequestManager.UI
         public static Texture2D Base64ToTexture2D(string encodedData)
         {
             byte[] imageData = Convert.FromBase64String(encodedData);
+            GetImageSize(imageData, out int width, out int height);
 
-            int width, height;
-            GetImageSize(imageData, out width, out height);
-
-            Texture2D texture = new Texture2D(width, height, TextureFormat.ARGB32, false, true);
-            texture.hideFlags = HideFlags.HideAndDontSave;
-            texture.filterMode = FilterMode.Trilinear;
+            Texture2D texture = new Texture2D(width, height, TextureFormat.ARGB32, false, true)
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+                filterMode = FilterMode.Trilinear
+            };
             texture.LoadImage(imageData);
             return texture;
         }

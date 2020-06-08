@@ -1,13 +1,9 @@
-﻿using BeatSaverDownloader.UI;
-using StreamCore.Utils;
-using HMUI;
-using System;
+﻿using System;
 using System.Collections;
 using System.Linq;
-using UnityEngine;
+using HMUI;
 using IPA.Utilities;
-using IPA.Loader;
-using SongCore;
+using UnityEngine;
 
 namespace SongRequestManager
 {
@@ -225,14 +221,13 @@ namespace SongRequestManager
                             // disable no fail gamepaly modifier
                             var gameplayModifiersPanelController = Resources.FindObjectsOfTypeAll<GameplayModifiersPanelController>().First();
                             gameplayModifiersPanelController.gameplayModifiers.noFail = false;
- 
+
                             //gameplayModifiersPanelController.gameplayModifiers.ResetToDefault();
 
                             gameplayModifiersPanelController.Refresh();
                         }
                         catch
                         { }
-
                     }
                     yield break;
                 }

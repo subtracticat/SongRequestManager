@@ -1,11 +1,11 @@
-﻿using IPA;
-using IPALogger = IPA.Logging.Logger;
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using SongRequestManager.UI;
 using BeatSaberMarkupLanguage.Settings;
+using IPA;
 using IPA.Utilities;
+using SongRequestManager.UI;
+using IPALogger = IPA.Logging.Logger;
 
 namespace SongRequestManager
 {
@@ -22,7 +22,7 @@ namespace SongRequestManager
         public bool IsAtMainMenu = true;
         public bool IsApplicationExiting = false;
         public static Plugin Instance { get; private set; }
-        
+
         private readonly RequestBotConfig RequestBotConfig = new RequestBotConfig();
 
         public static string DataPath = Path.Combine(Environment.CurrentDirectory, "UserData", "StreamCore");
@@ -45,7 +45,11 @@ namespace SongRequestManager
         [OnStart]
         public void OnStart()
         {
-            if (Instance != null) return;
+            if (Instance != null)
+            {
+                return;
+            }
+
             Instance = this;
 
             Dispatcher.Initialize();

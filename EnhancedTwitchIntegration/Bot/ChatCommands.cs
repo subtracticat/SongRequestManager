@@ -401,33 +401,32 @@ namespace SongRequestManager
         #region Dequeue Song
         private string DequeueSong(ParseState state)
         {
+            int removeIndex = -1;
 
-            var songId = GetBeatSaverId(state.parameter);
-            for (int i = RequestQueue.Songs.Count - 1; i >= 0; i--)
+            if (!string.IsNullOrEmpty(state.parameter))
             {
-                bool dequeueSong = false;
-                var song = RequestQueue.Songs[i].song;
-
-                if (songId == "")
+                var songId = GetBeatSaverId(state.parameter);
+                if (string.IsNullOrEmpty(songId))
                 {
-                    string[] terms = new string[] { song["songName"].Value, song["songSubName"].Value, song["authorName"].Value, song["version"].Value, RequestQueue.Songs[i].requestor.displayName };
-
-                    if (DoesContainTerms(state.parameter, ref terms))
-                        dequeueSong = true;
-                }
-                else
-                {
-                    if (song["id"].Value == songId)
-                        dequeueSong = true;
-                }
-
-                if (dequeueSong)
-                {
-                    QueueChatMessage($"{song["songName"].Value} ({song["version"].Value}) removed.");
-                    RequestBot.Skip(i);
+                    QueueChatMessage($"'{state.parameter}' is not a valid song id.");
                     return success;
                 }
+
+                removeIndex = RequestQueue.Songs.FindLastIndex(request => request.song["id"].Value.ToLower() == songId.ToLower() && CanModifyRequest(request, state.user));
             }
+            else
+            {
+                removeIndex = RequestQueue.Songs.FindLastIndex(request => request.requestor.id == state.user.id);
+            }
+
+            if (removeIndex >= 0)
+            {
+                var song = RequestQueue.Songs[removeIndex].song;
+                QueueChatMessage($"{song["songName"].Value} ({song["version"].Value}) removed.");
+                RequestBot.Skip(removeIndex, RequestStatus.Deleted);
+                return success;
+            }
+
             return $"{state.parameter} was not found in the queue.";
         }
         #endregion
@@ -948,10 +947,73 @@ namespace SongRequestManager
             msg.end("...", $"No results for {state.parameter}");
         }
 
-        // BUG: Should be dynamic text
-        private void ListQueue(TwitchUser requestor, string request)
+        private string GetQueue(ParseState state)
         {
+            try
+            {
+                if (state.user.isMod || state.user.isBroadcaster)
+                {
+                    this.ListQueue(state);
+                }
+                else
+                {
+                    if (RequestQueue.Songs.Any(request => request.requestor.id == state.user.id))
+                    {
+                        this.MyQueue(state);
+                    }
+                    else
+                    {
+                        this.QueueStatus(state);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log($"Exception when processing !queue: {e.ToString()}");
+            }
 
+            return success;
+        }
+
+        private string MyQueue(ParseState state)
+        {
+            try
+            {
+                var msg = new QueueLongMessage(1);
+
+                int requestIndex = RequestQueue.Songs.FindIndex(song => song.requestor.id == state.user.id);
+
+                if (requestIndex < 0)
+                {
+                    msg.Add($"Couldn't find any requests for {state.user.username}");
+                }
+                else
+                {
+                    SongRequest request = RequestQueue.Songs[requestIndex];
+                    IEnumerable<SongRequest> songsBefore = RequestQueue.Songs.Take(requestIndex);
+                    int duration = songsBefore.Sum(song => song.song["songduration"].AsInt);
+
+                    msg.Add($"@{state.user.displayName} - Request {request.song["songName"].Value} ({request.song["version"].Value}) is in position {requestIndex + 1}");
+
+                    if (requestIndex > 0)
+                    {
+                        msg.Add($" behind {GetDurationString(duration)} of requests");
+                    }
+                }
+
+                msg.end();
+            }
+            catch (Exception e)
+            {
+                Plugin.Log($"Exception when processing !myqueue: {e.ToString()}");
+            }
+
+            return success;
+        }
+
+        // BUG: Should be dynamic text
+        private void ListQueue(ParseState state)
+        {
             var msg = new QueueLongMessage(RequestBotConfig.Instance.maximumqueuemessages);
 
             foreach (SongRequest req in RequestQueue.Songs.ToArray())
@@ -959,14 +1021,12 @@ namespace SongRequestManager
                 var song = req.song;
                 if (msg.Add(new DynamicText().AddSong(ref song).Parse(QueueListFormat), ", ")) break;
             }
-            msg.end($" ... and {RequestQueue.Songs.Count - msg.Count} more songs.", "Queue is empty.");
-            return;
 
+            msg.end($" ... and {RequestQueue.Songs.Count - msg.Count} more songs.", "Queue is empty.");
         }
 
         private void ShowHistory(TwitchUser requestor, string request)
         {
-
             var msg = new QueueLongMessage(1);
 
             foreach (var entry in RequestHistory.Songs)
@@ -974,9 +1034,8 @@ namespace SongRequestManager
                 var song = entry.song;
                 if (msg.Add(new DynamicText().AddSong(ref song).Parse(HistoryListFormat), ", ")) break;
             }
-            msg.end($" ... and {RequestHistory.Songs.Count - msg.Count} more songs.", "History is empty.");
-            return;
 
+            msg.end($" ... and {RequestHistory.Songs.Count - msg.Count} more songs.", "History is empty.");
         }
 
         private void ShowSongsplayed(TwitchUser requestor, string request) // Note: This can be spammy.
@@ -1240,22 +1299,9 @@ namespace SongRequestManager
         #endregion
 
         #region Wrong Song
-        private void WrongSong(TwitchUser requestor, string request)
+        private void RedirectOopsMessage(TwitchUser requestor, string request)
         {
-            // Note: Scanning backwards to remove LastIn, for loop is best known way.
-            for (int i = RequestQueue.Songs.Count - 1; i >= 0; i--)
-            {
-                var song = RequestQueue.Songs[i].song;
-                if (RequestQueue.Songs[i].requestor.id == requestor.id)
-                {
-                    QueueChatMessage($"{song["songName"].Value} ({song["version"].Value}) removed.");
-
-                    listcollection.remove(duplicatelist, song["id"].Value);
-                    RequestBot.Skip(i,RequestStatus.Wrongsong);
-                    return;
-                }
-            }
-            QueueChatMessage($"You have no requests in the queue.");
+            QueueChatMessage($"@{requestor.username} - Use '!remove` to delete your request or '!replace <new id>' to replace it without losing your spot in the queue.");
         }
         #endregion
 
@@ -1264,7 +1310,7 @@ namespace SongRequestManager
         {
             try  // We're accessing an element across threads, and currentsong doesn't need to be defined
             {
-                var song = RequestHistory.Songs[0].song;
+                var song = RequestHistory.Songs.FirstOrDefault(s => s.status == RequestStatus.Played)?.song;
                 if (!song.IsNull) new DynamicText().AddSong(ref song).QueueMessage(LinkSonglink.ToString());
             }
             catch (Exception ex)
@@ -1273,6 +1319,11 @@ namespace SongRequestManager
             }
 
             return success;
+        }
+
+        public string GetDurationString(int seconds)
+        {
+            return $"{seconds / 60}:{(seconds % 60):00}";
         }
 
         public string queueduration()
@@ -1287,11 +1338,9 @@ namespace SongRequestManager
             }
             catch
             {
-
-
             }
 
-            return $"{total / 60}:{ total % 60:00}";
+            return GetDurationString(total);
         }
 
         private string QueueStatus(ParseState state)

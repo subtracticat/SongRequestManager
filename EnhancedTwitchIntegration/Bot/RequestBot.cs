@@ -25,6 +25,7 @@ using BeatSaberMarkupLanguage;
 using Utilities = StreamCore.Utils.Utilities;
 using System.Threading.Tasks;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 
 namespace SongRequestManager
 {
@@ -40,6 +41,7 @@ namespace SongRequestManager
             Played,
             Wrongsong,
             SongSearch,
+            Deleted,
         }
 
         public static RequestBot Instance;
@@ -697,16 +699,29 @@ namespace SongRequestManager
 
                 //}
 
-            RequestTracker[requestor.id].numRequests++;
-                listcollection.add(duplicatelist, song["id"].Value);
-                if ((requestInfo.flags.HasFlag(CmdFlags.MoveToTop)))
-                    RequestQueue.Songs.Insert(0, new SongRequest(song, requestor, requestInfo.requestTime, RequestStatus.Queued, requestInfo.requestInfo));
-                else
-                    RequestQueue.Songs.Add(new SongRequest(song, requestor, requestInfo.requestTime, RequestStatus.Queued, requestInfo.requestInfo));
+            SongRequest newRequest = new SongRequest(song, requestor, requestInfo.requestTime, RequestStatus.Queued, requestInfo.requestInfo);
+            if (requestInfo.toReplace != null)
+            {
+                int index = RequestQueue.Songs.IndexOf(requestInfo.toReplace);
+                if (index >= 0)
+                {
+                    RequestQueue.Songs[index].song = song;
+                }
+            }
+            else if ((requestInfo.flags.HasFlag(CmdFlags.MoveToTop)))
+            {
+                RequestQueue.Songs.Insert(0, newRequest);
+                RequestTracker[requestor.id].numRequests++;
+            }
+            else
+            {
+                RequestQueue.Songs.Add(newRequest);
+                RequestTracker[requestor.id].numRequests++;
+            }
 
-                RequestQueue.Write();
+            RequestQueue.Write();
 
-                Writedeck(requestor, "savedqueue"); // This can be used as a backup if persistent Queue is turned off.
+            Writedeck(requestor, "savedqueue"); // This can be used as a backup if persistent Queue is turned off.
 
             if (!requestInfo.flags.HasFlag(CmdFlags.SilentResult))
             {
@@ -728,6 +743,7 @@ namespace SongRequestManager
                 if (!fromHistory)
                 {
                     SetRequestStatus(index, RequestStatus.Played);
+                    listcollection.add(duplicatelist, RequestQueue.Songs[index].song["id"].Value);
                     request = DequeueRequest(index);
                 }
                 else
@@ -931,7 +947,17 @@ namespace SongRequestManager
 
         public static void DequeueRequest(SongRequest request, bool updateUI = true)
         {
-            if (request.status!=RequestStatus.Wrongsong && request.status!=RequestStatus.SongSearch) RequestHistory.Songs.Insert(0, request); // Wrong song requests are not logged into history, is it possible that other status states shouldn't be moved either?
+            switch (request.status)
+            {
+                // Add to history if it was either played or manually skipped
+                case RequestStatus.Played:
+                case RequestStatus.Skipped:
+                    RequestHistory.Songs.Insert(0, request);
+                    break;
+
+                default:
+                    break;
+            }
 
             if (RequestHistory.Songs.Count > RequestBotConfig.Instance.RequestHistoryLimit)
             {
@@ -1048,20 +1074,135 @@ namespace SongRequestManager
             return ProcessSongRequest(newstate);
         }
 
+        private string AddToTopFor(ParseState state)
+        {
+            try
+            {
+                ParseState newstate = new ParseState(state); // Must use copies here, since these are all threads
+
+                var match = _modAddForRegex.Match(state.parameter);
+
+                if (match.Success)
+                {
+                    var username = match.Groups["username"].Value;
+                    var songId = match.Groups["songid"].Value;
+
+                    newstate.flags |= CmdFlags.MoveToTop | CmdFlags.NoFilter;
+                    newstate.info = $"For {username}";
+                    newstate.parameter = songId;
+
+                    return ProcessSongRequest(newstate);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log($"Exception when processing !attfor: {e.ToString()}");
+            }
+
+            return success;
+        }
+
         private string ModAdd(ParseState state)
         {
             ParseState newstate = new ParseState(state); // Must use copies here, since these are all threads
             newstate.flags |= CmdFlags.NoFilter;
-            newstate.info = "Unfiltered";
+            newstate.info = "ModAdd";
             return ProcessSongRequest(newstate);
         }
 
-
-        private string ProcessSongRequest(ParseState state)
+        private string ModAddFor(ParseState state)
         {
             try
             {
-                if (RequestBotConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local)) // BUG: Complex permission, Queue state message needs to be handled higher up
+                ParseState newstate = new ParseState(state); // Must use copies here, since these are all threads
+
+                var match = _modAddForRegex.Match(state.parameter);
+
+                if (match.Success)
+                {
+                    var username = match.Groups["username"].Value;
+                    var songId = match.Groups["songid"].Value;
+
+                    newstate.flags |= CmdFlags.NoFilter;
+                    newstate.info = $"For {username}";
+                    newstate.parameter = songId;
+
+                    return ProcessSongRequest(newstate);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log($"Exception when processing !modaddfor: {e.ToString()}");
+            }
+
+            return success;
+        }
+
+        private bool CanModifyRequest(SongRequest request, TwitchUser user)
+        {
+            return request.requestor.id == user.id || user.isBroadcaster || user.isMod;
+        }
+
+        private string ReplaceRequest(ParseState state)
+        {
+            try
+            {
+                ParseState newState = new ParseState(state); // Must use copies here, since these are all threads
+
+                var match = _replaceRegex.Match(newState.parameter);
+
+                if (match.Success)
+                {
+                    var prevId = match.Groups["prev"]?.Value?.Trim() ?? string.Empty;
+                    var newId = match.Groups["new"]?.Value?.Trim() ?? string.Empty;
+
+                    Plugin.Log($"ReplaceRequest: {prevId} -> {newId}");
+
+                    SongRequest toReplace = null;
+                    if (!string.IsNullOrEmpty(prevId))
+                    {
+                        toReplace = RequestQueue.Songs.FirstOrDefault(request => request.song["id"].Value.ToLower() == prevId.ToLower() && CanModifyRequest(request, newState.user));
+                    }
+                    else if (!string.IsNullOrEmpty(newId))
+                    {
+                        toReplace = RequestQueue.Songs.FirstOrDefault(request => request.requestor.id == newState.user.id);
+                    }
+
+                    if (toReplace != null)
+                    {
+                        newState.parameter = newId;
+                        ProcessSongRequest(newState, toReplace);
+                    }
+                    else
+                    {
+                        QueueChatMessage($"{newState.user.displayName}: Failed to find a matching existing request to replace.");
+                        return success;
+                    }
+                }
+                else
+                {
+                    QueueChatMessage($"{newState.user.displayName}: Unable to parse new song request, please provide the new song ID.");
+                    return success;
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log($"Exception when processing !replace: {e.ToString()}");
+            }
+
+            return success;
+        }
+
+        private string ProcessSongRequest(ParseState state)
+        {
+            return ProcessSongRequest(state, null);
+        }
+
+        private string ProcessSongRequest(ParseState state, SongRequest toReplace)
+        {
+            try
+            {
+                if (RequestBotConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local) && toReplace == null) // BUG: Complex permission, Queue state message needs to be handled higher up
                 {
                     QueueChatMessage($"Queue is currently closed.");
                     return success;
@@ -1075,27 +1216,34 @@ namespace SongRequestManager
                 if (state.user.isMod) limit = Math.Max(limit, RequestBotConfig.Instance.ModRequestLimit);
                 if (state.user.isVip) limit += RequestBotConfig.Instance.VipBonusRequests; // Current idea is to give VIP's a bonus over their base subscription class, you can set this to 0 if you like
 
-                if (!state.user.isBroadcaster)
-                {
-                    if (RequestTracker[state.user.id].numRequests >= limit)
-                    {
-                        if (RequestBotConfig.Instance.LimitUserRequestsToSession)
-                        {
-                            new DynamicText().Add("Requests", RequestTracker[state.user.id].numRequests.ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage("You've already used %Requests% requests this stream. Subscribers are limited to %RequestLimit%.");
-                        }
-                        else
-                        {
-                            new DynamicText().Add("Requests", RequestTracker[state.user.id].numRequests.ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage("You already have %Requests% on the queue. You can add another once one is played. Subscribers are limited to %RequestLimit%.");
-                        }
+                string subscriberUpsell = limit < RequestBotConfig.Instance.SubRequestLimit ? "Subscribers are limited to %RequestLimit%." : string.Empty;
 
-                        return success;
+                if (!state.user.isBroadcaster && toReplace == null)
+                {
+                    if (RequestBotConfig.Instance.LimitUserRequestsToSession)
+                    {
+                        int requestCount = RequestTracker[state.user.id].numRequests;
+                        if (requestCount >= limit)
+                        {
+                            new DynamicText().Add("Requests", requestCount.ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage($"You've already used %Requests% requests this stream. {subscriberUpsell}");
+                            return success;
+                        }
+                    }
+                    else
+                    {
+                        int requestCount = RequestQueue.Songs.Count(req => req.requestor.id == state.user.id);
+                        if (requestCount >= limit)
+                        {
+                            new DynamicText().Add("Requests", requestCount.ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage($"You already have %Requests% on the queue. You can add another once one is played, or use !replace to change your request. {subscriberUpsell}");
+                            return success;
+                        }
                     }
                 }
 
                 // BUG: Need to clean up the new request pipeline
                 string testrequest = normalize.RemoveSymbols(ref state.parameter,normalize._SymbolsNoDash);
 
-                RequestInfo newRequest = new RequestInfo(state.user, state.parameter, DateTime.UtcNow, _digitRegex.IsMatch(testrequest) || _beatSaverRegex.IsMatch(testrequest),state, state.flags, state.info);
+                RequestInfo newRequest = new RequestInfo(state.user, state.parameter, DateTime.UtcNow, _digitRegex.IsMatch(testrequest) || _beatSaverRegex.IsMatch(testrequest),state, state.flags, state.info, toReplace);
 
                 if (!newRequest.isBeatSaverId && state.parameter.Length < 2)
                     QueueChatMessage($"Request \"{state.parameter}\" is too short- Beat Saver searches must be at least 3 characters!");

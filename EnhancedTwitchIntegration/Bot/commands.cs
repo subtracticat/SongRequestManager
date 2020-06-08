@@ -94,6 +94,8 @@ namespace SongRequestManager
         private static readonly Regex _alphaNumericRegex = new Regex("^[0-9A-Za-z]+$", RegexOptions.Compiled);
         private static readonly Regex _RemapRegex = new Regex("^[0-9a-fA-F]+,[0-9a-fA-F]+$", RegexOptions.Compiled);
         private static readonly Regex _beatsaversongversion = new Regex("^[0-9a-zA-Z]+$", RegexOptions.Compiled);
+        private static readonly Regex _replaceRegex = new Regex(@"^(?<prev>[0-9a-fA-F]+\s+)?(?<new>[0-9a-fA-F]+)$", RegexOptions.Compiled);
+        private static readonly Regex _modAddForRegex = new Regex(@"^(?<username>[0-9a-zA-Z_]+) (?<songid>[0-9a-zA-Z]+)$", RegexOptions.Compiled);
         private static readonly Regex _nothing = new Regex("$^", RegexOptions.Compiled);
         private static readonly Regex _anything = new Regex(".*", RegexOptions.Compiled); // Is this the most efficient way?
         private static readonly Regex _atleast1 = new Regex("..*", RegexOptions.Compiled); // Allow usage message to kick in for blank 
@@ -127,7 +129,6 @@ namespace SongRequestManager
             new COMMAND("!open").Action(OpenQueue).Help(Mod, "usage: %alias%%|%... Opens the queue allowing song requests.", _nothing);
             new COMMAND("!close").Action(CloseQueue).Help(Mod, "usage: %alias%%|%... Closes the request queue.", _nothing);
 
-            new COMMAND("!queue").Action(ListQueue).Help(Everyone, "usage: %alias%%|% ... Displays a list of the currently requested songs.", _nothing);
             new COMMAND("!played").Action(ShowSongsplayed).Help(Mod, "usage: %alias%%|%... Displays all the songs already played this session.", _nothing);
             new COMMAND("!history").Action(ShowHistory).Help(Mod, "usage: %alias% %|% Shows a list of the recently played songs, starting from the most recent.", _nothing);
             new COMMAND("!who").Action(Who).Help(Sub | VIP | Mod, "usage: %alias% <songid or name>%|%Find out who requested the song in the currently queue or recent history.", _atleast1);
@@ -136,8 +137,6 @@ namespace SongRequestManager
             new COMMAND("!mtt").Action(MoveRequestToTop).Help(Mod, "usage: %alias%<songname>,<username>,<song id> %|%... Moves a song to the top of the request queue.", _atleast1);
             new COMMAND("!att").Action(AddToTop).Help(Mod, "usage: %alias%<songname> or <song id>, omit <,>'s. %|%This adds a song to the top of the request queue. Try and be a little specific. You can look up songs on %beatsaver%", _atleast1);
             new COMMAND(new string[] { "!last", "!demote", "!later" }).Action(MoveRequestToBottom).Help(Mod, "usage: %alias%<songname>,<username>,<song id> %|%... Moves a song to the bottom of the request queue.", _atleast1);
-            new COMMAND("!remove").Action(DequeueSong).Help(Mod, "usage: %alias%<songname>,<username>,<song id> %|%... Removes a song from the queue.", _atleast1);
-            new COMMAND(new string[] { "!wrongsong", "!wrong", "!oops" }).Action(WrongSong).Help(Everyone, "usage: %alias%%|%... Removes your last requested song form the queue. It can be requested again later.", _nothing);
 
             new COMMAND("!unblock").Action(Unban).Help(Mod, "usage: %alias%<song id>, do not include <,>'s.", _beatsaversongversion);
             new COMMAND("!block").AsyncAction(Ban).Help(Mod, "usage: %alias%<song id>, do not include <,>'s.", _beatsaversongversion);
@@ -176,12 +175,21 @@ namespace SongRequestManager
             //new COMMAND("!refreshsongs").Coroutine(RefreshSongs).Help(Broadcaster, "Adds custom songs to bot list. This is a pre-release feature."); // BUG: Broken in 1.10
             new COMMAND("!savesongdatabase").Coroutine(SaveSongDatabase).Help(Broadcaster);
 
-            new COMMAND("!queuestatus").Action(QueueStatus).Help(Mod, "usage: %alias% %|% Show current queue status", _nothing);
-
             new COMMAND("!QueueLottery").Action(QueueLottery).Help(Broadcaster, "usage: %alias% <entry count> %|% Shuffle the queue and reduce to <entry count> entries. Close the queue.", _anything);
 
             new COMMAND("!addtoqueue").Action(queuelist).Help(Broadcaster, "usage: %alias% <list>", _atleast1);
 
+            // Changed
+            new COMMAND("!queue").Action(GetQueue).Help(Everyone, "usage: %alias%%|% ... Displays a list of the currently requested songs.", _nothing);
+            new COMMAND(new string[] { "!wrongsong", "!wrong", "!oops" }).Action(RedirectOopsMessage).Help(Everyone, "usage: %alias%%|%... Use !remove to remove your request or !replace <id> to replace it.", _nothing);
+            new COMMAND("!remove").Action(DequeueSong).Help(Everyone, "usage: %alias%<songname>,<username>,<song id> %|%... Removes a song from the queue.", _anything);
+            new COMMAND("!queuestatus").Action(QueueStatus).Help(Everyone, "usage: %alias% %|% Show current queue status", _nothing);
+
+            // Added
+            new COMMAND(new string[] { "!myqueue", "!myrequest", "!my" }).Action(MyQueue).Help(Everyone, "usage: %alias%%|% ... Displays the current status of your own song request.", _nothing);
+            new COMMAND("!replace").Action(ReplaceRequest).Help(Everyone, "usage: %alias% <old id (optional)> <new id> %|% ... Replaces your current song request with a new song while maintaining your queue position.", _replaceRegex);
+            new COMMAND("!modaddfor").Action(ModAddFor).Help(Mod, "usage: %alias% <foruser> <song id>, omit <,>'s. %|%This adds a song to the request queue on behalf of <foruser>. This ignores ALL filters including bans.", _modAddForRegex);
+            new COMMAND("!attfor").Action(AddToTopFor).Help(Mod, "usage: %alias% <foruser> <song id>, omit <,>'s. %|%This adds a song to the top of the request queue on behalf of <foruser>.", _modAddForRegex);
 
             #region Gamechanger Specific           
             bool _GameChangerInstalled = IPA.Loader.PluginManager.GetPlugin("Beat Bits") != null;

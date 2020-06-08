@@ -12,8 +12,9 @@ namespace SongRequestManager
         public RequestBot.CmdFlags flags; // Flags for the song request, include things like silence, bypass checks, etc.
         public string requestInfo; // This field contains additional information about a request. This could include the source of the request ( deck, Subscription bonus request) , comments about why a song was banned, etc.
         public RequestBot.ParseState state;
+        public SongRequest toReplace;
 
-        public RequestInfo(TwitchUser requestor, string request, DateTime requestTime, bool isBeatSaverId,  RequestBot.ParseState state,RequestBot.CmdFlags flags = 0,string userstring = "")
+        public RequestInfo(TwitchUser requestor, string request, DateTime requestTime, bool isBeatSaverId,  RequestBot.ParseState state,RequestBot.CmdFlags flags = 0,string userstring = "",SongRequest toReplace = null)
         {
             this.requestor = requestor;
             this.request = request;
@@ -22,6 +23,7 @@ namespace SongRequestManager
             this.state = state;
             this.flags = flags;
             this.requestInfo = userstring;
+            this.toReplace = toReplace;
         }
     }
 }

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using StreamCore.SimpleJSON;
-using StreamCore.Twitch;
+using ChatCore.Models.Twitch;
+using ChatCore.Utilities;
 using UnityEngine;
 
 namespace SongRequestManager
@@ -383,10 +383,9 @@ namespace SongRequestManager
                 try
                 {
                     // BUG: A DynamicText context needs to be applied to each command to allow use of dynamic variables
-
-                    foreach (var line in list)
+                    foreach (var line in list) 
                     {
-                        COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, line, RequestBot.CmdFlags.Local);
+                        COMMAND.Parse(ChatHandler.Self, line, RequestBot.CmdFlags.Local);
                     }
                 }
                 catch (Exception ex)

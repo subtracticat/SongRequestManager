@@ -6,8 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using StreamCore.Twitch;
+using ChatCore.Interfaces;
+using ChatCore.Models.Twitch;
 using UnityEngine;
+
 // Feature requests: Add Reason for being banned to banlist
 
 namespace SongRequestManager
@@ -853,7 +855,7 @@ namespace SongRequestManager
                     return;
                 }
 
-                if (listcollection.contains(ref _blockeduser, user.username.ToLower()))
+                if (listcollection.contains(ref _blockeduser, user.UserName.ToLower()))
                 {
                     return;
                 }
@@ -1016,7 +1018,7 @@ namespace SongRequestManager
                             UserSettings.Append(line).Append("\r\n");
                             // MAGICALLY configure the customized commands 
 
-                            COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, line, CmdFlags.SilentResult | CmdFlags.Local);
+                            COMMAND.Parse(ChatHandler.Self, line, CmdFlags.SilentResult | CmdFlags.Local);
                         }
                         sr.Close();
                     }
@@ -1233,7 +1235,7 @@ namespace SongRequestManager
 
                 bool allow = HasRights(ref botcmd, ref user, flags);
 
-                if (!allow && !botcmd.Flags.HasFlag(CmdFlags.BypassRights) && !listcollection.contains(ref botcmd.permittedusers, user.displayName.ToLower()))
+                if (!allow && !botcmd.Flags.HasFlag(CmdFlags.BypassRights) && !listcollection.contains(ref botcmd.permittedusers, user.DisplayName.ToLower()))
                 {
                     CmdFlags twitchpermission = botcmd.Flags & CmdFlags.TwitchLevel;
                     if (!botcmd.Flags.HasFlag(CmdFlags.SilentCheck))
@@ -1407,27 +1409,27 @@ namespace SongRequestManager
                 return true; // Not sure if this is the best approach actually, not worth thinking about right now
             }
 
-            if (user.isMod & RequestBotConfig.Instance.ModFullRights)
+            if (user.IsModerator & RequestBotConfig.Instance.ModFullRights)
             {
                 return true;
             }
 
-            if (user.isBroadcaster & botcmd.Flags.HasFlag(CmdFlags.Broadcaster))
+            if (user.IsBroadcaster & botcmd.Flags.HasFlag(CmdFlags.Broadcaster))
             {
                 return true;
             }
 
-            if (user.isMod & botcmd.Flags.HasFlag(CmdFlags.Mod))
+            if (user.IsModerator & botcmd.Flags.HasFlag(CmdFlags.Mod))
             {
                 return true;
             }
 
-            if (user.isSub & botcmd.Flags.HasFlag(CmdFlags.Sub))
+            if (user.IsSubscriber & botcmd.Flags.HasFlag(CmdFlags.Sub))
             {
                 return true;
             }
 
-            if (user.isVip & botcmd.Flags.HasFlag(CmdFlags.VIP))
+            if (user.IsVip & botcmd.Flags.HasFlag(CmdFlags.VIP))
             {
                 return true;
             }

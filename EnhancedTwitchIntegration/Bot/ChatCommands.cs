@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using StreamCore.SimpleJSON;
-using StreamCore.Twitch;
 using UnityEngine;
+using System.Threading.Tasks;
+using ChatCore.Models.Twitch;
+using ChatCore.Utilities;
 
 namespace SongRequestManager
 {
@@ -16,15 +16,15 @@ namespace SongRequestManager
         // BUG: This one needs to be cleaned up a lot imo
         // BUG: This file needs to be split up a little, but not just yet... Its easier for me to move around in one massive file, since I can see the whole thing at once. 
 
-        static StringBuilder AddSongToQueueText = new StringBuilder("Request %songName% %songSubName%/%authorName% %Rating% (%version%) added to queue.");
-        static StringBuilder LookupSongDetail = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% (%version%)");
-        static StringBuilder BsrSongDetail = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% (%version%)");
-        static StringBuilder LinkSonglink = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% (%version%) %BeatsaverLink%");
-        static StringBuilder NextSonglink = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% (%version%) requested by %user% is next.");
-        static StringBuilder SongHintText = new StringBuilder("Requested by %user%%LF%Status: %Status%%Info%%LF%%LF%<size=60%>Request Time: %RequestTime%</size>");
-        static StringBuilder QueueTextFileFormat = new StringBuilder("%songName%%LF%");         // Don't forget to include %LF% for these. 
+        static StringBuilder AddSongToQueueText = new StringBuilder( "Request %songName% %songSubName%/%authorName% %Rating% %PP% (%version%) added to queue.");
+        static StringBuilder LookupSongDetail= new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% %PP% (%version%)");
+        static StringBuilder BsrSongDetail=new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% (%version%)");
+        static StringBuilder LinkSonglink=new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% (%version%) %BeatsaverLink%");
+        static StringBuilder NextSonglink=new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% (%version%) requested by %user% is next.");
+        static public  StringBuilder SongHintText=new StringBuilder ("Requested by %user%%LF%Status: %Status%%Info%%LF%%PP%%LF%<size=60%>Request Time: %RequestTime%</size>");
+        static StringBuilder QueueTextFileFormat=new StringBuilder ("%songName%%LF%");         // Don't forget to include %LF% for these. 
 
-        static StringBuilder QueueListRow2 = new StringBuilder("%authorName% (%id%) <color=white>%songlength%</color>");
+        static public StringBuilder QueueListRow2 = new StringBuilder("%authorName%");
 
         static StringBuilder BanSongDetail = new StringBuilder("Blocking %songName%/%authorName% (%version%)");
 
@@ -182,16 +182,8 @@ namespace SongRequestManager
 
         bool isNotModerator(TwitchUser requestor, string message = "")
         {
-            if (requestor.isBroadcaster || requestor.isMod)
-            {
-                return false;
-            }
-
-            if (message != "")
-            {
-                QueueChatMessage($"{message} is moderator only.");
-            }
-
+            if (requestor.IsBroadcaster || requestor.IsModerator) return false;
+            if (message != "") QueueChatMessage($"{message} is moderator only.");
             return true;
         }
 
@@ -218,15 +210,15 @@ namespace SongRequestManager
 
         // Returns error text if filter triggers, or "" otherwise, "fast" version returns X if filter triggers
 
-        [Flags] enum SongFilter { none = 0, Queue = 1, Blacklist = 2, Mapper = 4, Duplicate = 8, Remap = 16, Rating = 32, Duration = 64, NJS = 128, All = -1 };
+        [Flags] enum SongFilter { none = 0, Queue = 1, Blacklist = 2, Mapper = 4, Duplicate = 8, Remap = 16, Rating = 32, Duration=64,NJS=128,AutoMAP=256,All = -1 };
 
         private string SongSearchFilter(JSONObject song, bool fast = false, SongFilter filter = SongFilter.All) // BUG: This could be nicer
         {
             string songid = song["id"].Value;
-            if (filter.HasFlag(SongFilter.Queue) && RequestQueue.Songs.Any(req => req.song["version"] == song["version"]))
-            {
-                return fast ? "X" : $"Request {song["songName"].Value} by {song["authorName"].Value} already exists in queue!";
-            }
+
+            //if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"].AsBool== true) return fast ? "X" : $"Automapper songs not allowed.";
+
+            if (filter.HasFlag(SongFilter.Queue) && RequestQueue.Songs.Any(req => req.song["version"] == song["version"])) return fast ? "X" : $"Request {song["songName"].Value} by {song["authorName"].Value} already exists in queue!";
 
             if (filter.HasFlag(SongFilter.Blacklist) && listcollection.contains(ref banlist, songid))
             {
@@ -503,7 +495,7 @@ namespace SongRequestManager
             }
             else
             {
-                removeIndex = RequestQueue.Songs.FindLastIndex(request => request.requestor.id == state.user.id);
+                removeIndex = RequestQueue.Songs.FindLastIndex(request => request.requestor.Id == state.user.Id);
             }
 
             if (removeIndex >= 0)
@@ -523,7 +515,7 @@ namespace SongRequestManager
         {
             string key = request.ToLower();
             mapperwhitelist = listcollection.OpenList(key); // BUG: this is still not the final interface
-            QueueChatMessage($"Mapper whitelist set to {request}.");
+            //QueueChatMessage($"Mapper whitelist set to {request}.");
         }
 
         private void MapperBanList(TwitchUser requestor, string request)
@@ -586,19 +578,18 @@ namespace SongRequestManager
 
                 if (songId == "")
                 {
-                    string[] terms = new string[] { song["songName"].Value, song["songSubName"].Value, song["authorName"].Value, song["levelAuthor"].Value, song["version"].Value, entry.requestor.displayName };
+                    string[] terms = new string[] { song["songName"].Value, song["songSubName"].Value, song["authorName"].Value, song["levelAuthor"].Value, song["version"].Value, entry.requestor.DisplayName };
 
                     if (DoesContainTerms(request, ref terms))
                     {
                         result = entry;
 
-                        if (lastuser != result.requestor.displayName)
+                        if (lastuser != result.requestor.DisplayName)
                         {
-                            qm.Add($"{result.requestor.displayName}: ");
+                            qm.Add($"{result.requestor.DisplayName}: ");
                         }
-
                         qm.Add($"{result.song["songName"].Value} ({result.song["version"].Value})", ",");
-                        lastuser = result.requestor.displayName;
+                        lastuser = result.requestor.DisplayName;
                     }
                 }
                 else
@@ -606,7 +597,7 @@ namespace SongRequestManager
                     if (song["id"].Value == songId)
                     {
                         result = entry;
-                        qm.Add($"{result.requestor.displayName}: {result.song["songName"].Value} ({result.song["version"].Value})");
+                        qm.Add($"{result.requestor.DisplayName}: {result.song["songName"].Value} ({result.song["version"].Value})");
                         return entry;
                     }
                 }
@@ -724,16 +715,14 @@ namespace SongRequestManager
 
             System.Diagnostics.Process.Start($"liv-streamerkit://gamechanger/beat-saber-sabotage/{state.parameter}");
 
-            if (_WobbleInstalled)
-            {
-                string wobblestate = "off";
-                if (state.parameter == "enable")
-                {
-                    wobblestate = "on";
-                }
+            //if (_WobbleInstalled)
+            //   {
+            //    string wobblestate = "off";
+            //    if (state.parameter == "enable") wobblestate = "on"; 
+            //   TwitchWebSocketClient.SendCommand($"!wadmin toggle {wobblestate} ");
 
-                TwitchWebSocketClient.SendCommand($"!wadmin toggle {wobblestate} ");
-            }
+
+            //}
 
             state.msg($"The !bomb command is now {state.parameter}d.");
 
@@ -761,16 +750,23 @@ namespace SongRequestManager
                 if (resp.IsSuccessStatusCode)
                 {
                     var result = resp.ConvertToJsonNode();
+
+
                     if (result["docs"].IsArray && result["totalDocs"].AsInt == 0)
                     {
                         return;
                     }
+
 
                     if (result["docs"].IsArray)
                     {
                         foreach (JSONObject entry in result["docs"])
                         {
                             JSONObject song = entry;
+
+
+
+
                             new SongMap(song);
 
                             if (mapperfiltered(song, true))
@@ -809,7 +805,7 @@ namespace SongRequestManager
             else
             {
 #if UNRELEASED
-                COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, "!deck latest",state.flags);
+                COMMAND.Parse(ChatHandler.Self, "!deck latest",state.flags);
 #endif
 
                 if (state.flags.HasFlag(CmdFlags.Local))
@@ -896,7 +892,7 @@ namespace SongRequestManager
             else
             {
 #if UNRELEASED
-                COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, "!deck search", state.flags);
+                COMMAND.Parse(ChatHandler.Self, "!deck search", state.flags);
 #endif
 
                 if (state.flags.HasFlag(CmdFlags.Local))
@@ -985,7 +981,7 @@ namespace SongRequestManager
             MoveRequestPositionInQueue(requestor, request, false);
         }
 
-        private void MoveRequestPositionInQueue(TwitchUser requestor, string request, bool top)
+        internal void MoveRequestPositionInQueue(TwitchUser requestor, string request, bool top)
         {
 
             string moveId = GetBeatSaverId(request);
@@ -997,7 +993,7 @@ namespace SongRequestManager
                 bool moveRequest = false;
                 if (moveId == "")
                 {
-                    string[] terms = new string[] { song["songName"].Value, song["songSubName"].Value, song["authorName"].Value, song["levelAuthor"].Value, song["version"].Value, RequestQueue.Songs[i].requestor.displayName };
+                    string[] terms = new string[] { song["songName"].Value, song["songSubName"].Value, song["authorName"].Value, song["levelAuthor"].Value, song["version"].Value, RequestQueue.Songs[i].requestor.DisplayName };
                     if (DoesContainTerms(request, ref terms))
                     {
                         moveRequest = true;
@@ -1130,13 +1126,13 @@ namespace SongRequestManager
         {
             try
             {
-                if (state.user.isMod || state.user.isBroadcaster)
+                if (state.user.IsModerator || state.user.IsBroadcaster)
                 {
                     this.ListQueue(state);
                 }
                 else
                 {
-                    if (RequestQueue.Songs.Any(request => request.requestor.id == state.user.id))
+                    if (RequestQueue.Songs.Any(request => request.requestor.Id == state.user.Id))
                     {
                         this.MyQueue(state);
                     }
@@ -1160,11 +1156,11 @@ namespace SongRequestManager
             {
                 var msg = new QueueLongMessage(1);
 
-                int requestIndex = RequestQueue.Songs.FindIndex(song => song.requestor.id == state.user.id);
+                int requestIndex = RequestQueue.Songs.FindIndex(song => song.requestor.Id == state.user.Id);
 
                 if (requestIndex < 0)
                 {
-                    msg.Add($"Couldn't find any requests for {state.user.username}");
+                    msg.Add($"Couldn't find any requests for {state.user.DisplayName}");
                 }
                 else
                 {
@@ -1172,7 +1168,7 @@ namespace SongRequestManager
                     IEnumerable<SongRequest> songsBefore = RequestQueue.Songs.Take(requestIndex);
                     int duration = songsBefore.Sum(song => song.song["songduration"].AsInt);
 
-                    msg.Add($"@{state.user.displayName} - Request {request.song["songName"].Value} ({request.song["version"].Value}) is in position {requestIndex + 1}");
+                    msg.Add($"@{state.user.DisplayName} - Request {request.song["songName"].Value} ({request.song["version"].Value}) is in position {requestIndex + 1}");
 
                     if (requestIndex > 0)
                     {
@@ -1364,9 +1360,9 @@ namespace SongRequestManager
             {
                 try
                 {
-                    if (RequestTracker.ContainsKey(list[i].requestor.id))
+                    if (RequestTracker.ContainsKey(list[i].requestor.Id))
                     {
-                        RequestTracker[list[i].requestor.id].numRequests--;
+                        RequestTracker[list[i].requestor.Id].numRequests--;
                     }
 
                     listcollection.remove(duplicatelist, list[i].song["id"]);
@@ -1506,7 +1502,7 @@ namespace SongRequestManager
         #region Wrong Song
         private void RedirectOopsMessage(TwitchUser requestor, string request)
         {
-            QueueChatMessage($"@{requestor.username} - Use '!remove` to delete your request or '!replace <new id>' to replace it without losing your spot in the queue.");
+            QueueChatMessage($"@{requestor.DisplayName} - Use '!remove` to delete your request or '!replace <new id>' to replace it without losing your spot in the queue.");
         }
         #endregion
 
@@ -1627,7 +1623,7 @@ namespace SongRequestManager
             {
                 try
                 {
-                    Add("user", user.displayName);
+                    Add("user", user.DisplayName);
                 }
                 catch
                 {

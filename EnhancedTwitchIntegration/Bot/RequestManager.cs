@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using StreamCore.SimpleJSON;
+using ChatCore.Utilities;
 
 namespace SongRequestManager
 {
@@ -33,7 +34,15 @@ namespace SongRequestManager
             JSONArray arr = new JSONArray();
             foreach (SongRequest song in songs)
             {
-                arr.Add(song.ToJson());
+                try
+                {
+                    var songData = song.ToJson();
+                    arr.Add(songData);
+                }
+                catch (Exception)
+                {
+                    // silent ignore
+                }
             }
 
             File.WriteAllText(path, arr.ToString());

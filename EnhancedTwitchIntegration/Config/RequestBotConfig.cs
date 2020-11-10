@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using IPA.Utilities;
 
 namespace SongRequestManager
 {
@@ -31,7 +32,7 @@ namespace SongRequestManager
 
         public int PPDeckMiniumumPP = 150; // Minimum PP to add to pp deck
 
-        public string DeckList = "fun hard brutal dance chill";
+        public string DeckList = "fun hard brutal dance chill sickwalls brutal mydeck metal rap pop";
 
         public bool AutopickFirstSong = false; // Pick the first song that !bsr finds instead of showing a short list. *IMPLEMENTED*, needs UI
         public bool AllowModAddClosedQueue = true; // Allow moderator to add songs while queue is closed 
@@ -46,7 +47,7 @@ namespace SongRequestManager
         public int maximumlookupmessages = 1;
 
         public string LastBackup = DateTime.MinValue.ToString();
-        public string backuppath = Path.Combine(Environment.CurrentDirectory, "userdata", "backup");
+        public string backuppath = Path.Combine(UnityGame.UserDataPath, "backup");
 
         public bool OfflineMode = false;
         public bool SavedatabaseOnNewest = false;

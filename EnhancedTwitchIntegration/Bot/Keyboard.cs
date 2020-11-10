@@ -4,7 +4,6 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using StreamCore.Twitch;
 using HMUI;
 using Image = UnityEngine.UI.Image;
 using BeatSaberMarkupLanguage;
@@ -80,13 +79,13 @@ namespace SongRequestManager
 
         }
 
-        public void SetButtonType(string ButtonName= "KeyboardButton")
+        public void SetButtonType(string ButtonName = "Q")
         {
-            BaseButton = Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == ButtonName));
-            if (BaseButton==null) BaseButton = Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "KeyboardButton"));
+            BaseButton = Resources.FindObjectsOfTypeAll<Button>().Last(x => string.Equals(x.name, ButtonName, StringComparison.OrdinalIgnoreCase));
+            if (BaseButton == null) BaseButton = Resources.FindObjectsOfTypeAll<Button>().Last(x => string.Equals(x.name, "Q", StringComparison.OrdinalIgnoreCase));
         }
 
-        public void SetValue (string keylabel, string value)
+        public void SetValue(string keylabel, string value)
         {
             bool found = false;
             foreach (KEY key in keys) if (key.name == keylabel)
@@ -379,19 +378,19 @@ namespace SongRequestManager
         void Newest(KEY key)
         {
             ClearSearches();
-            RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, $"!addnew/top",RequestBot.CmdFlags.Local);
+            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addnew/top",RequestBot.CmdFlags.Local);
         }
 
         void Search(KEY key)
         {
             if (key.kb.KeyboardText.text.StartsWith("!"))
-                {
+            {
                 Enter(key);
-                }
+            }
 
 #if UNRELEASED
             ClearSearches();
-            RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, $"!addsongs/top {key.kb.KeyboardText.text}",RequestBot.CmdFlags.Local);
+            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addsongs/top {key.kb.KeyboardText.text}",RequestBot.CmdFlags.Local);
             Clear(key);
 #endif
         }
@@ -429,11 +428,11 @@ namespace SongRequestManager
             {
                 if (RequestBot.COMMAND.aliaslist.ContainsKey(RequestBot.ParseState.GetCommand(ref typedtext)))
                 {
-                    RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, typedtext,RequestBot.CmdFlags.Local);
+                    RequestBot.COMMAND.Parse(ChatHandler.Self, typedtext ,RequestBot.CmdFlags.Local);
                 }
                 else
                 {
-                    TwitchWebSocketClient.SendCommand(typedtext);
+                    ChatHandler.Send(typedtext, typedtext.StartsWith("/"));
                 }
 
                 key.kb.KeyboardText.text = "";
@@ -472,7 +471,7 @@ namespace SongRequestManager
             SabotageState = !SabotageState;
             key.mybutton.GetComponentInChildren<Image>().color = SabotageState ? Color.green : Color.red;
             string text = "!sabotage "+ ( SabotageState ? "on" : "off");
-            RequestBot.COMMAND.Parse(TwitchWebSocketClient.OurTwitchUser, text, RequestBot.CmdFlags.Local);
+            RequestBot.COMMAND.Parse(ChatHandler.Self, text, RequestBot.CmdFlags.Local);
         }
 
         void DrawCursor()
@@ -511,12 +510,13 @@ namespace SongRequestManager
                 // This key is not intialized at all
             }
 
-            public KEY(KEYBOARD kb, Vector2 position, string text, float width,float height, Color color)
+            public KEY(KEYBOARD kb, Vector2 position, string text, float width, float height, Color color)
             {
                 value = text;
                 this.kb = kb;
 
                 name = text;
+
                 mybutton = Button.Instantiate(kb.BaseButton, kb.container, false);
 
                 (mybutton.transform as RectTransform).anchorMin = new Vector2(0.5f,0.5f);
@@ -528,6 +528,7 @@ namespace SongRequestManager
                 mybutton.transform.localScale = new Vector3(kb.scale, kb.scale, 1.0f);
                 mybutton.SetButtonTextSize(5f);
                 mybutton.SetButtonText(text);
+                mybutton.name = $"SRM_{text}";
                 mybutton.GetComponentInChildren<Image>().color =  color;
 
                 if (width == 0)
@@ -540,7 +541,7 @@ namespace SongRequestManager
 
                 // Adjust starting position so button aligns to upper left of current drawing position
 
-                position.x += kb.scale*width / 2 ; 
+                position.x += kb.scale * width / 2 ; 
                 position.y -= kb.scale * height / 2;
                 (mybutton.transform as RectTransform).anchoredPosition = position;
  

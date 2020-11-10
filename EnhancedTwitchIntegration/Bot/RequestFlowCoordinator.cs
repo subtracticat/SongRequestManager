@@ -21,11 +21,11 @@ namespace SongRequestManager
             }
         }
 
-        protected override void DidActivate(bool firstActivation, ActivationType activationType)
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             if (firstActivation)
             {
-                title = "Song Request Manager";
+                SetTitle("Song Request Manager");
                 showBackButton = true;
 
                 ProvideInitialViewControllers(_requestBotListViewController, rightScreenViewController: _keyboardViewController);
@@ -35,8 +35,18 @@ namespace SongRequestManager
         protected override void BackButtonWasPressed(ViewController topViewController)
         {
             // dismiss ourselves
-            var soloFlow = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
-            soloFlow.InvokeMethod<object, SoloFreePlayFlowCoordinator>("DismissFlowCoordinator", this, null, false);
+            FlowCoordinator flowCoordinator;
+
+            if (Plugin.gameMode == Plugin.GameMode.Solo)
+            {
+                flowCoordinator = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
+            }
+            else
+            {
+                flowCoordinator = Resources.FindObjectsOfTypeAll<MultiplayerLevelSelectionFlowCoordinator>().First();
+            }
+
+            flowCoordinator.InvokeMethod<object, FlowCoordinator>("DismissFlowCoordinator", this, ViewController.AnimationDirection.Horizontal, null, false);
         }
 
         public void Dismiss()
@@ -46,7 +56,7 @@ namespace SongRequestManager
 
         public void SetTitle(string newTitle)
         {
-            title = newTitle;
+            base.SetTitle(newTitle);
         }
     }
 }

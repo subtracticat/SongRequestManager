@@ -103,11 +103,15 @@ namespace SongRequestManager
                     SongCore.Loader.SongsLoadedEvent += SongLoader_SongsLoadedEvent;
                 }
 
+                Plugin.Log("DidActivate 001");
+
                 // get table cell instance
                 _requestListTableCellInstance = Resources.FindObjectsOfTypeAll<LevelListTableCell>().First((LevelListTableCell x) => x.name == "LevelListTableCell");
 
                 // initialize Yes/No modal
                 YesNoModal.instance.Setup();
+
+                Plugin.Log("DidActivate 002");
 
                 _songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().FirstOrDefault();
 
@@ -147,25 +151,24 @@ namespace SongRequestManager
 
                 var _songListTableViewScroller = _songListTableView.GetField<TableViewScroller, TableView>("scroller");
 
-                _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageUpButton")), container, false);
-                (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(3f, -14f);
-                (_pageUpButton.transform as RectTransform).sizeDelta = new Vector2(-30f, 6f);
-                _pageUpButton.interactable = true;
-                _pageUpButton.name = "SRMPageUpButton";
-                _pageUpButton.onClick.AddListener(delegate ()
-                {
-                    _songListTableViewScroller.PageScrollUp();
-                });
+                _pageUpButton = UIHelper.CreateUIButton("SRMPageUpButton",
+                     container,
+                     "PracticeButton",
+                     new Vector2(0f, 38.5f),
+                     new Vector2(15f, 7f),
+                     () => { _songListTableViewScroller.PageScrollUp(); },
+                     "˄");
+                Destroy(_pageUpButton.GetComponentsInChildren<ImageView>().FirstOrDefault(x => x.name == "Underline"));
 
-                _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), container, false);
-                (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(3f, 14f);
-                (_pageDownButton.transform as RectTransform).sizeDelta = new Vector2(-30f, 6f);
-                _pageDownButton.interactable = true;
-                _pageDownButton.name = "SRMPageDownButton";
-                _pageDownButton.onClick.AddListener(delegate ()
-                {
-                    _songListTableViewScroller.PageScrollDown();
-                });
+                _pageDownButton = UIHelper.CreateUIButton("SRMPageDownButton",
+                    container,
+                    "PracticeButton",
+                    new Vector2(0f, -38.5f),
+                    new Vector2(15f, 7f),
+                    () => { _songListTableViewScroller.PageScrollDown(); },
+                    "˅");
+                Destroy(_pageDownButton.GetComponentsInChildren<ImageView>().FirstOrDefault(x => x.name == "Underline"));
+
                 #endregion
 
                 CenterKeys = new KEYBOARD(container, "", false, -15, 15);
@@ -173,6 +176,8 @@ namespace SongRequestManager
 #if UNRELEASED
                 // BUG: Need additional modes disabling one shot buttons
                 // BUG: Need to make sure the buttons are usable on older headsets
+
+                Plugin.Log("DidActivate 005");
 
                 _CurrentSongName = BeatSaberUI.CreateText(container, "", new Vector2(-35, 37f));
                 _CurrentSongName.fontSize = 3f;

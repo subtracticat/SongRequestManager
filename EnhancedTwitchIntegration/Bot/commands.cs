@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ChatCore.Interfaces;
 using ChatCore.Models.Twitch;
+using UnityEngine;
 
 // Feature requests: Add Reason for being banned to banlist
 
@@ -91,7 +91,7 @@ namespace SongRequestManager
         private static readonly Regex _alphaNumericRegex = new Regex("^[0-9A-Za-z]+$", RegexOptions.Compiled);
         private static readonly Regex _RemapRegex = new Regex("^[0-9a-fA-F]+,[0-9a-fA-F]+$", RegexOptions.Compiled);
         private static readonly Regex _beatsaversongversion = new Regex("^[0-9a-zA-Z]+$", RegexOptions.Compiled);
-        private static readonly Regex _replaceRegex = new Regex(@"^(?<prev>[0-9a-fA-F]+\s+)?(?<new>[0-9a-fA-F]+)$", RegexOptions.Compiled);
+        private static readonly Regex _replaceRegex = new Regex(@"^(!bsr )?(?<prev>[0-9a-fA-F]+\s+)?(?<new>[0-9a-fA-F]+)$", RegexOptions.Compiled);
         private static readonly Regex _modAddForRegex = new Regex(@"^(?<username>[0-9a-zA-Z_]+) (?<songid>[0-9a-zA-Z]+)$", RegexOptions.Compiled);
         private static readonly Regex _nothing = new Regex("$^", RegexOptions.Compiled);
         private static readonly Regex _anything = new Regex(".*", RegexOptions.Compiled); // Is this the most efficient way?

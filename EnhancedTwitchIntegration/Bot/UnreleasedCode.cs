@@ -140,7 +140,8 @@ namespace SongRequestManager
                         listcollection.add(deckname, song["id"]);
 
                         found = true;
-                        totalSongs++; ;
+                        totalSongs++;
+                        ;
                     }
                 }
                 else
@@ -240,11 +241,11 @@ namespace SongRequestManager
         //private void livsdktest(TwitchUser requestor, string request)
         //{
         //    QueueChatMessage($"SDK2Test code");
-            
+
         //    try
         //    {
 
-        
+
         //        var now = LIV.SDK.Unity.SharedTextureProtocol.GetCurrentTime();
         //        QueueChatMessage($"SDK2 Time={now} C# Time={DateTime.UtcNow.Ticks}");
         //        LIV.SDK.Unity.SharedTextureProtocol.AcquireCompositorFrame(ulong.MaxValue);
@@ -259,7 +260,7 @@ namespace SongRequestManager
 
         //        var pose = (tracker_state) Marshal.PtrToStructure(camerapose, typeof(tracker_state));
 
-                 
+
 
         //        QueueChatMessage($"rotation={pose.rotation.w} Device Class={pose.device_class} Device ID={pose.real_device_id}");
 
@@ -267,9 +268,9 @@ namespace SongRequestManager
         //        SDKTexture texture = new SDKTexture();
         //        texture.width = 1920;
         //        texture.height = 1080;
-                
+
         //        SharedTextureProtocol.AddTexture(texture, 100);
-      
+
         //    }
         //    catch
         //    {
@@ -300,7 +301,8 @@ namespace SongRequestManager
             }
 
             string msg = "deck";
-            if (decks.Length > 1) msg += "s";
+            if (decks.Length > 1)
+                msg += "s";
 
             msg += ": ";
 
@@ -312,7 +314,8 @@ namespace SongRequestManager
 
                     if (integerStrings.Length == 0)
                     {
-                        if (!state.flags.HasFlag(CmdFlags.Silent)) QueueChatMessage($"Creating deck: {req}");
+                        if (!state.flags.HasFlag(CmdFlags.Silent))
+                            QueueChatMessage($"Creating deck: {req}");
                     }
 
                     //if (integerStrings.Length > 0)
@@ -333,7 +336,8 @@ namespace SongRequestManager
                     msg += ($"!{req} (invalid) ");
                 }
             }
-            if (!state.flags.HasFlag(CmdFlags.Silent)) QueueChatMessage(msg);
+            if (!state.flags.HasFlag(CmdFlags.Silent))
+                QueueChatMessage(msg);
             return success;
         }
 
@@ -341,9 +345,11 @@ namespace SongRequestManager
         public string SubcmdToggle(ParseState state)
         {
             var deckname = state.botcmd.userParameter.ToString();
-            if (!deck.ContainsKey(deckname)) return state.text("You can only use %alias% on a deck.");
+            if (!deck.ContainsKey(deckname))
+                return state.text("You can only use %alias% on a deck.");
             string id = GetBeatSaverId(state.parameter);
-            if (id == "") return state.text("%alias% requires a valid beatsaver id");
+            if (id == "")
+                return state.text("%alias% requires a valid beatsaver id");
             deckname += ".deck";
             if (listcollection.contains(ref deckname, id))
                 listcollection.remove(deckname, id);
@@ -365,7 +371,8 @@ namespace SongRequestManager
             msg.Header($"Decks containing {request}: ");
             foreach (var item in deck)
             {
-                if (listcollection.OpenList(item.Key + ".deck").Contains(request)) msg.Add(item.Key, ", ");
+                if (listcollection.OpenList(item.Key + ".deck").Contains(request))
+                    msg.Add(item.Key, ", ");
             }
             msg.end("...", $"No decks contain {request}");
 
@@ -411,7 +418,7 @@ namespace SongRequestManager
 
 
         static string empty = "";
-      
+
         private string drawcard(ParseState state)
         {
 
@@ -422,7 +429,8 @@ namespace SongRequestManager
                 if (state.user.IsBroadcaster || state.user.IsModerator) // BUG: These commands take 2 tiers of permission, perhaps we can handle this better with subcommands.
                 {
                     request = GetBeatSaverId(request);
-                    if (request == "") return empty;
+                    if (request == "")
+                        return empty;
 
                     listcollection.add(state.botcmd.userParameter + ".deck", request);
 
@@ -467,13 +475,17 @@ namespace SongRequestManager
 
                     string songid = GetBeatSaverId(integerStrings[entry]);
 
-                    if (listcollection.contains(ref duplicatelist, songid)) continue;
-                    if (listcollection.contains(ref banlist,integerStrings[entry])) continue;
-                    if (IsInQueue(songid)) continue;
+                    if (listcollection.contains(ref duplicatelist, songid))
+                        continue;
+                    if (listcollection.contains(ref banlist, integerStrings[entry]))
+                        continue;
+                    if (IsInQueue(songid))
+                        continue;
 
                     ParseState newstate = new ParseState(state); // Must use copies here, since these are all threads
-                    newstate.flags =CmdFlags.NoFilter;
-                    if (state.flags.HasFlag(CmdFlags.SilentResult) || state.flags.HasFlag(CmdFlags.Local)) newstate.flags |= CmdFlags.SilentResult;
+                    newstate.flags = CmdFlags.NoFilter;
+                    if (state.flags.HasFlag(CmdFlags.SilentResult) || state.flags.HasFlag(CmdFlags.Local))
+                        newstate.flags |= CmdFlags.SilentResult;
                     newstate.parameter = integerStrings[entry];
                     newstate.info = $"Deck: {state.botcmd.userParameter}";
                     ProcessSongRequest(newstate);
@@ -516,7 +528,8 @@ namespace SongRequestManager
                 {
                     JSONNode result = resp.ConvertToJsonNode();
 
-                    if (result == null || result["docs"].Count == 0) break;
+                    if (result == null || result["docs"].Count == 0)
+                        break;
 
                     foreach (JSONObject entry in result["docs"].AsArray)
                     {
@@ -530,7 +543,8 @@ namespace SongRequestManager
                         new SongMap(song);
                         totalSongs++;
 
-                        if ((totalSongs & 127) == 0) Instance.QueueChatMessage($"Processed {totalSongs}");
+                        if ((totalSongs & 127) == 0)
+                            Instance.QueueChatMessage($"Processed {totalSongs}");
                         //QueueSong(state, song);
                     }
                 }
@@ -557,13 +571,15 @@ namespace SongRequestManager
                 if (song.Value.path == "")
                 {
                     string localPath = $"f:\\bsnew\\{song.Value.song["key"].Value}.zip";
-                    if (File.Exists(localPath)) continue;
+                    if (File.Exists(localPath))
+                        continue;
 
                     var songBytes = await Plugin.WebClient.DownloadSong(song.Value.song["downloadUrl"].Value, System.Threading.CancellationToken.None);
 
                     File.WriteAllBytes(localPath, songBytes);
 
-                    if (!File.Exists(localPath)) continue;
+                    if (!File.Exists(localPath))
+                        continue;
                     msg.Add($"{song.Value.song["id"].Value}", ",");
                 }
             }
@@ -678,7 +694,8 @@ namespace SongRequestManager
             {
                 // Initialize empty container with x elements.
                 int datastart = (elementcount + 1) << 2;
-                if (datastart > size) size = datastart; // Make sure we have enough room.
+                if (datastart > size)
+                    size = datastart; // Make sure we have enough room.
                 Dataset = new byte[size];
                 for (int i = 0; i < datastart; i += 4)
                 {
@@ -718,10 +735,10 @@ namespace SongRequestManager
 
             NOTJSON Add(string key, string value)
             {
-                return Add(key, System.Text.Encoding.UTF8.GetBytes(value),0);
+                return Add(key, System.Text.Encoding.UTF8.GetBytes(value), 0);
             }
 
-            NOTJSON Add(string key, byte[] value,int type)
+            NOTJSON Add(string key, byte[] value, int type)
             {
                 byte id;
                 if (!FieldName.TryGetValue(key, out id)) // Update master key dictionary
@@ -736,8 +753,10 @@ namespace SongRequestManager
 
                 for (int i = 0; i < (pointerend - 4); i += 4)
                 {
-                    if (Dataset[i + 3] == 0) { Dataset[i + 3] = id; return Replace(i, ref value,0); }
-                    if (Dataset[i + 3] == id) return Replace(i, ref value,0);
+                    if (Dataset[i + 3] == 0)
+                    { Dataset[i + 3] = id; return Replace(i, ref value, 0); }
+                    if (Dataset[i + 3] == id)
+                        return Replace(i, ref value, 0);
                 }
 
 
@@ -772,7 +791,7 @@ namespace SongRequestManager
                 return this;
             }
 
-            NOTJSON Replace(int pointer, ref byte[] value,int type)
+            NOTJSON Replace(int pointer, ref byte[] value, int type)
             {
                 Instance.QueueChatMessage($"Replacing key in position {pointer >> 2}");
 
@@ -788,7 +807,8 @@ namespace SongRequestManager
 
                 Array.Copy(Dataset, read24(pointer + 4), Dataset, dataoffset + value.Length, Length - read24(pointer + 4));
                 value.CopyTo(Dataset, read24(pointer));
-                for (int i = pointer + 4; i < read24(0); i += 4) write24(i, read24(i) + delta);
+                for (int i = pointer + 4; i < read24(0); i += 4)
+                    write24(i, read24(i) + delta);
 
                 return this;
             }
@@ -885,7 +905,8 @@ namespace SongRequestManager
                     line.Append(hexdigit[array[i] & 15]);
                     line.Append(' ');
                 }
-                if (line.Length > 0) Instance.QueueChatMessage(line.ToString());
+                if (line.Length > 0)
+                    Instance.QueueChatMessage(line.ToString());
             }
 
         }
@@ -933,7 +954,8 @@ namespace SongRequestManager
                 time += Time.deltaTime;
 
                 // auto break after 60 seconds
-                if (time > 60) yield break;
+                if (time > 60)
+                    yield break;
 
                 // if we're past a second interval, update message
                 if (time > 1)
@@ -1037,4 +1059,5 @@ namespace SongRequestManager
 #endif
 
     }
+
 }

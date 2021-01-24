@@ -518,7 +518,7 @@ namespace SongRequestManager
 
                     if (folder == "")
                     {
-                        folder = Path.Combine(Environment.CurrentDirectory, "customsongs");
+                        folder = Path.Combine(Environment.CurrentDirectory, "Beat Saber_data\\customlevels");
                     }
 
                     List<FileInfo> files = new List<FileInfo>();  // List that will hold the files and subfiles in path
@@ -539,7 +539,7 @@ namespace SongRequestManager
                         {
                             foreach (FileInfo f in dir.GetFiles(searchPattern))
                             {
-                                if (f.FullName.EndsWith("info.json"))
+                                if (f.FullName.EndsWith("info.dat"))
                                 {
                                     files.Add(f);
                                 }
@@ -926,7 +926,7 @@ namespace SongRequestManager
 
                     ppmap.TryAdd(id, (int)(maxpp));
 
-                    if (id != "" && maxpp > 200)
+                    if (id != "" && maxpp > RequestBotConfig.Instance.PPDeckMiniumumPP)
                     {
                         listcollection.add("pp.deck", id);
                     }

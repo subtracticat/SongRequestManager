@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChatCore.Interfaces;
 using ChatCore.Models.Twitch;
-using UnityEngine;
 
 // Feature requests: Add Reason for being banned to banlist
 
@@ -168,7 +167,7 @@ namespace SongRequestManager
             new COMMAND(new string[] { "!addnew", "!addlatest" }).AsyncAction(addsongsFromnewest).Help(Mod, "usage: %alias% <listname>%|%... Adds the latest maps from %beatsaver%, filtered by the previous selected allowmappers command", _nothing);
             new COMMAND("!backup").Action(BackupStreamcore).Help(CmdFlags.Broadcaster, "Backup %SRM% directory.", _anything);
 
-            //new COMMAND("!refreshsongs").Coroutine(RefreshSongs).Help(Broadcaster, "Adds custom songs to bot list. This is a pre-release feature."); // BUG: Broken in 1.10
+            new COMMAND("!refreshsongs").Coroutine(RefreshSongs).Help(Broadcaster, "Adds custom songs to bot list. This is a pre-release feature."); // BUG: Broken in 1.10
             new COMMAND("!savesongdatabase").Coroutine(SaveSongDatabase).Help(Broadcaster);
 
             new COMMAND("!QueueLottery").Action(QueueLottery).Help(Broadcaster, "usage: %alias% <entry count> %|% Shuffle the queue and reduce to <entry count> entries. Close the queue.", _anything);

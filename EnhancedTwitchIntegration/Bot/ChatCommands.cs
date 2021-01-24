@@ -24,7 +24,7 @@ namespace SongRequestManager
         static public  StringBuilder SongHintText=new StringBuilder ("Requested by %user%%LF%Status: %Status%%Info%%LF%%PP%%LF%<size=60%>Request Time: %RequestTime%</size>");
         static StringBuilder QueueTextFileFormat=new StringBuilder ("%songName%%LF%");         // Don't forget to include %LF% for these. 
 
-        static public StringBuilder QueueListRow2 = new StringBuilder("%authorName%");
+        static public StringBuilder QueueListRow2 = new StringBuilder("%authorName% %levelAuthor%");
 
         static StringBuilder BanSongDetail = new StringBuilder("Blocking %songName%/%authorName% (%version%)");
 
@@ -216,7 +216,7 @@ namespace SongRequestManager
         {
             string songid = song["id"].Value;
 
-            //if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"].AsBool== true) return fast ? "X" : $"Automapper songs not allowed.";
+            if (filter.HasFlag(SongFilter.AutoMAP) && song["metadata"]["automapper"] != null && RequestBotConfig.Instance.Automap == false) return fast ? "X" : $"{song["songName"].Value} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
 
             if (filter.HasFlag(SongFilter.Queue) && RequestQueue.Songs.Any(req => req.song["version"] == song["version"])) return fast ? "X" : $"Request {song["songName"].Value} by {song["authorName"].Value} already exists in queue!";
 
@@ -1470,7 +1470,7 @@ namespace SongRequestManager
             }
             catch (Exception ex)
             {
-                Plugin.Log(ex.ToString());
+                //Plugin.Log(ex.ToString());
             }
         }
 
@@ -1494,7 +1494,7 @@ namespace SongRequestManager
             }
             catch (Exception ex)
             {
-                Plugin.Log(ex.ToString());
+                //Plugin.Log(ex.ToString());
             }
         }
         #endregion

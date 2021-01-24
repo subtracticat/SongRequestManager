@@ -32,6 +32,13 @@ namespace SongRequestManager.UI
             set => RequestBotConfig.Instance.MinimumNJS = value;
         }
 
+        [UIValue("automap")]
+        public bool Automap
+        {
+            get => RequestBotConfig.Instance.Automap;
+            set => RequestBotConfig.Instance.Automap = value;
+        }
+
         [UIValue("tts-support")]
         public bool TtsSupport
         {

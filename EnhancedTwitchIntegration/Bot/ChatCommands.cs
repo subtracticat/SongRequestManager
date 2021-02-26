@@ -983,7 +983,6 @@ namespace SongRequestManager
 
         internal void MoveRequestPositionInQueue(TwitchUser requestor, string request, bool top)
         {
-
             string moveId = GetBeatSaverId(request);
             for (int i = RequestQueue.Songs.Count - 1; i >= 0; i--)
             {
@@ -1001,7 +1000,7 @@ namespace SongRequestManager
                 }
                 else
                 {
-                    if (song["id"].Value == moveId)
+                    if (song["id"].Value?.Equals(moveId, StringComparison.CurrentCultureIgnoreCase) ?? false)
                     {
                         moveRequest = true;
                     }

@@ -649,16 +649,10 @@ namespace SongRequestManager
         }
         public string Who(ParseState state)
         {
-
             var qm = new QueueLongMessage();
             SongRequest result = null;
             result = FindMatch(RequestQueue.Songs, state.parameter, qm);
-            if (result == null)
-            {
-                result = FindMatch(RequestHistory.Songs, state.parameter, qm);
-            }
 
-            //if (result != null) QueueChatMessage($"{result.song["songName"].Value} requested by {result.requestor.displayName}.");
             if (result != null)
             {
                 qm.end("...");
@@ -1348,38 +1342,68 @@ namespace SongRequestManager
             }
         }
 
+        private static readonly HashSet<string> LotteryWinners = new HashSet<string>();
+
         private string QueueLottery(ParseState state)
         {
             int.TryParse(state.parameter, out int entrycount);
 
-            Shuffle(RequestQueue.Songs);
-
-            var list = RequestQueue.Songs;
-            for (int i = entrycount; i < list.Count; i++)
+            if (entrycount < RequestQueue.Songs.Count)
             {
-                try
+                List<SongRequest> lotteryPool = new List<SongRequest>();
+
+                foreach (var request in RequestQueue.Songs)
                 {
-                    if (RequestTracker.ContainsKey(list[i].requestor.Id))
+                    lotteryPool.Add(request);
+                    if (!LotteryWinners.Contains(request.requestor.DisplayName))
                     {
-                        RequestTracker[list[i].requestor.Id].numRequests--;
+                        lotteryPool.Add(request);
                     }
 
-                    listcollection.remove(duplicatelist, list[i].song["id"]);
+                    try
+                    {
+                        if (RequestTracker.ContainsKey(request.requestor.Id))
+                        {
+                            RequestTracker[request.requestor.Id].numRequests--;
+                        }
+                        listcollection.remove(duplicatelist, request.song["id"]);
+                    }
+                    catch { }
                 }
-                catch { }
-            }
 
-            if (entrycount > 0)
-            {
-                try
+                Shuffle(lotteryPool);
+                HashSet<string> selectedSongs = new HashSet<string>();
+
+                if (entrycount > 0)
                 {
-                    Writedeck(state.user, "prelotto");
-                    RequestQueue.Songs.RemoveRange(entrycount, RequestQueue.Songs.Count - entrycount);
+                    try
+                    {
+                        Writedeck(state.user, "prelotto");
+                    }
+                    catch { }
                 }
-                catch { }
-            }
 
-            RequestQueue.Write();
+                RequestQueue.Songs.Clear();
+                foreach (var request in lotteryPool)
+                {
+                    if (selectedSongs.Add(request.song["id"]))
+                    {
+                        LotteryWinners.Add(request.requestor.DisplayName);
+                        RequestQueue.Songs.Add(request);
+                        if (RequestTracker.ContainsKey(request.requestor.Id))
+                        { 
+                            RequestTracker[request.requestor.Id].numRequests++;
+                        }
+                    }
+
+                    if (RequestQueue.Songs.Count >= entrycount)
+                    {
+                        break;
+                    }
+                }
+
+                RequestQueue.Write();
+            }
 
             // Notify the chat that the queue was cleared
             QueueChatMessage($"Queue lottery complete!");

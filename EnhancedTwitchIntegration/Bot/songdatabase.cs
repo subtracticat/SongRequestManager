@@ -6,13 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using System.Collections.Concurrent;
-using System.Security.Cryptography;
 using ChatCore.Utilities;
 // Feature requests: Add Reason for being banned to banlist
 //  
@@ -102,7 +99,7 @@ namespace SongRequestManager
                     var metadata = song["metadata"];
                     song.Add("songName", metadata["songName"].Value);
                     song.Add("songSubName", metadata["songSubName"].Value);
-                    song.Add("authorName", metadata["levelAuthorName"].Value);
+                    song.Add("authorName", metadata["songAuthorName"].Value);
                     song.Add("levelAuthor", metadata["levelAuthorName"].Value);
                     song.Add("rating", song["stats"]["rating"].AsFloat * 100);
 

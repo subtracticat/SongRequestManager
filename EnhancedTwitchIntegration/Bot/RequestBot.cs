@@ -641,7 +641,7 @@ namespace SongRequestManager
                 string requestcheckmessage = IsRequestInQueue(normalize.RemoveSymbols(ref request, normalize._SymbolsNoDash));               // Check if requested ID is in Queue  
                 if (requestcheckmessage != "")
                 {
-                    QueueChatMessage(requestcheckmessage);
+                    QueueChatMessage($"@{requestor.DisplayName}, {requestcheckmessage}");
                     return;
                 }
 
@@ -729,7 +729,7 @@ namespace SongRequestManager
             // Display reason why chosen song was rejected, if filter is triggered. Do not add filtered songs
             if (errorMessage != "")
             {
-                QueueChatMessage(errorMessage);
+                QueueChatMessage($"@{requestor.DisplayName}, {errorMessage}");
                 return;
             }
 

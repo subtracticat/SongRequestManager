@@ -89,10 +89,10 @@ namespace SongRequestManager
         private static readonly Regex _digitRegex = new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled);
         private static readonly Regex _beatSaverRegex = new Regex("^[0-9]+-[0-9]+$", RegexOptions.Compiled);
         private static readonly Regex _alphaNumericRegex = new Regex("^[0-9A-Za-z]+$", RegexOptions.Compiled);
-        private static readonly Regex _RemapRegex = new Regex("^[0-9a-fA-F]+,[0-9a-fA-F]+$", RegexOptions.Compiled);
+        private static readonly Regex _RemapRegex = new Regex("^[0-9a-fA-F]+[, ]+[0-9a-fA-F]+$", RegexOptions.Compiled);
         private static readonly Regex _beatsaversongversion = new Regex("^[0-9a-zA-Z]+$", RegexOptions.Compiled);
         private static readonly Regex _replaceRegex = new Regex(@"^(!bsr )?(?<prev>[0-9a-fA-F]+\s+)?(?<new>[0-9a-fA-F]+)$", RegexOptions.Compiled);
-        private static readonly Regex _modAddForRegex = new Regex(@"^(?<username>[0-9a-zA-Z_]+) (?<songid>[0-9a-zA-Z]+)$", RegexOptions.Compiled);
+        private static readonly Regex _modAddForRegex = new Regex(@"^(?<username>[@0-9a-zA-Z_]+) (?<songid>[0-9a-zA-Z]+)$", RegexOptions.Compiled);
         private static readonly Regex _nothing = new Regex("$^", RegexOptions.Compiled);
         private static readonly Regex _anything = new Regex(".*", RegexOptions.Compiled); // Is this the most efficient way?
         private static readonly Regex _atleast1 = new Regex("..*", RegexOptions.Compiled); // Allow usage message to kick in for blank 
@@ -138,7 +138,7 @@ namespace SongRequestManager
             new COMMAND("!block").AsyncAction(Ban).Help(Mod, "usage: %alias%<song id>, do not include <,>'s.", _beatsaversongversion);
             new COMMAND("!blist").Action(ShowBanList).Help(Broadcaster, "usage: Don't use, it will spam chat!", _atleast1); // Purposely annoying to use, add a character after the command to make it happen 
 
-            new COMMAND("!remap").Action(Remap).Help(Mod, "usage: %alias%<songid1> , <songid2>%|%... Remaps future song requests of <songid1> to <songid2> , hopefully a newer/better version of the map.", _RemapRegex);
+            new COMMAND("!remap").Action(Remap).Help(Mod, "usage: %alias%<songid1> <songid2>%|%... Remaps future song requests of <songid1> to <songid2> , hopefully a newer/better version of the map.", _RemapRegex);
             new COMMAND("!unmap").Action(Unmap).Help(Mod, "usage: %alias%<songid> %|%... Remove future remaps for songid.", _beatsaversongversion);
 
             new COMMAND("!clearqueue").Action(Clearqueue).Help(Mod, "usage: %alias%%|%... Clears the song request queue. You can still get it back from the JustCleared deck, or the history window", _nothing);

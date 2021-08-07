@@ -8,6 +8,8 @@ using IPA.Utilities;
 using IPALogger = IPA.Logging.Logger;
 using UnityEngine;
 using UnityEngine.UI;
+using SongBrowser;
+using SongBrowser.UI;
 using SongRequestManager.UI;
 
 namespace SongRequestManager
@@ -123,7 +125,7 @@ namespace SongRequestManager
         {
             if (SongBrowserPluginPresent)
             {
-                var _songBrowserUI = SongBrowser.SongBrowserApplication.Instance.GetField<SongBrowser.UI.SongBrowserUI, SongBrowser.SongBrowserApplication>("_songBrowserUI");
+                var _songBrowserUI = SongBrowserApplication.Instance.GetField<SongBrowserUI, SongBrowserApplication>("_songBrowserUI");
                 if (_songBrowserUI)
                 {
                     if (_songBrowserUI.Model.Settings.filterMode != SongBrowser.DataAccess.SongFilterMode.None && _songBrowserUI.Model.Settings.sortMode != SongBrowser.DataAccess.SongSortMode.Original)

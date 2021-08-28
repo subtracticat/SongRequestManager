@@ -518,7 +518,10 @@ namespace SongRequestManager
         private CustomPreviewBeatmapLevel CustomLevelForRow(int row)
         {
             // get level id from hash
-            var levelIds = SongCore.Collections.levelIDsForHash(SongInfoForRow(row).song["hash"]);
+            var request = SongInfoForRow(row);
+            var hash = request.song["hash"];
+
+            var levelIds = SongCore.Collections.levelIDsForHash(hash);
             if (levelIds.Count == 0)
             {
                 return null;
@@ -630,7 +633,7 @@ namespace SongRequestManager
 
                 if (!_cachedTextures.TryGetValue(url, out var tex))
                 {
-                    var b = await Plugin.WebClient.DownloadImage($"https://beatsaver.com{url}", System.Threading.CancellationToken.None);
+                    var b = await Plugin.WebClient.DownloadImage(url, System.Threading.CancellationToken.None);
 
                     tex = new Texture2D(2, 2);
                     tex.LoadImage(b);

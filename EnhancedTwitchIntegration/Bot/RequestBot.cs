@@ -609,7 +609,7 @@ namespace SongRequestManager
 
         private async void UpdateSongMap(JSONObject song)
         {
-            var resp = await Plugin.WebClient.GetAsync($"https://beatsaver.com/api/maps/detail/{song["id"].Value.ToString()}", System.Threading.CancellationToken.None);
+            var resp = await Plugin.WebClient.GetAsync($"https://api.beatsaver.com/maps/id/{song["id"].Value.ToString()}", System.Threading.CancellationToken.None);
 
             if (resp.IsSuccessStatusCode)
             {
@@ -677,7 +677,7 @@ namespace SongRequestManager
             // Get song query results from beatsaver.com
             if (!RequestBotConfig.Instance.OfflineMode)
             {
-                string requestUrl = (id != "") ? $"https://beatsaver.com/api/maps/detail/{normalize.RemoveSymbols(ref request, normalize._SymbolsNoDash)}" : $"https://beatsaver.com/api/search/text/0?q={normalrequest}";
+                string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref request, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text/0?q={normalrequest}";
 
                 var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
@@ -743,11 +743,11 @@ namespace SongRequestManager
 
             // Song requests should try to be current. If the song was local, we double check for a newer version
 
-            //if ((song["downloadUrl"].Value == "") && !RequestBotConfig.Instance.OfflineMode )
+            //if ((song["downloadURL"].Value == "") && !RequestBotConfig.Instance.OfflineMode )
             //{
             //    //QueueChatMessage($"song:  {song["id"].Value.ToString()} ,{song["songName"].Value}");
 
-            //    yield return Utilities.Download($"https://beatsaver.com/api/maps/detail/{song["id"].Value.ToString()}", Utilities.DownloadType.Raw, null,
+            //    yield return Utilities.Download($"https://api.beatsaver.com/maps/id/{song["id"].Value.ToString()}", Utilities.DownloadType.Raw, null,
             //     // Download success
             //     (web) =>
             //     {
@@ -770,13 +770,17 @@ namespace SongRequestManager
 
             //}
 
+            int requestIndex = 0;
+            JSONObject oldSong = null;
+
             SongRequest newRequest = new SongRequest(song, requestor, requestInfo.requestTime, RequestStatus.Queued, requestInfo.requestInfo);
             if (requestInfo.toReplace != null)
             {
-                int index = RequestQueue.Songs.IndexOf(requestInfo.toReplace);
-                if (index >= 0)
+                requestIndex = RequestQueue.Songs.IndexOf(requestInfo.toReplace);
+                if (requestIndex >= 0)
                 {
-                    RequestQueue.Songs[index].song = song;
+                    oldSong = RequestQueue.Songs[requestIndex].song;
+                    RequestQueue.Songs[requestIndex].song = song;
                 }
             }
             else if ((requestInfo.flags.HasFlag(CmdFlags.MoveToTop)))
@@ -788,15 +792,35 @@ namespace SongRequestManager
             {
                 RequestQueue.Songs.Add(newRequest);
                 RequestTracker[requestor.Id].numRequests++;
+                requestIndex = RequestQueue.Songs.Count - 1;
             }
 
             RequestQueue.Write();
 
             Writedeck(requestor, "savedqueue"); // This can be used as a backup if persistent Queue is turned off.
 
-            if (!requestInfo.flags.HasFlag(CmdFlags.SilentResult))
+            if (requestIndex >= 0 && !requestInfo.flags.HasFlag(CmdFlags.SilentResult))
             {
-                new DynamicText().AddSong(ref song).QueueMessage(AddSongToQueueText.ToString());
+                IEnumerable<SongRequest> songsBefore = RequestQueue.Songs.Take(requestIndex);
+                int duration = songsBefore.Sum(s => s.song["songduration"].AsInt);
+
+                string behindDuration = string.Empty;
+
+                if (requestIndex > 0)
+                {
+                    behindDuration = $" behind {GetDurationString(duration)} of requests";
+                }
+
+                if (oldSong != null)
+                {
+                    var message = $"{requestor.DisplayName}: {song["songName"].Value} / {song["songSubName"].Value} [{song["authorName"].Value}] {GetRating(ref song)} ({song["version"].Value}) replaced request {oldSong["songName"].Value} ({oldSong["version"].Value}) in position {requestIndex + 1}.";
+                    Instance.QueueChatMessage(message);
+                }
+                else
+                {
+                    var message = $"{requestor.DisplayName}: {song["songName"].Value} / {song["songSubName"].Value} [{song["authorName"].Value}] {GetRating(ref song)} ({song["version"].Value}) added to queue in position {requestIndex + 1}{behindDuration}.";
+                    Instance.QueueChatMessage(message);
+                }
             }
 
             Dispatcher.RunOnMainThread(() =>
@@ -845,6 +869,7 @@ namespace SongRequestManager
                 //CustomLevel[] levels = SongLoader.CustomLevels.Where(l => l.levelID.StartsWith(songHash)).ToArray();
                 //if (levels.Length == 0)
 
+                Plugin.Log($"Evaluating levelIDsForHash: {songHash}");
                 var rat = SongCore.Collections.levelIDsForHash(songHash);
                 bool mapexists = (rat.Count > 0) && (rat[0] != "");
 
@@ -923,15 +948,9 @@ namespace SongRequestManager
 
                     if (songZip == null)
                     {
-#if UNRELEASED
-                        // Direct download hack
-                        var ext = Path.GetExtension(request.song["coverURL"].Value);
-                        var k = request.song["coverURL"].Value.Replace(ext, ".zip");
-
-                        songZip = await Plugin.WebClient.DownloadSong($"https://beatsaver.com{k}", System.Threading.CancellationToken.None);
-#else
-                        songZip = await Plugin.WebClient.DownloadSong($"https://beatsaver.com{request.song["downloadURL"].Value}", System.Threading.CancellationToken.None);
-#endif
+                        var downloadUrl = request.song["downloadURL"].Value;
+                        Plugin.Log($"Downloading song {request.song["id"].Value} from {downloadUrl}");
+                        songZip = await Plugin.WebClient.DownloadSong(downloadUrl, System.Threading.CancellationToken.None);
                     }
 
                     Stream zipStream = new MemoryStream(songZip);
@@ -1374,13 +1393,13 @@ namespace SongRequestManager
                 }
 
                 if (automtt.Contains(state.user.UserName.ToLower()))
-                    {
+                {
                     QueueChatMessage($"{state.user.DisplayName}'s request was promoted!");
                     state.flags |= CmdFlags.MoveToTop;
                     state.flags |= CmdFlags.Mod;
                     automtt.Removeentry(state.user.UserName.ToLower());
                     state.info = "!promoted";
-                    }
+                }
 
                 // BUG: Need to clean up the new request pipeline
                 string testrequest = normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash);

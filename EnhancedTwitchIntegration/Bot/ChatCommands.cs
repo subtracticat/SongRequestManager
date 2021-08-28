@@ -331,7 +331,7 @@ namespace SongRequestManager
 
                 if (!RequestBotConfig.Instance.OfflineMode)
                 {
-                    var requestUrl = $"https://beatsaver.com/api/maps/detail/{id}";
+                    var requestUrl = $"https://api.beatsaver.com/maps/id/{id}";
                     var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
                     if (resp.IsSuccessStatusCode)
@@ -572,8 +572,10 @@ namespace SongRequestManager
             SongRequest result = null;
 
             string lastuser = "";
-            foreach (var entry in queue)
+
+            for (int i = 0; i < queue.Count; i++)
             {
+                var entry = queue[i];
                 var song = entry.song;
 
                 if (songId == "")
@@ -588,7 +590,7 @@ namespace SongRequestManager
                         {
                             qm.Add($"{result.requestor.DisplayName}: ");
                         }
-                        qm.Add($"{result.song["songName"].Value} ({result.song["version"].Value})", ",");
+                        qm.Add($"{result.song["songName"].Value} ({result.song["version"].Value}) in position {i + 1}", ",");
                         lastuser = result.requestor.DisplayName;
                     }
                 }
@@ -597,7 +599,7 @@ namespace SongRequestManager
                     if (song["id"].Value == songId)
                     {
                         result = entry;
-                        qm.Add($"{result.requestor.DisplayName}: {result.song["songName"].Value} ({result.song["version"].Value})");
+                        qm.Add($"{result.requestor.DisplayName}: {result.song["songName"].Value} ({result.song["version"].Value}) in position {i + 1}");
                         return entry;
                     }
                 }
@@ -727,7 +729,7 @@ namespace SongRequestManager
         {
             int totalSongs = 0;
 
-            string requestUrl = "https://beatsaver.com/api/maps/latest";
+            string requestUrl = "https://api.beatsaver.com/maps/latest";
 
             //if (RequestBotConfig.Instance.OfflineMode) return;
 
@@ -819,7 +821,7 @@ namespace SongRequestManager
 
             var id = GetBeatSaverId(state.parameter);
 
-            string requestUrl = (id != "") ? $"https://beatsaver.com/api/maps/detail/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://beatsaver.com/api/search/text";
+            string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text";
 
             if (RequestBotConfig.Instance.OfflineMode)
             {
@@ -905,7 +907,7 @@ namespace SongRequestManager
         {
 
             var id = GetBeatSaverId(state.parameter);
-            string requestUrl = (id != "") ? $"https://beatsaver.com/api/maps/detail/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://beatsaver.com/api/search/text/0?q={state.request}";
+            string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text/0?q={state.request}";
 
             string errorMessage = "";
 
@@ -1077,7 +1079,7 @@ namespace SongRequestManager
 
             if (!RequestBotConfig.Instance.OfflineMode)
             {
-                string requestUrl = (id != "") ? $"https://beatsaver.com/api/maps/detail/{id}" : $"https://beatsaver.com/api/search/text/0?q={normalize.NormalizeBeatSaverString(state.parameter)}";
+                string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{id}" : $"https://api.beatsaver.com/search/text/0?q={normalize.NormalizeBeatSaverString(state.parameter)}";
                 var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
                 if (resp.IsSuccessStatusCode)
@@ -1733,7 +1735,7 @@ namespace SongRequestManager
 
                 Add("StarRating", GetStarRating(ref song)); // Add additional dynamic properties
                 Add("Rating", GetRating(ref song));
-                Add("BeatsaverLink", $"https://beatsaver.com/beatmap/{song["id"].Value}");
+                Add("BeatsaverLink", $"https://beatsaver.com/maps/{song["id"].Value}");
                 Add("BeatsaberLink", $"https://bsaber.com/songs/{song["id"].Value}");
                 return this;
             }

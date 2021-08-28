@@ -175,13 +175,13 @@ namespace SongRequestManager
             new COMMAND("!addtoqueue").Action(queuelist).Help(Broadcaster, "usage: %alias% <list>", _atleast1);
 
             // Changed
-            new COMMAND("!queue").Action(GetQueue).Help(Everyone, "usage: %alias%%|% ... Displays a list of the currently requested songs.", _nothing);
+            new COMMAND(new string[] { "!queue", "!q" }).Action(GetQueue).Help(Everyone, "usage: %alias%%|% ... Displays a list of the currently requested songs.", _nothing);
             new COMMAND(new string[] { "!wrongsong", "!wrong", "!oops" }).Action(RedirectOopsMessage).Help(Everyone, "usage: %alias%%|%... Use !remove to remove your request or !replace <id> to replace it.", _nothing);
             new COMMAND("!remove").Action(DequeueSong).Help(Everyone, "usage: %alias%<songname>,<username>,<song id> %|%... Removes a song from the queue.", _anything);
             new COMMAND("!queuestatus").Action(QueueStatus).Help(Everyone, "usage: %alias% %|% Show current queue status", _nothing);
 
             // Added
-            new COMMAND(new string[] { "!myqueue", "!myrequest", "!my" }).Action(MyQueue).Help(Everyone, "usage: %alias%%|% ... Displays the current status of your own song request.", _nothing);
+            new COMMAND(new string[] { "!myqueue", "!myrequest", "!my", "!me" }).Action(MyQueue).Help(Everyone, "usage: %alias%%|% ... Displays the current status of your own song request.", _nothing);
             new COMMAND("!replace").Action(ReplaceRequest).Help(Everyone, "usage: %alias% <old id (optional)> <new id> %|% ... Replaces your current song request with a new song while maintaining your queue position.", _replaceRegex);
             new COMMAND("!modaddfor").Action(ModAddFor).Help(Mod, "usage: %alias% <foruser> <song id>, omit <,>'s. %|%This adds a song to the request queue on behalf of <foruser>. This ignores ALL filters including bans.", _modAddForRegex);
             new COMMAND("!attfor").Action(AddToTopFor).Help(Mod, "usage: %alias% <foruser> <song id>, omit <,>'s. %|%This adds a song to the top of the request queue on behalf of <foruser>.", _modAddForRegex);

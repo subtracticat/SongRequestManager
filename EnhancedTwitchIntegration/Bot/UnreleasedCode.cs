@@ -75,7 +75,7 @@ namespace SongRequestManager
 
             string mapperid = "";
 
-            var resp = await Plugin.WebClient.GetAsync($"https://beatsaver.com/api/search/text/q={state.parameter}", System.Threading.CancellationToken.None);
+            var resp = await Plugin.WebClient.GetAsync($"https://api.beatsaver.com/search/text/q={state.parameter}", System.Threading.CancellationToken.None);
 
             if (resp.IsSuccessStatusCode)
             {
@@ -110,7 +110,7 @@ namespace SongRequestManager
 
             string deckname = $"{state.parameter}.deck";
 
-            string requestUrl = "https://beatsaver.com/api/maps/uploader/";
+            string requestUrl = "https://api.beatsaver.com/maps/uploader/";
 
             bool found = true;
 
@@ -517,7 +517,7 @@ namespace SongRequestManager
 
             int totalSongs = 0;
 
-            string requestUrl = "https://beatsaver.com/api/maps/latest";
+            string requestUrl = "https://api.beatsaver.com/maps/latest";
 
             int offset = 0;
             while (true) // MaxiumAddScanRange
@@ -574,7 +574,7 @@ namespace SongRequestManager
                     if (File.Exists(localPath))
                         continue;
 
-                    var songBytes = await Plugin.WebClient.DownloadSong(song.Value.song["downloadUrl"].Value, System.Threading.CancellationToken.None);
+                    var songBytes = await Plugin.WebClient.DownloadSong(song.Value.song["downloadURL"].Value, System.Threading.CancellationToken.None);
 
                     File.WriteAllBytes(localPath, songBytes);
 

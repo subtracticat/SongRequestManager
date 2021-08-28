@@ -89,63 +89,65 @@ namespace SongRequestManager
 
             public SongMap(JSONObject song, string LevelId = "", string path = "")
             {
-
                 if (!song["version"].IsString)
                 {
                     //RequestBot.Instance.QueueChatMessage($"{song["key"].Value}: {song["metadata"]}");
-                    song.Add("id", song["key"]);
-                    song.Add("version", song["key"]);
+                    song.Add("id", song["id"]);
+                    song.Add("version", song["id"]);
 
                     var metadata = song["metadata"];
                     song.Add("songName", metadata["songName"].Value);
                     song.Add("songSubName", metadata["songSubName"].Value);
                     song.Add("authorName", metadata["songAuthorName"].Value);
                     song.Add("levelAuthor", metadata["levelAuthorName"].Value);
-                    song.Add("rating", song["stats"]["rating"].AsFloat * 100);
+                    song.Add("rating", song["stats"]["score"].AsFloat * 100);
+
+                    var length = metadata["duration"].AsInt;
+                    song.Add("songlength", $"{length / 60}:{length % 60:00}");
+                    song.Add("songduration", length);
 
                     bool degrees90 = false;
                     bool degrees360 = false;
+                    int maxnjs = 0;
+
+                    var versions = song["versions"].AsArray;
+                    var version = versions[0];
+
+                    song.Add("hash", version["hash"].Value);
+                    song.Add("downloadURL", version["downloadURL"].Value);
+                    song.Add("coverURL", version["coverURL"].Value);
 
                     try
                     {
+                        var diffs = version["diffs"].AsArray;
 
-                        var characteristics = metadata["characteristics"][0]["difficulties"];
-
-                        //Instance.QueueChatMessage($"{characteristics}");
-
-                        foreach (var entry in metadata["characteristics"])
+                        foreach (var diff in diffs.Children)
                         {
-                            if (entry.Value["name"] == "360Degree")
-                            {
-                                degrees360 = true;
-                            }
-
-                            if (entry.Value["name"] == "90Degree")
-                            {
-                                degrees90 = true;
-                            }
-                        }
-
-                        int maxnjs = 0;
-                        foreach (var entry in characteristics)
-                        {
-                            if (entry.Value.IsNull)
+                            if (diff.IsNull)
                             {
                                 continue;
                             }
 
-                            var diff = entry.Value["length"].AsInt;
-                            var njs = entry.Value["njs"].AsInt;
+                            var njs = diff["njs"].AsInt;
                             if (njs > maxnjs)
                             {
                                 maxnjs = njs;
                             }
 
-                            if (diff > 0)
+
+                            var characteristic = diff["characteristic"]?.Value;
+                            if (!string.IsNullOrEmpty(characteristic))
                             {
-                                song.Add("songlength", $"{diff / 60}:{diff % 60:00}");
-                                song.Add("songduration", diff);
-                                //Instance.QueueChatMessage($"{diff / 60}:{diff % 60}");
+                                switch (characteristic)
+                                {
+                                    case "90Degree":
+                                        degrees90 = true;
+                                        break;
+
+                                    case "360Degree":
+                                        degrees360 = true;
+                                        break;
+                                }
                             }
                         }
 

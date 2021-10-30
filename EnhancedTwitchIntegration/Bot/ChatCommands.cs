@@ -196,7 +196,7 @@ namespace SongRequestManager
         {
             string songid = song["id"].Value;
 
-            if (filter.HasFlag(SongFilter.AutoMAP) && song["metadata"]["automapper"] != null && RequestBotConfig.Instance.Automap == false) return fast ? "X" : $"{song["songName"].Value} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
+            if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"] == true && RequestBotConfig.Instance.Automap == false) return fast ? "X" : $"{song["songName"].Value} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
 
             if (filter.HasFlag(SongFilter.Queue) && RequestQueue.Songs.Any(req => req.song["version"] == song["version"])) return fast ? "X" : $"Request {song["songName"].Value} by {song["authorName"].Value} already exists in queue!";
 
@@ -270,7 +270,7 @@ namespace SongRequestManager
 
                 if (!RequestBotConfig.Instance.OfflineMode)
                 {
-                    var requestUrl = $"https://beatsaver.com/api/maps/detail/{id}";
+                    var requestUrl = $"https://api.beatsaver.com/maps/id/{id}";
                     var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
                     if (resp.IsSuccessStatusCode)
@@ -620,7 +620,7 @@ namespace SongRequestManager
         {
             int totalSongs = 0;
 
-            string requestUrl = "https://beatsaver.com/api/maps/latest";
+            string requestUrl = "https://beatsaver.com/api/maps/latest?automapper=false";
 
             //if (RequestBotConfig.Instance.OfflineMode) return;
 
@@ -630,19 +630,21 @@ namespace SongRequestManager
 
             //state.msg($"Flags: {state.flags}");
 
+            string next = "";
+
             while (offset < RequestBotConfig.Instance.MaxiumScanRange) // MaxiumAddScanRange
             {
-                var resp = await Plugin.WebClient.GetAsync($"{requestUrl}/{offset}", System.Threading.CancellationToken.None);
+                var resp = await Plugin.WebClient.GetAsync($"{requestUrl}{next}", System.Threading.CancellationToken.None);
 
                 if (resp.IsSuccessStatusCode)
                 {
                     var result = resp.ConvertToJsonNode();
 
 
-                    if (result["docs"].IsArray && result["totalDocs"].AsInt == 0)
-                    {
-                        return;
-                    }
+                    //if (result["docs"].IsArray && result["totalDocs"].AsInt == 0)
+                    //{
+                    //    return;
+                    //}
 
 
                     if (result["docs"].IsArray)
@@ -653,8 +655,13 @@ namespace SongRequestManager
 
 
 
-
                             new SongMap(song);
+
+                            //"lastPublishedAt": "2021-10-17T19:45:04.459770Z"
+                            string lastpublished = entry["lastPublishedAt"];
+                            next = $"&before={lastpublished}";
+                            //QueueChatMessage($"next: {next}");
+
 
                             if (mapperfiltered(song, true)) continue; // This forces the mapper filter
                             if (filtersong(song)) continue;
@@ -662,6 +669,8 @@ namespace SongRequestManager
                             if (state.flags.HasFlag(CmdFlags.Local)) QueueSong(state, song);
                             listcollection.add("latest.deck", song["id"].Value);
                             totalSongs++;
+
+
                         }
                     }
 
@@ -702,7 +711,7 @@ namespace SongRequestManager
 
             var id = GetBeatSaverId(state.parameter);
 
-            string requestUrl = (id != "") ? $"https://beatsaver.com/api/maps/detail/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://beatsaver.com/api/search/text";
+            string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://beatsaver.com/api/search/text";
 
             //if (RequestBotConfig.Instance.OfflineMode) return;
 
@@ -774,7 +783,7 @@ namespace SongRequestManager
         {
  
             var id = GetBeatSaverId(state.parameter);
-            string requestUrl = (id != "") ? $"https://beatsaver.com/api/maps/detail/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://beatsaver.com/api/search/text/0?q={state.request}";
+            string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://beatsaver.com/api/search/text/0?q={state.request}";
 
             string errorMessage = "";
 
@@ -924,7 +933,7 @@ namespace SongRequestManager
             
             if (!RequestBotConfig.Instance.OfflineMode)
             {
-                string requestUrl = (id != "") ? $"https://beatsaver.com/api/maps/detail/{id}" : $"https://beatsaver.com/api/search/text/0?q={normalize.NormalizeBeatSaverString(state.parameter)}";
+                string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{id}" : $"https://beatsaver.com/api/search/text/0?q={normalize.NormalizeBeatSaverString(state.parameter)}";
                 var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
                 if (resp.IsSuccessStatusCode)
@@ -1442,7 +1451,7 @@ namespace SongRequestManager
 
                 Add("StarRating", GetStarRating(ref song)); // Add additional dynamic properties
                 Add("Rating", GetRating(ref song));
-                Add("BeatsaverLink", $"https://beatsaver.com/beatmap/{song["id"].Value}");
+                Add("BeatsaverLink", $"https://beatsaver.com/maps/{song["id"].Value}");
                 Add("BeatsaberLink", $"https://bsaber.com/songs/{song["id"].Value}");
                 return this;
             }

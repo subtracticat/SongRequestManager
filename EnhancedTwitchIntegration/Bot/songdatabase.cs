@@ -73,11 +73,27 @@ namespace SongRequestManager
             {
  
                 if (!song["version"].IsString)
-                    {
+                {
+                    var version_nr = song["versions"].Count - 1;
                     //RequestBot.Instance.QueueChatMessage($"{song["key"].Value}: {song["metadata"]}");
-                    song.Add("id", song["key"]);
-                    song.Add("version", song["key"]);
-
+                    if (!song["key"].IsString)
+                    {
+                        song.Add("id", song["id"]);
+                        song.Add("version", song["id"]);
+                        song.Add("hash", song["versions"][version_nr]["hash"]);
+                        song.Add("downloadURL", song["versions"][version_nr]["downloadURL"]);
+                        song.Add("coverURL", song["versions"][version_nr]["coverURL"]);
+                        song.Add("previewURL", song["versions"][version_nr]["previewURL"]);
+                    }
+                    else
+                    {
+                        song.Add("id", song["key"]);
+                        song.Add("version", song["key"]);
+                        song.Add("downloadURL", "https://cdn.beatsaver.com/" + song["hash"] + ".zip");
+                        song.Add("coverURL", "https://cdn.beatsaver.com/" + song["hash"] + ".jpg");
+                        song.Add("previewURL", "https://cdn.beatsaver.com/" + song["hash"] + ".mp3");
+                        song.Add("automapper", song["metadata"]["automapper"]);
+                    }
                     var metadata = song["metadata"];
                     song.Add("songName", metadata["songName"].Value);
                     song.Add("songSubName", metadata["songSubName"].Value);
@@ -92,10 +108,16 @@ namespace SongRequestManager
                     {
 
                         var characteristics = metadata["characteristics"][0]["difficulties"];
+                        var lenghtlabel = "length";
+                        if (!song["key"].IsString)
+                        {
+                            characteristics = song["versions"][version_nr]["diffs"];
+                            lenghtlabel = "seconds";
+                        }
 
-                        //Instance.QueueChatMessage($"{characteristics}");
+                            //Instance.QueueChatMessage($"{characteristics}");
 
-                        foreach (var entry in metadata["characteristics"])
+                            foreach (var entry in metadata["characteristics"])
                         {
                             if (entry.Value["name"] == "360Degree") degrees360 = true;
                             if (entry.Value["name"] == "90Degree") degrees90 = true;
@@ -105,7 +127,10 @@ namespace SongRequestManager
                         foreach (var entry in characteristics)
                         {
                             if (entry.Value.IsNull) continue;
-                            var diff = entry.Value["length"].AsInt;
+
+                            if (entry.Value["characteristic"] == "360Degree") degrees360 = true;
+                            if (entry.Value["characteristic"] == "90Degree") degrees90 = true;
+                            var diff = entry.Value[lenghtlabel].AsInt;
                             var njs = entry.Value["njs"].AsInt;
                             if (njs > maxnjs) maxnjs = njs;
 

@@ -216,7 +216,7 @@ namespace SongRequestManager
         {
             string songid = song["id"].Value;
 
-            if (filter.HasFlag(SongFilter.AutoMAP) && song["metadata"]["automapper"] != null && RequestBotConfig.Instance.Automap == false) return fast ? "X" : $"{song["songName"].Value} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
+            if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"] == true && RequestBotConfig.Instance.Automap == false) return fast ? "X" : $"{song["songName"].Value} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
 
             if (filter.HasFlag(SongFilter.Queue) && RequestQueue.Songs.Any(req => req.song["version"] == song["version"])) return fast ? "X" : $"Request {song["songName"].Value} by {song["authorName"].Value} already exists in queue!";
 
@@ -729,7 +729,7 @@ namespace SongRequestManager
         {
             int totalSongs = 0;
 
-            string requestUrl = "https://api.beatsaver.com/maps/latest";
+            string requestUrl = "https://beatsaver.com/api/maps/latest?automapper=false";
 
             //if (RequestBotConfig.Instance.OfflineMode) return;
 
@@ -739,19 +739,21 @@ namespace SongRequestManager
 
             //state.msg($"Flags: {state.flags}");
 
+            string next = "";
+
             while (offset < RequestBotConfig.Instance.MaxiumScanRange) // MaxiumAddScanRange
             {
-                var resp = await Plugin.WebClient.GetAsync($"{requestUrl}/{offset}", System.Threading.CancellationToken.None);
+                var resp = await Plugin.WebClient.GetAsync($"{requestUrl}{next}", System.Threading.CancellationToken.None);
 
                 if (resp.IsSuccessStatusCode)
                 {
                     var result = resp.ConvertToJsonNode();
 
 
-                    if (result["docs"].IsArray && result["totalDocs"].AsInt == 0)
-                    {
-                        return;
-                    }
+                    //if (result["docs"].IsArray && result["totalDocs"].AsInt == 0)
+                    //{
+                    //    return;
+                    //}
 
 
                     if (result["docs"].IsArray)
@@ -762,8 +764,13 @@ namespace SongRequestManager
 
 
 
-
                             new SongMap(song);
+
+                            //"lastPublishedAt": "2021-10-17T19:45:04.459770Z"
+                            string lastpublished = entry["lastPublishedAt"];
+                            next = $"&before={lastpublished}";
+                            //QueueChatMessage($"next: {next}");
+
 
                             if (mapperfiltered(song, true))
                             {
@@ -782,6 +789,8 @@ namespace SongRequestManager
 
                             listcollection.add("latest.deck", song["id"].Value);
                             totalSongs++;
+
+
                         }
                     }
                 }

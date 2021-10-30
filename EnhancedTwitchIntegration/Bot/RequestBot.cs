@@ -681,6 +681,7 @@ namespace SongRequestManager
 
                 var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
+                
                 if (resp.IsSuccessStatusCode)
                 {
                     result = resp.ConvertToJsonNode();
@@ -930,14 +931,14 @@ namespace SongRequestManager
                     if (!string.IsNullOrEmpty(RequestBotConfig.Instance.offlinepath))
                     {
                         // build cache name to check
-                        var cacheName = $"{request.song["key"].Value}_{request.song["hash"].Value}.zip";
+                        var cacheName = $"{request.song["id"].Value}_{request.song["hash"].Value}.zip";
                         Plugin.Log($"{RequestBotConfig.Instance.offlinepath} - {cacheName}");
                         var cachePath = Path.Combine(RequestBotConfig.Instance.offlinepath, cacheName);
 
                         // check if a local cache exists, if so, copy it
                         if (File.Exists(cachePath))
                         {
-                            Plugin.Log($"{request.song["key"]} found in offline cache");
+                            Plugin.Log($"{request.song["id"]} found in offline cache");
                             using (var stream = File.Open(cachePath, FileMode.Open))
                             {
                                 songZip = new byte[stream.Length];

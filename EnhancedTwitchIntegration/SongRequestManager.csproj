@@ -74,8 +74,7 @@
     <Reference Include="SemVer">
       <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
     </Reference>
-    <Reference Include="SongBrowser, Version=6.0.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SongBrowser">
       <HintPath>$(BeatSaberDir)\Plugins\SongBrowser.dll</HintPath>
     </Reference>
     <Reference Include="SongCore, Version=2.9.5.0, Culture=neutral, processorArchitecture=MSIL">

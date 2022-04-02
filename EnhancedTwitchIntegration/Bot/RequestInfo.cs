@@ -1,11 +1,11 @@
 ﻿using System;
-using ChatCore.Models.Twitch;
+using SongRequestManager.ChatHandlers;
 
 namespace SongRequestManager
 {
     public class RequestInfo
     {
-        public TwitchUser requestor;
+        public ChatUser requestor;
         public string request;
         public bool isBeatSaverId;
         public DateTime requestTime;
@@ -14,7 +14,7 @@ namespace SongRequestManager
         public RequestBot.ParseState state;
         public SongRequest toReplace;
 
-        public RequestInfo(TwitchUser requestor, string request, DateTime requestTime, bool isBeatSaverId, RequestBot.ParseState state, RequestBot.CmdFlags flags = 0, string userstring = "", SongRequest toReplace = null)
+        public RequestInfo(ChatUser requestor, string request, DateTime requestTime, bool isBeatSaverId, RequestBot.ParseState state, RequestBot.CmdFlags flags = 0, string userstring = "", SongRequest toReplace = null)
         {
             this.requestor = requestor;
             this.request = request;

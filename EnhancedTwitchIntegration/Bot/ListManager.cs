@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ChatCore.Models.Twitch;
-using ChatCore.Utilities;
+using SongRequestManager.SimpleJSON;
+using SongRequestManager.ChatHandlers;
 using UnityEngine;
 
 namespace SongRequestManager
 {
     public partial class RequestBot : MonoBehaviour
     {
-        private void showlists(TwitchUser requestor, string request)
+        private void showlists(ChatUser requestor, string request)
         {
             var msg = new QueueLongMessage();
             msg.Header("Loaded lists: ");
@@ -42,7 +42,7 @@ namespace SongRequestManager
             return success;
         }
 
-        private void Addtolist(TwitchUser requestor, string request)
+        private void Addtolist(ChatUser requestor, string request)
         {
             string[] parts = request.Split(new char[] { ' ', ',' }, 2);
             if (parts.Length < 2)
@@ -63,7 +63,7 @@ namespace SongRequestManager
             }
         }
 
-        private void ListList(TwitchUser requestor, string request)
+        private void ListList(ChatUser requestor, string request)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace SongRequestManager
             }
         }
 
-        private void RemoveFromlist(TwitchUser requestor, string request)
+        private void RemoveFromlist(ChatUser requestor, string request)
         {
             string[] parts = request.Split(new char[] { ' ', ',' }, 2);
             if (parts.Length < 2)
@@ -105,7 +105,7 @@ namespace SongRequestManager
             }
         }
 
-        private void ClearList(TwitchUser requestor, string request)
+        private void ClearList(ChatUser requestor, string request)
         {
             try
             {
@@ -118,7 +118,7 @@ namespace SongRequestManager
             }
         }
 
-        private void UnloadList(TwitchUser requestor, string request)
+        private void UnloadList(ChatUser requestor, string request)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace SongRequestManager
 
         #region LIST MANAGER user interface
 
-        private void writelist(TwitchUser requestor, string request)
+        private void writelist(ChatUser requestor, string request)
         {
         }
 
@@ -180,7 +180,7 @@ namespace SongRequestManager
 
         // This code is currently in an extreme state of flux. Underlying implementation will change.
 
-        private void OpenList(TwitchUser requestor, string request)
+        private void OpenList(ChatUser requestor, string request)
         {
             listcollection.OpenList(request.ToLower());
         }

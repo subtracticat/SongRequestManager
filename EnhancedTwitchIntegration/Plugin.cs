@@ -1,16 +1,15 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage.Settings;
 using IPA;
 using IPA.Utilities;
-using IPALogger = IPA.Logging.Logger;
-using UnityEngine;
-using UnityEngine.UI;
 using SongBrowser;
 using SongBrowser.UI;
 using SongRequestManager.UI;
+using UnityEngine;
+using UnityEngine.UI;
+using IPALogger = IPA.Logging.Logger;
 
 namespace SongRequestManager
 {
@@ -18,7 +17,7 @@ namespace SongRequestManager
     public class Plugin
     {
         public string Name => "Song Request Manager";
-        public static SemVer.Version Version => IPA.Loader.PluginManager.GetPluginFromId("SongRequestManager").Version;
+        public static Hive.Versioning.Version Version => IPA.Loader.PluginManager.GetPluginFromId("SongRequestManager").HVersion;
 
         public static IPALogger Logger { get; internal set; }
 
@@ -33,9 +32,11 @@ namespace SongRequestManager
 
         internal static GameMode gameMode;
 
+        //DataPath is typically "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\UserData\SRM"
         public static string DataPath = Path.Combine(UnityGame.UserDataPath, "SRM");
         public static string OldDataPath = Path.Combine(UnityGame.UserDataPath, "StreamCore");
         public static bool SongBrowserPluginPresent;
+        public static bool ChatCorePluginPresent;
 
         [Init]
         public void Init(IPALogger log)
@@ -86,6 +87,7 @@ namespace SongRequestManager
             UdpListener = new UdpListener();
 
             SongBrowserPluginPresent = IPA.Loader.PluginManager.GetPlugin("Song Browser") != null;
+            ChatCorePluginPresent = IPA.Loader.PluginManager.GetPlugin("ChatCore") != null;
 
             // setup handle for fresh menu scene changes
             BS_Utils.Utilities.BSEvents.OnLoad();

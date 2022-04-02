@@ -2,12 +2,10 @@
 using BeatSaberMarkupLanguage;
 using HMUI;
 using IPA.Utilities;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using IPA.Utilities;
-using BeatSaberMarkupLanguage;
-using TMPro;
 
 namespace SongRequestManager.UI
 {

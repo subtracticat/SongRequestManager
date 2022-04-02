@@ -19,9 +19,9 @@ using SongRequestManager.UI;
 using BeatSaberMarkupLanguage;
 using System.Threading.Tasks;
 using System.IO.Compression;
-using ChatCore.Models.Twitch;
-using ChatCore.Utilities;
+using SongRequestManager.SimpleJSON;
 using HMUI;
+using SongRequestManager.ChatHandlers;
 
 namespace SongRequestManager
 {
@@ -487,7 +487,7 @@ namespace SongRequestManager
 
             string dummy = "";
 
-            TwitchUser user = ChatHandler.Self;
+            ChatUser user = ChatHandler.Self;
 
             loaddecks(new ParseState(ref user,ref dummy,CmdFlags.Silent,ref dummy)); // Load our default deck collection
             // BUG: Command failure observed once, no permission to use /chatcommand. Possible cause: OurTwitchUser isn't authenticated yet.
@@ -625,10 +625,56 @@ namespace SongRequestManager
             }
         }
 
+        public enum QueueInsertionStyle
+        {
+            FIFO, MoveToTop, RoundRobin
+        }
+
+        public static int GetQueueInsertionPoint(List<SongRequest> queue, QueueInsertionStyle style, String requestorTwitchId)
+        {
+            int lastPosition = queue.Count;
+            switch (style)
+            {
+                case QueueInsertionStyle.MoveToTop:
+                    return 0;
+                case QueueInsertionStyle.RoundRobin:
+                    int countRequestorSongsInQueue = 0;
+                    for (int i = 0; i < queue.Count; i++)
+                    {
+                        if (queue[i].requestor.Id.Equals(requestorTwitchId))
+                        {
+                            countRequestorSongsInQueue++;
+                        }
+                    }
+                    countRequestorSongsInQueue++; //if the requester has N songs in queue, this song will be song N + 1
+
+                    Dictionary<string, int> requestCountsPerUser = new Dictionary<string, int>();
+                    for (int i = 0; i < queue.Count; i++)
+                    {
+                        string ithRequestorId = queue[i].requestor.Id;
+                        if (requestCountsPerUser.ContainsKey(ithRequestorId))
+                        {
+                            requestCountsPerUser[ithRequestorId]++;
+                        } else
+                        {
+                            requestCountsPerUser[ithRequestorId] = 1;
+                        }
+                        if (requestCountsPerUser[ithRequestorId] > countRequestorSongsInQueue)
+                        {
+                            return i;
+                        }
+                    }
+                    return lastPosition;
+                case QueueInsertionStyle.FIFO:
+                default:
+                    return lastPosition;
+            }
+        }
+
         // BUG: Testing major changes. This will get seriously refactored soon.
         private async Task CheckRequest(RequestInfo requestInfo)
         {
-            TwitchUser requestor = requestInfo.requestor;
+            ChatUser requestor = requestInfo.requestor;
             string request = requestInfo.request;
 
             string normalrequest = normalize.NormalizeBeatSaverString(requestInfo.request);
@@ -677,7 +723,8 @@ namespace SongRequestManager
             // Get song query results from beatsaver.com
             if (!RequestBotConfig.Instance.OfflineMode)
             {
-                string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref request, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text/0?q={normalrequest}";
+                //string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref request, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text/0?q={normalrequest}";
+                string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{id}" : $"https://beatsaver.com/api/search/text/0?q={normalrequest}";
 
                 var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
@@ -742,35 +789,6 @@ namespace SongRequestManager
 
             JSONObject song = songs[0];
 
-            // Song requests should try to be current. If the song was local, we double check for a newer version
-
-            //if ((song["downloadURL"].Value == "") && !RequestBotConfig.Instance.OfflineMode )
-            //{
-            //    //QueueChatMessage($"song:  {song["id"].Value.ToString()} ,{song["songName"].Value}");
-
-            //    yield return Utilities.Download($"https://api.beatsaver.com/maps/id/{song["id"].Value.ToString()}", Utilities.DownloadType.Raw, null,
-            //     // Download success
-            //     (web) =>
-            //     {
-            //         result = JSON.Parse(web.downloadHandler.text);
-            //         var newsong = result["song"].AsObject;
-
-            //         if (result != null && newsong["version"].Value != "")
-            //         {
-            //             new SongMap(newsong);
-            //             song = newsong;
-            //         }
-            //     },
-            //     // Download failed,  song probably doesn't exist on beatsaver
-            //     (web) =>
-            //     {
-            //         // Let player know that the song is not current on BeatSaver
-            //         requestInfo.requestInfo += " *LOCAL ONLY*";
-            //         ; //errorMessage = $"Invalid BeatSaver ID \"{request}\" specified. {requestUrl}";
-            //     });
-
-            //}
-
             int requestIndex = 0;
             JSONObject oldSong = null;
 
@@ -784,16 +802,27 @@ namespace SongRequestManager
                     RequestQueue.Songs[requestIndex].song = song;
                 }
             }
-            else if ((requestInfo.flags.HasFlag(CmdFlags.MoveToTop)))
-            {
-                RequestQueue.Songs.Insert(0, newRequest);
-                RequestTracker[requestor.Id].numRequests++;
-            }
             else
             {
-                RequestQueue.Songs.Add(newRequest);
-                RequestTracker[requestor.Id].numRequests++;
-                requestIndex = RequestQueue.Songs.Count - 1;
+                RequestTracker[requestor.Id].IncrementRequests();
+                listcollection.add(duplicatelist, song["id"].Value);
+                
+                QueueInsertionStyle queueInsertionStyle;
+                if (requestInfo.flags.HasFlag(CmdFlags.MoveToTop))
+                {
+                    queueInsertionStyle = QueueInsertionStyle.MoveToTop;
+                }
+                else if (RequestBotConfig.Instance.UseRoundRobinQueue)
+                {
+                    queueInsertionStyle = QueueInsertionStyle.RoundRobin;
+                }
+                else
+                {
+                    queueInsertionStyle = QueueInsertionStyle.FIFO;
+                }
+
+                requestIndex = GetQueueInsertionPoint(RequestQueue.Songs, queueInsertionStyle, requestInfo.requestor.Id);
+                RequestQueue.Songs.Insert(requestIndex, newRequest);
             }
 
             RequestQueue.Write();
@@ -969,8 +998,6 @@ namespace SongRequestManager
                     }
                     zipStream.Close();
 
-                here:
-
                     await Task.Run(async () =>
                     {
                         while (!SongCore.Loader.AreSongsLoaded && SongCore.Loader.AreSongsLoading)
@@ -1098,7 +1125,7 @@ namespace SongRequestManager
             {
                 if (RequestTracker.ContainsKey(request.requestor.Id))
                 {
-                    RequestTracker[request.requestor.Id].numRequests--;
+                    RequestTracker[request.requestor.Id].DecrementRequestsInQueue();
                 }
             }
 
@@ -1278,7 +1305,7 @@ namespace SongRequestManager
             return success;
         }
 
-        private bool CanModifyRequest(SongRequest request, TwitchUser user)
+        private bool CanModifyRequest(SongRequest request, ChatUser user)
         {
             return request.requestor.Id == user.Id || user.IsBroadcaster || user.IsModerator;
         }
@@ -1375,10 +1402,10 @@ namespace SongRequestManager
                 {
                     if (RequestBotConfig.Instance.LimitUserRequestsToSession)
                     {
-                        int requestCount = RequestTracker[state.user.Id].numRequests;
+                        int requestCount = RequestTracker[state.user.Id].GetNumRequestsInQueue();
                         if (requestCount >= limit)
                         {
-                            new DynamicText().Add("Requests", RequestTracker[state.user.Id].numRequests.ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage("You've already used %Requests% requests this stream. Subscribers are limited to %RequestLimit%.");
+                            new DynamicText().Add("Requests", RequestTracker[state.user.Id].GetNumRequestsInQueue().ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage("You've already used %Requests% requests this stream. Subscribers are limited to %RequestLimit%.");
                             return success;
                         }
                     }

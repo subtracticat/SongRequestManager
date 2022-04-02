@@ -9,8 +9,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using SongRequestManager.SimpleJSON;
 using UnityEngine;
-using ChatCore.Utilities;
 // Feature requests: Add Reason for being banned to banlist
 //  
 

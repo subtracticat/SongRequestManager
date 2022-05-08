@@ -7,8 +7,7 @@ using System.Text;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ChatCore.Interfaces;
-using ChatCore.Models.Twitch;
+using SongRequestManager.ChatHandlers;
 
 // Feature requests: Add Reason for being banned to banlist
 
@@ -121,7 +120,7 @@ namespace SongRequestManager
             */
 
 
-            new COMMAND(new string[] { "!request", "!bsr", "!add", "!sr","!srm" }).Action(ProcessSongRequest).Help(Everyone, "usage: %alias%<songname> or <song id>, omit <,>'s. %|%This adds a song to the request queue. Try and be a little specific. You can look up songs on %beatsaver%", _atleast1);
+            new COMMAND(new string[] { "!request", "!bsr", "!add","!srm" }).Action(ProcessSongRequest).Help(Everyone, "usage: %alias%<songname> or <song id>, omit <,>'s. %|%This adds a song to the request queue. Try and be a little specific. You can look up songs on %beatsaver%", _atleast1);
             new COMMAND(new string[] { "!lookup", "!find" }).AsyncAction(LookupSongs).Help(Mod | Sub | VIP, "usage: %alias%<song name> or <song id>, omit <>'s.%|%Get a list of songs from %beatsaver% matching your search criteria.", _atleast1);
 
             new COMMAND("!link").Action(ShowSongLink).Help(Everyone, "usage: %alias% %|%... Shows song details, and an %beatsaver% link to the current song", _nothing);
@@ -627,8 +626,8 @@ namespace SongRequestManager
             public static Dictionary<string, COMMAND> aliaslist = new Dictionary<string, COMMAND>(); // There can be only one (static)!
 
             // BUG: Extra methods will be removed after the offending code is migrated, There will likely always be 2-3.
-            private Action<TwitchUser, string> Method = null;  // Method to call
-            private Action<TwitchUser, string, CmdFlags, string> Method2 = null; // Alternate method
+            private Action<ChatUser, string> Method = null;  // Method to call
+            private Action<ChatUser, string, CmdFlags, string> Method2 = null; // Alternate method
             //private Func<COMMAND, TwitchUser, string, CmdFlags, string, string> Method3 = null; // Prefered method, returns the error msg as a string.
             private Func<ParseState, IEnumerator> func1 = null;
 
@@ -777,13 +776,13 @@ namespace SongRequestManager
               //  return this;
             //}
 
-            public COMMAND Action(Action<TwitchUser, string, CmdFlags, string> action)
+            public COMMAND Action(Action<ChatUser, string, CmdFlags, string> action)
             {
                 Method2 = action;
                 return this;
             }
 
-            public COMMAND Action(Action<TwitchUser, string> action)
+            public COMMAND Action(Action<ChatUser, string> action)
             {
                 Method = action;
                 return this;
@@ -795,15 +794,16 @@ namespace SongRequestManager
                 return this;
             }
 
-            public static void Parse(TwitchUser user, string request, CmdFlags flags = 0, string info = "")
+            public static void Parse(ChatUser user, string request, CmdFlags flags = 0, string info = "", Func<bool> callback = null)
             {
                 if (!Instance || request.Length == 0) return;
 
                 if (listcollection.contains(ref _blockeduser, user.UserName.ToLower())) return;
 
                 // This will be used for all parsing type operations, allowing subcommands efficient access to parse state logic
-                ParseState parse = new ParseState(ref user, ref request, flags, ref info).ParseCommand();
+                ParseState parse = new ParseState(ref user, ref request, flags, ref info, callback).ParseCommand();
             }
+            
 
             #region Command List Save / Load functionality
             private string GetHelpText()
@@ -947,7 +947,7 @@ namespace SongRequestManager
 
         public class ParseState
         {
-            public TwitchUser user;
+            public ChatUser user;
             public String request;
             public CmdFlags flags;
             public string info;
@@ -959,6 +959,7 @@ namespace SongRequestManager
             public COMMAND botcmd = null;
 
             public string subparameter="";
+            public Func<bool> callback = null;
 
             // Object clone constructor. Mostly used when spawning multiple threads against a single command
             public ParseState(ParseState state, string parameter = null)
@@ -974,14 +975,16 @@ namespace SongRequestManager
                 this.command = state.command;
                 this.info = state.info;
                 this.sort = state.sort;
+                this.callback = state.callback;
             }
 
-            public ParseState(ref TwitchUser user, ref string request, CmdFlags flags, ref string info)
+            public ParseState(ref ChatUser user, ref string request, CmdFlags flags, ref string info, Func<bool> callback = null)
             {
                 this.user = user;
                 this.request = request;
                 this.flags = flags;
                 this.info = info;
+                this.callback = callback;
             }
 
             // BUG: Execute command and subcommand can probably be largely unified soon
@@ -1186,7 +1189,7 @@ namespace SongRequestManager
         // We thus build a table with only those values we have. 
 
         // BUG: This is actually part of botcmd, please move
-        public static void ShowHelpMessage(ref COMMAND botcmd, ref TwitchUser user, string param, bool showlong)
+        public static void ShowHelpMessage(ref COMMAND botcmd, ref ChatUser user, string param, bool showlong)
         {
             if (botcmd.Flags.HasFlag(CmdFlags.Disabled)) return; // Make sure we're allowed to show help
 
@@ -1229,7 +1232,7 @@ namespace SongRequestManager
             return success;
         }
 
-        public static bool HasRights(ref COMMAND botcmd, ref TwitchUser user,CmdFlags flags)
+        public static bool HasRights(ref COMMAND botcmd, ref ChatUser user,CmdFlags flags)
         {
             if (flags.HasFlag(CmdFlags.Local)) return true;
             if (botcmd.Flags.HasFlag(CmdFlags.Disabled)) return false;

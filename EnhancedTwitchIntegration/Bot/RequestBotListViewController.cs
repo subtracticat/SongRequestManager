@@ -28,6 +28,7 @@ namespace SongRequestManager
         private Button _blacklistButton;
         private Button _historyButton;
         private Button _queueButton;
+        private Button _websocketConnectButton;
 
         private TableView _songListTableView;
         private LevelListTableCell _requestListTableCellInstance;
@@ -96,6 +97,7 @@ namespace SongRequestManager
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
+            
             if (firstActivation)
             {
                 if (!SongCore.Loader.AreSongsLoaded)
@@ -356,9 +358,29 @@ namespace SongRequestManager
                 UIHelper.AddHintText(_queueButton.transform as RectTransform, "Open/Close the queue.");
                 #endregion
 
+                #region Websocket Connect Button
+                // Websocket Connect button
+                _websocketConnectButton = UIHelper.CreateUIButton("WSConnect", container, "PracticeButton",
+                    new Vector2(53f, -20f),
+                    new Vector2(25f, 15f),
+                    () =>
+                    {
+                        ChatHandler.WebsocketHandlerConnect();
+                    }, "Connect WS");
+
+                _websocketConnectButton.ToggleWordWrapping(true);
+                _websocketConnectButton.SetButtonUnderlineColor(Color.red);
+                _websocketConnectButton.SetButtonTextSize(3.5f);
+                UIHelper.AddHintText(_websocketConnectButton.transform as RectTransform, "Connects the Websocket");
+            
+                #endregion
+                
                 // Set default RequestFlowCoordinator title
                 RequestBot.SetTitle(isShowingHistory ? "Song Request History" : "Song Request Queue");
             }
+            
+            
+            
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
             if (addedToHierarchy)
@@ -417,6 +439,8 @@ namespace SongRequestManager
             _historyButton.SetButtonText(isShowingHistory ? "Requests" : "History");
             _playButton.SetButtonText(isShowingHistory ? "Replay" : "Play");
 
+            _websocketConnectButton.gameObject.SetActive(!ChatHandler.WebsocketHandlerConnected() && RequestBotConfig.Instance.WebsocketEnabled);
+            
             UpdateSelectSongInfo();
 
             _songListTableView.ReloadData();
@@ -428,6 +452,11 @@ namespace SongRequestManager
                 _songListTableView.SelectCellWithIdx(_selectedRow, selectRowCallback);
                 _songListTableView.ScrollToCellWithIdx(_selectedRow, TableView.ScrollPositionType.Beginning, true);
             }
+        }
+
+        public void UpdateWebsocketConnectButton(bool active)
+        {
+            _websocketConnectButton.gameObject.SetActive(active);
         }
 
         private void DidSelectRow(TableView table, int row)
@@ -569,19 +598,24 @@ namespace SongRequestManager
             songDurationText.text = request.song["songlength"].Value;
 
             var songBpm = _tableCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songBpmText");
-            (songBpm.transform as RectTransform).anchoredPosition = new Vector2(-2.5f, -1.8f);
+            if(!request.requestor.IsModerator && !request.requestor.IsVip)
+                (songBpm.transform as RectTransform).anchoredPosition = new Vector2(-2.5f, -1.8f);
             (songBpm.transform as RectTransform).sizeDelta += new Vector2(15f, 0f);
 
+            
             var k = new List<string>();
             if (hasMessage) k.Add("MSG");
             if (isChallenge) k.Add("VS");
             k.Add(request.song["id"]);
             songBpm.text = string.Join(" - ", k);
 
+
             var songBmpIcon = _tableCell.GetComponentsInChildren<Image>().LastOrDefault(c => string.Equals(c.name, "BpmIcon", StringComparison.OrdinalIgnoreCase));
             if (songBmpIcon != null)
             {
-                Destroy(songBmpIcon);
+                songBmpIcon.color = request.requestor.IsModerator ? Color.green : request.requestor.IsVip ? Color.magenta : Color.white;
+                if(!request.requestor.IsModerator && !request.requestor.IsVip)
+                    Destroy(songBmpIcon);
             }
 
             var songName = _tableCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songNameText");

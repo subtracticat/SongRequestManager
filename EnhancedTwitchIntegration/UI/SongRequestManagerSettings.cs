@@ -26,14 +26,14 @@ namespace SongRequestManager.UI
         [UIValue("maximum-song-length")]
         public int MaximumSongLength
         {
-            get => (int)RequestBotConfig.Instance.MaximumSongLength;
+            get => (int) RequestBotConfig.Instance.MaximumSongLength;
             set => RequestBotConfig.Instance.MaximumSongLength = value;
         }
 
         [UIValue("minimum-njs")]
         public int MinimumNJS
         {
-            get => (int)RequestBotConfig.Instance.MinimumNJS;
+            get => (int) RequestBotConfig.Instance.MinimumNJS;
             set => RequestBotConfig.Instance.MinimumNJS = value;
         }
 
@@ -79,11 +79,73 @@ namespace SongRequestManager.UI
             set => RequestBotConfig.Instance.VipBonusRequests = value;
         }
 
+        
+        [UIValue("request-time-censor")]
+        public int minimumUploadTimeCensor
+        {
+            get => RequestBotConfig.Instance.minimumUploadTimeCensor;
+            set => RequestBotConfig.Instance.minimumUploadTimeCensor = value;
+        }
+            
+        [UIValue("websocket-url")]
+        public string WebsocketURL {
+            get => RequestBotConfig.Instance.WebsocketURL;
+            set => RequestBotConfig.Instance.WebsocketURL = value;
+        }
+
+        [UIValue("websocket-enable")]
+        public bool WebsocketEnabled
+        {
+            get => RequestBotConfig.Instance.WebsocketEnabled;
+            set => RequestBotConfig.Instance.WebsocketEnabled = value;
+        }
+        
+        [UIAction("connect-click")]
+        private void ConnectClick()
+        {
+            ChatHandler.WebsocketHandlerConnect();
+            //modal.HandleBlockerButtonClicked();
+        }
+        
+        [UIValue("disable-chatcore")]
+        public bool DisableChatcore
+        {
+            get => RequestBotConfig.Instance.DisableChatcore;
+            set => RequestBotConfig.Instance.DisableChatcore = value;
+        }
+            
         [UIValue("mod-full-rights")]
         public bool ModFullRights
         {
             get => RequestBotConfig.Instance.ModFullRights;
             set => RequestBotConfig.Instance.ModFullRights = value;
         }
+        
+        [UIValue("requestui-enable")]
+        public bool BeatsaverRequestUIEnabled
+        {
+            get => RequestBotConfig.Instance.BeatsaverRequestUIEnabled;
+            set => RequestBotConfig.Instance.BeatsaverRequestUIEnabled = value;
+        }
+        
+        [UIValue("requestui-id")]
+        public string BeatsaverRequestUIId {
+            get => RequestBotConfig.Instance.BeatsaverRequestUIId;
+            set => RequestBotConfig.Instance.BeatsaverRequestUIId = value;
+        }
+        
+        [UIValue("requestui-url")]
+        public string BeatsaverRequestUIurl {
+            get => RequestBotConfig.Instance.BeatsaverRequestUIurl;
+            set => RequestBotConfig.Instance.BeatsaverRequestUIurl = value;
+        }
+        
+        [UIAction("rqui-connect-click")]
+        private void RequestUIConnectClick()
+        {
+            ChatHandler.BeatsaberRequestUiHandlerConnect();
+            //modal.HandleBlockerButtonClicked();
+        }
+
     }
 }

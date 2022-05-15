@@ -562,6 +562,10 @@ namespace SongRequestManager
                 if (UnverifiedRequestQueue.TryDequeue(out var requestInfo))
                 {
                     await CheckRequest(requestInfo);
+                    if(requestInfo.state.callback != null)
+                    {
+                        requestInfo.state.callback();
+                    }
                 }
             }
         }

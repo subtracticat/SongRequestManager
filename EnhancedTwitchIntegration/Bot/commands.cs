@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ChatCore.Models.Twitch;
 using SongRequestManager.ChatHandlers;
 using UnityEngine;
 
@@ -848,7 +847,7 @@ namespace SongRequestManager
                 return this;
             }
 
-            public static void Parse(ChatUser user, string request, CmdFlags flags = 0, string info = "")
+            public static void Parse(ChatUser user, string request, CmdFlags flags = 0, string info = "", Func<bool> callback = null)
             {
                 if (!Instance || request.Length == 0)
                 {
@@ -861,7 +860,7 @@ namespace SongRequestManager
                 }
 
                 // This will be used for all parsing type operations, allowing subcommands efficient access to parse state logic
-                ParseState parse = new ParseState(ref user, ref request, flags, ref info).ParseCommand();
+                ParseState parse = new ParseState(ref user, ref request, flags, ref info, callback).ParseCommand();
             }
             
 
@@ -1051,6 +1050,7 @@ namespace SongRequestManager
             public COMMAND botcmd = null;
 
             public string subparameter = "";
+            public Func<bool> callback = null;
 
             // Object clone constructor. Mostly used when spawning multiple threads against a single command
             public ParseState(ParseState state, string parameter = null)
@@ -1070,14 +1070,16 @@ namespace SongRequestManager
                 this.command = state.command;
                 this.info = state.info;
                 this.sort = state.sort;
+                this.callback = state.callback;
             }
 
-            public ParseState(ref ChatUser user, ref string request, CmdFlags flags, ref string info)
+            public ParseState(ref ChatUser user, ref string request, CmdFlags flags, ref string info, Func<bool> callback = null)
             {
                 this.user = user;
                 this.request = request;
                 this.flags = flags;
                 this.info = info;
+                this.callback = callback;
             }
 
             // BUG: Execute command and subcommand can probably be largely unified soon

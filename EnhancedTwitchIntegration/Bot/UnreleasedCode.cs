@@ -11,6 +11,7 @@ using TMPro;
 using System.Threading.Tasks;
 using SongRequestManager.SimpleJSON;
 using SongRequestManager.ChatHandlers;
+using SongRequestManager.Config;
 
 //using BeatBits;
 
@@ -282,9 +283,9 @@ namespace SongRequestManager
         #region Deck Manager
         private string loaddecks(ParseState state)
         {
-            //createdeck(state.user, RequestBotConfig.Instance.DeckList.ToLower());
+            //createdeck(state.user, RequestQueueConfig.Instance.DeckList.ToLower());
 
-            string decklist = RequestBotConfig.Instance.DeckList.ToLower();
+            string decklist = QueueConfig.Instance.DeckList.ToLower();
             state.parameter = decklist;
             return createdeck(state);
         }
@@ -445,7 +446,7 @@ namespace SongRequestManager
                 }
             }
 
-            if (RequestBotConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local))
+            if (QueueConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local))
             {
                 QueueChatMessage("Queue is currently closed.");
                 return empty;

@@ -6,7 +6,7 @@ using static SongRequestManager.RequestBot;
 
 namespace SongRequestManager
 {
-    public class SongRequest
+    public class LegacySongRequest
     {
         public JSONObject song;
         public ChatUser requestor = new ChatUser();
@@ -14,8 +14,8 @@ namespace SongRequestManager
         public RequestStatus status;
         public string requestInfo; // Contains extra song info, Like : Sub/Donation request, Deck pick, Empty Queue pick,Mapper request, etc.
 
-        public SongRequest() { }
-        public SongRequest(JSONObject song, ChatUser requestor, DateTime requestTime, RequestStatus status = RequestStatus.Invalid, string requestInfo = "")
+        public LegacySongRequest() { }
+        public LegacySongRequest(JSONObject song, ChatUser requestor, DateTime requestTime, RequestStatus status = RequestStatus.Invalid, string requestInfo = "")
         {
             this.song = song;
             this.requestor = requestor;
@@ -35,7 +35,7 @@ namespace SongRequestManager
             return obj;
         }
 
-        public SongRequest FromJson(JSONObject obj)
+        public LegacySongRequest FromJson(JSONObject obj)
         {
             requestor = ChatUser.FromJSON(obj["requestor"].Value);
             requestTime = DateTime.FromFileTime(long.Parse(obj["time"].Value));
@@ -47,7 +47,7 @@ namespace SongRequestManager
 
         public static string GetCensoredData(JSONObject song, string field,  DateTime timeSince)
         {
-            //if (RequestBotConfig.Instance.minimumUploadTimeCensor < (timeSince - DateTime.Parse(song["createdAt"].Value)).Minutes) 
+            //if (RequestQueueConfig.Instance.minimumUploadTimeCensor < (timeSince - DateTime.Parse(song["createdAt"].Value)).Minutes) 
             //    return "***";
             return song[field].Value;
         }

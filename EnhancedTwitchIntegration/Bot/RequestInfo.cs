@@ -12,9 +12,9 @@ namespace SongRequestManager
         public RequestBot.CmdFlags flags; // Flags for the song request, include things like silence, bypass checks, etc.
         public string requestInfo; // This field contains additional information about a request. This could include the source of the request ( deck, Subscription bonus request) , comments about why a song was banned, etc.
         public RequestBot.ParseState state;
-        public SongRequest toReplace;
+        public LegacySongRequest toReplace;
 
-        public RequestInfo(ChatUser requestor, string request, DateTime requestTime, bool isBeatSaverId, RequestBot.ParseState state, RequestBot.CmdFlags flags = 0, string userstring = "", SongRequest toReplace = null)
+        public RequestInfo(ChatUser requestor, string request, DateTime requestTime, bool isBeatSaverId, RequestBot.ParseState state, RequestBot.CmdFlags flags = 0, string userstring = "", LegacySongRequest toReplace = null)
         {
             this.requestor = requestor;
             this.request = request;

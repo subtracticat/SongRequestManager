@@ -6,6 +6,7 @@ using IPA;
 using IPA.Utilities;
 using SongBrowser;
 using SongBrowser.UI;
+using SongRequestManager.Config;
 using SongRequestManager.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,8 +28,8 @@ namespace SongRequestManager
 
         public bool IsApplicationExiting = false;
         public static Plugin Instance { get; private set; }
-        
-        private RequestBotConfig RequestBotConfig;
+
+        private QueueConfig RequestBotConfig;
 
         internal static GameMode gameMode;
 
@@ -36,7 +37,6 @@ namespace SongRequestManager
         public static string DataPath = Path.Combine(UnityGame.UserDataPath, "SRM");
         public static string OldDataPath = Path.Combine(UnityGame.UserDataPath, "StreamCore");
         public static bool SongBrowserPluginPresent;
-        public static bool ChatCorePluginPresent;
 
         [Init]
         public void Init(IPALogger log)
@@ -76,7 +76,7 @@ namespace SongRequestManager
             }
 
             // initialize config
-            RequestBotConfig = new RequestBotConfig();
+            RequestBotConfig = new QueueConfig();
 
             Dispatcher.Initialize();
 
@@ -87,7 +87,6 @@ namespace SongRequestManager
             UdpListener = new UdpListener();
 
             SongBrowserPluginPresent = IPA.Loader.PluginManager.GetPlugin("Song Browser") != null;
-            ChatCorePluginPresent = IPA.Loader.PluginManager.GetPlugin("ChatCore") != null;
 
             // setup handle for fresh menu scene changes
             BS_Utils.Utilities.BSEvents.OnLoad();
@@ -132,7 +131,7 @@ namespace SongRequestManager
                 {
                     //if (_songBrowserUI.Model.Settings.filterMode != SongBrowser.Configuration.SongFilterMode.None && _songBrowserUI.Model.Settings.sortMode != SongBrowser.Configuration.SongSortMode.Original)
                     //{
-                        _songBrowserUI.CancelFilter();
+                    _songBrowserUI.CancelFilter();
                     //}
                 }
                 else

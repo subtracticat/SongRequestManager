@@ -443,9 +443,9 @@ namespace SongRequestManager
 
         void ClearSearches()
         {
-            for (int i = 0; i < RequestQueue.Songs.Count; i++)
+            for (int i = 0; i < LegacyRequestQueue.Songs.Count; i++)
             {
-                var entry = RequestQueue.Songs[i];
+                var entry = LegacyRequestQueue.Songs[i];
                 if (entry.status == RequestBot.RequestStatus.SongSearch)
                 {
                     RequestBot.DequeueRequest(i, false);
@@ -477,7 +477,7 @@ namespace SongRequestManager
                 }
                 else
                 {
-                    ChatHandler.Send(typedtext, typedtext.StartsWith("/"));
+                    ChatHandler.Send(typedtext);
                 }
 
                 key.kb.KeyboardText.text = "";

@@ -5,11 +5,11 @@ using SongRequestManager.SimpleJSON;
 
 namespace SongRequestManager
 {
-    public class RequestManager
+    public class LegacyRequestManager
     {
-        public static List<SongRequest> Read(string path)
+        public static List<LegacySongRequest> Read(string path)
         {
-            List<SongRequest> songs = new List<SongRequest>();
+            List<LegacySongRequest> songs = new List<LegacySongRequest>();
             if (File.Exists(path))
             {
                 JSONNode json = JSON.Parse(File.ReadAllText(path));
@@ -17,14 +17,14 @@ namespace SongRequestManager
                 {
                     foreach (JSONObject j in json.AsArray)
                     {
-                        songs.Add(new SongRequest().FromJson(j));
+                        songs.Add(new LegacySongRequest().FromJson(j));
                     }
                 }
             }
             return songs;
         }
 
-        public static void Write(string path, ref List<SongRequest> songs)
+        public static void Write(string path, ref List<LegacySongRequest> songs)
         {
             if (!Directory.Exists(Path.GetDirectoryName(path)))
             {
@@ -32,7 +32,7 @@ namespace SongRequestManager
             }
 
             JSONArray arr = new JSONArray();
-            foreach (SongRequest song in songs)
+            foreach (LegacySongRequest song in songs)
             {
                 try
                 {
@@ -49,15 +49,15 @@ namespace SongRequestManager
         }
     }
 
-    public class RequestQueue
+    public class LegacyRequestQueue
     {
-        public static List<SongRequest> Songs = new List<SongRequest>();
+        public static List<LegacySongRequest> Songs = new List<LegacySongRequest>();
         private static string requestsPath = Path.Combine(Plugin.DataPath, "SongRequestQueue.dat");
         public static void Read()
         {
             try
             {
-                Songs = RequestManager.Read(requestsPath);
+                Songs = LegacyRequestManager.Read(requestsPath);
             }
             catch
             {
@@ -67,19 +67,19 @@ namespace SongRequestManager
 
         public static void Write()
         {
-            RequestManager.Write(requestsPath, ref Songs);
+            LegacyRequestManager.Write(requestsPath, ref Songs);
         }
     }
 
     public class RequestHistory
     {
-        public static List<SongRequest> Songs = new List<SongRequest>();
+        public static List<LegacySongRequest> Songs = new List<LegacySongRequest>();
         private static string historyPath = Path.Combine(Plugin.DataPath, "SongRequestHistory.dat");
         public static void Read()
         {
             try
             {
-                Songs = RequestManager.Read(historyPath);
+                Songs = LegacyRequestManager.Read(historyPath);
             }
             catch
             {
@@ -89,7 +89,7 @@ namespace SongRequestManager
 
         public static void Write()
         {
-            RequestManager.Write(historyPath, ref Songs);
+            LegacyRequestManager.Write(historyPath, ref Songs);
         }
     }
 }

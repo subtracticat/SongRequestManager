@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using SongRequestManager.Config;
 using UnityEngine;
 // Feature requests: Add Reason for being banned to banlist
 
@@ -55,19 +56,19 @@ namespace SongRequestManager
         public static string Backup()
         {
             DateTime Now = DateTime.Now;
-            string BackupName = Path.Combine(RequestBotConfig.Instance.backuppath, $"SRMBACKUP-{Now.ToString("yyyy-MM-dd-HHmm")}.zip");
+            string BackupName = Path.Combine(QueueConfig.Instance.backuppath, $"SRMBACKUP-{Now.ToString("yyyy-MM-dd-HHmm")}.zip");
 
             Plugin.Log($"Backing up {Plugin.DataPath}");
             try
             {
-                if (!Directory.Exists(RequestBotConfig.Instance.backuppath))
+                if (!Directory.Exists(QueueConfig.Instance.backuppath))
                 {
-                    Directory.CreateDirectory(RequestBotConfig.Instance.backuppath);
+                    Directory.CreateDirectory(QueueConfig.Instance.backuppath);
                 }
 
                 ZipFile.CreateFromDirectory(Plugin.DataPath, BackupName, System.IO.Compression.CompressionLevel.Fastest, true);
-                RequestBotConfig.Instance.LastBackup = DateTime.Now.ToString();
-                RequestBotConfig.Instance.Save();
+                QueueConfig.Instance.LastBackup = DateTime.Now.ToString();
+                QueueConfig.Instance.Save();
 
                 Plugin.Log($"Backup success writing {BackupName}");
                 return success;

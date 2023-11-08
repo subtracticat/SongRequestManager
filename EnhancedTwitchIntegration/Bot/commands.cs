@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using SongRequestManager.ChatHandlers;
+using SongRequestManager.Config;
 using UnityEngine;
 
 // Feature requests: Add Reason for being banned to banlist
@@ -161,9 +162,6 @@ namespace SongRequestManager
 
             new COMMAND("!addsongs").AsyncAction(addsongs).Help(Broadcaster, "usage: %alias%%|% Add all songs matching a criteria (up to 40) to the queue", _atleast1);
 
-            new COMMAND("!every").Action(Every).Help(Broadcaster, "usage: every <minutes> %|% Run a command every <minutes>.", _atleast1);
-            new COMMAND("!in").Action(EventIn).Help(Broadcaster, "usage: in <minutes> <bot command>.", _atleast1);
-            new COMMAND("!clearevents").Action(ClearEvents).Help(Broadcaster, "usage: %alias% %|% Clear all timer events.");
             new COMMAND(new string[] { "!addnew", "!addlatest" }).AsyncAction(addsongsFromnewest).Help(Mod, "usage: %alias% <listname>%|%... Adds the latest maps from %beatsaver%, filtered by the previous selected allowmappers command", _nothing);
             new COMMAND("!backup").Action(BackupStreamcore).Help(CmdFlags.Broadcaster, "Backup %SRM% directory.", _anything);
 
@@ -477,7 +475,7 @@ namespace SongRequestManager
                     state.parameter += " ";
                 }
 
-                state.parameter += RequestQueue.Songs[0].song["version"];
+                state.parameter += LegacyRequestQueue.Songs[0].song["version"];
                 return "";
             }
             catch
@@ -1412,7 +1410,7 @@ namespace SongRequestManager
                 return true; // Not sure if this is the best approach actually, not worth thinking about right now
             }
 
-            if (user.IsModerator & RequestBotConfig.Instance.ModFullRights)
+            if (user.IsModerator & QueueConfig.Instance.ModFullRights)
             {
                 return true;
             }

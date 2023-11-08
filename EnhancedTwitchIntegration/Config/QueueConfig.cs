@@ -4,11 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using IPA.Utilities;
 
-namespace SongRequestManager
+namespace SongRequestManager.Config
 {
-    public class RequestBotConfig
+    public class QueueConfig
     {
-        private string FilePath = Path.Combine(Plugin.DataPath, "RequestBotSettings.ini");
+        private static readonly string FileName = "RequestBotSettings.ini";
+        private static readonly string FilePath = Path.Combine(Plugin.DataPath, FileName);
 
         public bool RequestQueueOpen = true;
         public bool PersistentRequestQueue = true;
@@ -73,19 +74,19 @@ namespace SongRequestManager
         public string BeatsaverRequestUIId = "";
         public bool BeatsaverRequestUIEnabled = false;
 
-        public event Action<RequestBotConfig> ConfigChangedEvent;
+        public event Action<QueueConfig> ConfigChangedEvent;
 
         private readonly FileSystemWatcher _configWatcher;
         private bool _saving;
 
-        private static RequestBotConfig _instance = null;
-        public static RequestBotConfig Instance
+        private static QueueConfig _instance = null;
+        public static QueueConfig Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new RequestBotConfig();
+                    _instance = new QueueConfig();
                 }
 
                 return _instance;
@@ -94,7 +95,7 @@ namespace SongRequestManager
             private set => _instance = value;
         }
 
-        public RequestBotConfig()
+        public QueueConfig()
         {
             Instance = this;
 
@@ -117,14 +118,14 @@ namespace SongRequestManager
 
                 _configWatcher.Path = Path.GetDirectoryName(FilePath);
                 _configWatcher.NotifyFilter = NotifyFilters.LastWrite;
-                _configWatcher.Filter = $"RequestBotSettings.ini";
+                _configWatcher.Filter = FileName;
                 _configWatcher.EnableRaisingEvents = true;
 
                 _configWatcher.Changed += ConfigWatcherOnChanged;
             });
         }
 
-        ~RequestBotConfig()
+        ~QueueConfig()
         {
             _configWatcher.Changed -= ConfigWatcherOnChanged;
         }

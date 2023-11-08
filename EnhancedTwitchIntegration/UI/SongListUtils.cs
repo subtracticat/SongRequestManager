@@ -1,5 +1,6 @@
 ﻿using HMUI;
 using IPA.Utilities;
+using SongRequestManager.Config;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace SongRequestManager
         {
             _levelCollectionViewController = Resources.FindObjectsOfTypeAll<LevelCollectionViewController>().FirstOrDefault();
             
-            _pre120 = IPA.Utilities.UnityGame.GameVersion.SemverValue.Minor < 20;
+            //_pre120 = IPA.Utilities.UnityGame.GameVersion.SemverValue.Minor < 20;
             if (!_initialized)
             {
                 try
@@ -125,7 +126,7 @@ namespace SongRequestManager
                     Plugin.Log("Selected song with index " + songIndex);
                     callback?.Invoke(true);
 
-                    if (RequestBotConfig.Instance.ClearNoFail)
+                    if (QueueConfig.Instance.ClearNoFail)
                     {
                         try
                         {

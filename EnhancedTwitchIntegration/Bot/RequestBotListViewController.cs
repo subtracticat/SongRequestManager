@@ -5,6 +5,7 @@ using System.Linq;
 using BeatSaberMarkupLanguage;
 using HMUI;
 using IPA.Utilities;
+using SongRequestManager.Config;
 using SongRequestManager.UI;
 using TMPro;
 using UnityEngine;
@@ -101,7 +102,7 @@ namespace SongRequestManager
             }
         }
 
-        static public SongRequest currentsong = null;
+        static public LegacySongRequest currentsong = null;
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
@@ -113,15 +114,11 @@ namespace SongRequestManager
                     SongCore.Loader.SongsLoadedEvent += SongLoader_SongsLoadedEvent;
                 }
 
-                Plugin.Log("DidActivate 001");
-
                 // get table cell instance
                 _requestListTableCellInstance = Resources.FindObjectsOfTypeAll<LevelListTableCell>().First((LevelListTableCell x) => x.name == "LevelListTableCell");
 
                 // initialize Yes/No modal
                 YesNoModal.instance.Setup();
-
-                Plugin.Log("DidActivate 002");
 
                 _songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().FirstOrDefault();
 
@@ -192,8 +189,6 @@ namespace SongRequestManager
 #if UNRELEASED
                 // BUG: Need additional modes disabling one shot buttons
                 // BUG: Need to make sure the buttons are usable on older headsets
-
-                Plugin.Log("DidActivate 005");
 
                 _CurrentSongName = BeatSaberUI.CreateText(container, "", new Vector2(-35, 37f));
                 _CurrentSongName.fontSize = 3f;
@@ -343,7 +338,7 @@ namespace SongRequestManager
                 _playButton.GetComponent<NoTransitionsButton>().enabled = true;
 
                 _playButton.ToggleWordWrapping(false);
-                _playButton.interactable = ((isShowingHistory && RequestHistory.Songs.Count > 0) || (!isShowingHistory && RequestQueue.Songs.Count > 0));
+                _playButton.interactable = ((isShowingHistory && RequestHistory.Songs.Count > 0) || (!isShowingHistory && LegacyRequestQueue.Songs.Count > 0));
                 UIHelper.AddHintText(_playButton.transform as RectTransform, "Download and scroll to the currently selected request.");
                 #endregion
 
@@ -353,33 +348,33 @@ namespace SongRequestManager
                     new Vector2(25f, 15f),
                     () =>
                     {
-                        RequestBotConfig.Instance.RequestQueueOpen = !RequestBotConfig.Instance.RequestQueueOpen;
-                        RequestBotConfig.Instance.Save();
-                        RequestBot.WriteQueueStatusToFile(RequestBotConfig.Instance.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
-                        RequestBot.Instance.QueueChatMessage(RequestBotConfig.Instance.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
+                        QueueConfig.Instance.RequestQueueOpen = !QueueConfig.Instance.RequestQueueOpen;
+                        QueueConfig.Instance.Save();
+                        RequestBot.WriteQueueStatusToFile(QueueConfig.Instance.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
+                        RequestBot.Instance.QueueChatMessage(QueueConfig.Instance.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         UpdateRequestUI();
-                    }, RequestBotConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
+                    }, QueueConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
 
                 _queueButton.ToggleWordWrapping(true);
-                _queueButton.SetButtonUnderlineColor(RequestBotConfig.Instance.RequestQueueOpen ? Color.green : Color.red);
+                _queueButton.SetButtonUnderlineColor(QueueConfig.Instance.RequestQueueOpen ? Color.green : Color.red);
                 _queueButton.SetButtonTextSize(3.5f);
                 UIHelper.AddHintText(_queueButton.transform as RectTransform, "Open/Close the queue.");
                 #endregion
 
                 #region Websocket Connect Button
                 // Websocket Connect button
-                _websocketConnectButton = UIHelper.CreateUIButton("WSConnect", container, "PracticeButton",
-                    new Vector2(53f, -20f),
-                    new Vector2(25f, 15f),
-                    () =>
-                    {
-                        ChatHandler.WebsocketHandlerConnect();
-                    }, "Connect WS");
+                //_websocketConnectButton = UIHelper.CreateUIButton("WSConnect", container, "PracticeButton",
+                //    new Vector2(53f, -20f),
+                //    new Vector2(25f, 15f),
+                //    () =>
+                //    {
+                //        ChatHandler.WebsocketHandlerConnect();
+                //    }, "Connect WS");
 
-                _websocketConnectButton.ToggleWordWrapping(true);
-                _websocketConnectButton.SetButtonUnderlineColor(Color.red);
-                _websocketConnectButton.SetButtonTextSize(3.5f);
-                UIHelper.AddHintText(_websocketConnectButton.transform as RectTransform, "Connects the Websocket");
+                //_websocketConnectButton.ToggleWordWrapping(true);
+                //_websocketConnectButton.SetButtonUnderlineColor(Color.red);
+                //_websocketConnectButton.SetButtonTextSize(3.5f);
+                //UIHelper.AddHintText(_websocketConnectButton.transform as RectTransform, "Connects the Websocket");
             
                 #endregion
                 
@@ -410,7 +405,7 @@ namespace SongRequestManager
             }
         }
 
-        public SongRequest CurrentlySelectedSong()
+        public LegacySongRequest CurrentlySelectedSong()
         {
             var currentsong = RequestHistory.Songs[0];
 
@@ -438,16 +433,16 @@ namespace SongRequestManager
 
         public void UpdateRequestUI(bool selectRowCallback = false)
         {
-            _playButton.interactable = ((isShowingHistory && RequestHistory.Songs.Count > 0) || (!isShowingHistory && RequestQueue.Songs.Count > 0));
+            _playButton.interactable = ((isShowingHistory && RequestHistory.Songs.Count > 0) || (!isShowingHistory && LegacyRequestQueue.Songs.Count > 0));
 
-            _queueButton.SetButtonText(RequestBotConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
-            _queueButton.SetButtonUnderlineColor(RequestBotConfig.Instance.RequestQueueOpen ? Color.green : Color.red);
+            _queueButton.SetButtonText(QueueConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
+            _queueButton.SetButtonUnderlineColor(QueueConfig.Instance.RequestQueueOpen ? Color.green : Color.red);
 
             _historyHintText.text = isShowingHistory ? "Go back to your current song request queue." : "View the history of song requests from the current session.";
             _historyButton.SetButtonText(isShowingHistory ? "Requests" : "History");
             _playButton.SetButtonText(isShowingHistory ? "Replay" : "Play");
 
-            _websocketConnectButton.gameObject.SetActive(!ChatHandler.WebsocketHandlerConnected() && RequestBotConfig.Instance.WebsocketEnabled);
+            //_websocketConnectButton.gameObject.SetActive(!ChatHandler.WebsocketHandlerConnected() && RequestQueueConfig.Instance.WebsocketEnabled);
             
             UpdateSelectSongInfo();
 
@@ -496,7 +491,7 @@ namespace SongRequestManager
             _songListTableView?.ReloadData();
         }
 
-        private List<SongRequest> Songs => isShowingHistory ? RequestHistory.Songs : RequestQueue.Songs;
+        private List<LegacySongRequest> Songs => isShowingHistory ? RequestHistory.Songs : LegacyRequestQueue.Songs;
 
         /// <summary>
         /// Alter the state of the buttons based on selection
@@ -506,7 +501,7 @@ namespace SongRequestManager
         {
             var toggled = interactive;
 
-            if (_selectedRow >= (isShowingHistory ? RequestHistory.Songs : RequestQueue.Songs).Count())
+            if (_selectedRow >= (isShowingHistory ? RequestHistory.Songs : LegacyRequestQueue.Songs).Count())
             {
                 _selectedRow = -1;
             }
@@ -560,9 +555,9 @@ namespace SongRequestManager
             return SongCore.Loader.CustomLevels.FirstOrDefault(s => string.Equals(s.Value.levelID, levelIds.First(), StringComparison.OrdinalIgnoreCase)).Value ?? null;
         }
 
-        private SongRequest SongInfoForRow(int row)
+        private LegacySongRequest SongInfoForRow(int row)
         {
-            return isShowingHistory ? RequestHistory.Songs.ElementAt(row) : RequestQueue.Songs.ElementAt(row);
+            return isShowingHistory ? RequestHistory.Songs.ElementAt(row) : LegacyRequestQueue.Songs.ElementAt(row);
         }
 
         private void PlayPreview(CustomPreviewBeatmapLevel level)
@@ -577,7 +572,7 @@ namespace SongRequestManager
 
         public int NumberOfCells()
         {
-            return isShowingHistory ? RequestHistory.Songs.Count() : RequestQueue.Songs.Count();
+            return isShowingHistory ? RequestHistory.Songs.Count() : LegacyRequestQueue.Songs.Count();
         }
 
         public TableCell CellForIdx(TableView tableView, int row)
@@ -586,14 +581,14 @@ namespace SongRequestManager
             _tableCell.reuseIdentifier = "RequestBotSongCell";
             _tableCell.SetField("_notOwned", false);
 
-            SongRequest request = SongInfoForRow(row);
+            LegacySongRequest request = SongInfoForRow(row);
             SetDataFromLevelAsync(request, _tableCell, row);
 
             return _tableCell;
         }
         #endregion
 
-        private async void SetDataFromLevelAsync(SongRequest request, LevelListTableCell _tableCell, int row)
+        private async void SetDataFromLevelAsync(LegacySongRequest request, LevelListTableCell _tableCell, int row)
         {
             var favouritesBadge = _tableCell.GetField<Image, LevelListTableCell>("_favoritesBadgeImage");
             favouritesBadge.enabled = false;

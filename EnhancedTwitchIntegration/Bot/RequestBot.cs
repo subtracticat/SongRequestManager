@@ -22,6 +22,7 @@ using System.IO.Compression;
 using SongRequestManager.SimpleJSON;
 using HMUI;
 using SongRequestManager.ChatHandlers;
+using SongRequestManager.Config;
 
 namespace SongRequestManager
 {
@@ -94,7 +95,7 @@ namespace SongRequestManager
             flowCoordinator.InvokeMethod<object, FlowCoordinator>("PresentFlowCoordinator", _flowCoordinator, null, ViewController.AnimationDirection.Horizontal, false, false);
         }
 
-    internal static void SetTitle(string title)
+        internal static void SetTitle(string title)
         {
             _flowCoordinator.SetTitle(title);
         }
@@ -148,7 +149,7 @@ namespace SongRequestManager
             ChatHandler.instance.Init();
 
             WriteQueueSummaryToFile();
-            WriteQueueStatusToFile(QueueMessage(RequestBotConfig.Instance.RequestQueueOpen));
+            WriteQueueStatusToFile(QueueMessage(QueueConfig.Instance.RequestQueueOpen));
 
             if (Instance) return;
             new GameObject("SongRequestManager").AddComponent<RequestBot>();
@@ -174,50 +175,11 @@ namespace SongRequestManager
             }
         }
 
-        public static void Newest(KEYBOARD.KEY key)
-        {
-            ClearSearches();
-            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addnew/top",CmdFlags.Local);
-        }
-
-        public static void Search(KEYBOARD.KEY key)
-        {
-            if (key.kb.KeyboardText.text.StartsWith("!"))
-            {
-                key.kb.Enter(key);
-            }
-            ClearSearches();
-            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addsongs/top {key.kb.KeyboardText.text}",CmdFlags.Local);
-            key.kb.Clear(key);
-        }
-
-        public static void MSD(KEYBOARD.KEY key)
-        {
-            if (key.kb.KeyboardText.text.StartsWith("!"))
-            {
-                key.kb.Enter(key);
-            }
-            ClearSearches();
-            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addsongs/top {key.kb.KeyboardText.text}", CmdFlags.Local);
-            key.kb.Clear(key);
-        }
-
-        public static void UnfilteredSearch(KEYBOARD.KEY key)
-        {
-            if (key.kb.KeyboardText.text.StartsWith("!"))
-            {
-                key.kb.Enter(key);
-            }
-            ClearSearches();
-            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addsongs/top/mod {key.kb.KeyboardText.text}",CmdFlags.Local);
-            key.kb.Clear(key);
-        }
-
         public static void ClearSearches()
         {
-            for (int i = 0; i < RequestQueue.Songs.Count; i++)
+            for (int i = 0; i < LegacyRequestQueue.Songs.Count; i++)
             {
-                var entry = RequestQueue.Songs[i];
+                var entry = LegacyRequestQueue.Songs[i];
                 if (entry.status == RequestBot.RequestStatus.SongSearch)
                 {
                     RequestBot.DequeueRequest(i, false);
@@ -315,13 +277,13 @@ namespace SongRequestManager
 
                 try
                 {
-                    if (!DateTime.TryParse(RequestBotConfig.Instance.LastBackup, out DateTime LastBackup))
+                    if (!DateTime.TryParse(QueueConfig.Instance.LastBackup, out DateTime LastBackup))
                     {
                         LastBackup = DateTime.MinValue;
                     }
 
                     TimeSpan TimeSinceBackup = DateTime.Now - LastBackup;
-                    if (TimeSinceBackup > TimeSpan.FromHours(RequestBotConfig.Instance.SessionResetAfterXHours))
+                    if (TimeSinceBackup > TimeSpan.FromHours(QueueConfig.Instance.SessionResetAfterXHours))
                     {
                         Backup();
                     }
@@ -337,11 +299,11 @@ namespace SongRequestManager
                 try
                 {
                     TimeSpan PlayedAge = GetFileAgeDifference(playedfilename);
-                    if (PlayedAge < TimeSpan.FromHours(RequestBotConfig.Instance.SessionResetAfterXHours))
+                    if (PlayedAge < TimeSpan.FromHours(QueueConfig.Instance.SessionResetAfterXHours))
                     {
                         resetsession = false;
                         played = ReadJSON(playedfilename); // Read the songsplayed file if less than x hours have passed
-                    } 
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -349,20 +311,20 @@ namespace SongRequestManager
                     Instance.QueueChatMessage("Failed to clear played file");
                 }
 
-                if (RequestBotConfig.Instance.PPSearch)
+                if (QueueConfig.Instance.PPSearch)
                 {
                     GetPPData(); // Start loading PP data
                 }
 
                 MapDatabase.LoadDatabase();
 
-                if (RequestBotConfig.Instance.LocalSearch)
+                if (QueueConfig.Instance.LocalSearch)
                 {
                     MapDatabase.LoadCustomSongs(); // This is a background process
                 }
 
-                if (resetsession==false || RequestBotConfig.Instance.PersistentRequestQueue) RequestQueue.Read(); // Might added the timespan check for this too. To be decided later.
-   
+                if (resetsession == false || QueueConfig.Instance.PersistentRequestQueue) LegacyRequestQueue.Read(); // Might added the timespan check for this too. To be decided later.
+
                 RequestHistory.Read();
                 listcollection.OpenList("banlist.unique");
 
@@ -372,7 +334,7 @@ namespace SongRequestManager
                 //Instance.QueueChatMessage($"hashentries: {SongMap.hashcount} memory: {(GC.GetTotalMemory(false) - startingmem) / 1048576} MB");
 #endif
 
-                listcollection.ClearOldList("duplicate.list", TimeSpan.FromHours(RequestBotConfig.Instance.SessionResetAfterXHours));
+                listcollection.ClearOldList("duplicate.list", TimeSpan.FromHours(QueueConfig.Instance.SessionResetAfterXHours));
 
                 UpdateRequestUI();
                 InitializeCommands();
@@ -380,11 +342,10 @@ namespace SongRequestManager
                 //EnhancedStreamChat.ChatHandler.ChatMessageFilters += MyChatMessageHandler; // TODO: Reimplement this filter maybe? Or maybe we put it directly into EnhancedStreamChat
 
                 COMMAND.CommandConfiguration();
-                RunStartupScripts();
 
                 ProcessRequestQueue();
 
-                RequestBotConfig.Instance.ConfigChangedEvent += OnConfigChangedEvent;
+                QueueConfig.Instance.ConfigChangedEvent += OnConfigChangedEvent;
             }
             catch (Exception ex)
             {
@@ -399,7 +360,7 @@ namespace SongRequestManager
         //    return RequestBot.Instance && RequestBot.listcollection.contains(ref excludefilename, msg.user.DisplayName.ToLower(), RequestBot.ListFlags.Uncached);
         //}
 
-        private void OnConfigChangedEvent(RequestBotConfig config)
+        private void OnConfigChangedEvent(QueueConfig config)
         {
             _configChanged = true;
         }
@@ -415,85 +376,6 @@ namespace SongRequestManager
             }
 
             _configChanged = false;
-        }
-
-        // BUG: Prototype code, used for testing.
-        class BotEvent
-        {
-            public static List<BotEvent> events = new List<BotEvent>();
-
-            public DateTime time;
-            public string command;
-            public bool repeat;
-            Timer timeq;
-
-            public static void Clear()
-            {
-                foreach (var ev in events)
-                {
-                    ev.timeq.Stop();
-                }
-            }
-            public BotEvent(DateTime time, string command, bool repeat)
-            {
-                this.time = time;
-                this.command = command;
-                this.repeat = repeat;
-                timeq = new System.Timers.Timer(1000);
-                timeq.Elapsed += (s, args) => ScheduledCommand(command, args);
-                timeq.AutoReset = true;
-                timeq.Enabled = true;
-            }
-
-            public BotEvent(TimeSpan delta, string command, bool repeat = false)
-            {
-                this.command = command;
-                this.repeat = repeat;
-                timeq = new System.Timers.Timer(delta.TotalMilliseconds);
-                timeq.Elapsed += (s, args) => ScheduledCommand(command, args);
-                timeq.AutoReset = repeat;
-
-                events.Add(this);
-
-                timeq.Enabled = true;
-            }
-        }
-
-        public static void ScheduledCommand(string command, System.Timers.ElapsedEventArgs e)
-        {
-            COMMAND.Parse(ChatHandler.Self, command);
-        }
-
-        private void RunStartupScripts()
-        {
-            ReadRemapList(); // BUG: This should use list manager
-
-            MapperBanList(ChatHandler.Self, "mapperban.list");
-            WhiteList(ChatHandler.Self, "whitelist.unique");
-            BlockedUserList(ChatHandler.Self, "blockeduser.unique");
-            accesslist("whitelist.unique");
-            accesslist("blockeduser.unique");
-            accesslist("mapperban.list");
-
-#if UNRELEASED
-            OpenList(ChatHandler.Self, "mapper.list"); // Open mapper list so we can get new songs filtered by our favorite mappers.
-            MapperAllowList(ChatHandler.Self, "mapper.list");
-
-            accesslist("mapper.list");
-
-            OpenList(ChatHandler.Self, "automtt.list"); // Open mapper list so we can get new songs filtered by our favorite mappers.
-            automtt = listcollection.OpenList("automtt.list");
-            accesslist("automtt.list");
-
-            string dummy = "";
-
-            ChatUser user = ChatHandler.Self;
-
-            loaddecks(new ParseState(ref user,ref dummy,CmdFlags.Silent,ref dummy)); // Load our default deck collection
-            // BUG: Command failure observed once, no permission to use /chatcommand. Possible cause: OurTwitchUser isn't authenticated yet.
-
-            RunScript(ChatHandler.Self, "startup.script"); // Run startup script. This can include any bot commands.
-#endif
         }
 
         private void FixedUpdate()
@@ -517,17 +399,12 @@ namespace SongRequestManager
             }
         }
 
-        // if (!silence) QueueChatMessage($"{request.Key.song["songName"].Value}/{request.Key.song["authorName"].Value} ({songId}) added to the blacklist.");
         private void SendChatMessage(string message)
         {
             try
             {
                 Plugin.Log($"Sending message: \"{message}\"");
-                //TwitchWebSocketClient.SendMessage($"PRIVMSG #{TwitchLoginConfig.Instance.TwitchChannelName} :{message}");
                 ChatHandler.Send(message);
-                //TwitchMessage tmpMessage = new TwitchMessage();
-                //tmpMessage.Sender = ChatHandler.Self;
-                //MessageParser.Parse(new ChatMessage(message, tmpMessage)); // This call is obsolete, when sending a message through TwitchWebSocketClient, the message should automatically appear in chat.
             }
             catch (Exception e)
             {
@@ -537,14 +414,10 @@ namespace SongRequestManager
 
         public void QueueChatMessage(string message)
         {
-            if (ChatHandler.Connected)
+            if (ChatHandler.IsConnected)
             {
-                ChatHandler.Send($"{RequestBotConfig.Instance.BotPrefix}\uFEFF{message}");
+                ChatHandler.Send($"{QueueConfig.Instance.BotPrefix}\uFEFF{message}");
             }
-            //else
-            //{
-            //    Plugin.Log($"Message sent before twitch connected! \"{message}\"");
-            //}
         }
 
         private async void ProcessRequestQueue()
@@ -562,7 +435,7 @@ namespace SongRequestManager
                 if (UnverifiedRequestQueue.TryDequeue(out var requestInfo))
                 {
                     await CheckRequest(requestInfo);
-                    if(requestInfo.state.callback != null)
+                    if (requestInfo.state.callback != null)
                     {
                         requestInfo.state.callback();
                     }
@@ -634,7 +507,7 @@ namespace SongRequestManager
             FIFO, MoveToTop, RoundRobin
         }
 
-        public static int GetQueueInsertionPoint(List<SongRequest> queue, QueueInsertionStyle style, String requestorTwitchId)
+        public static int GetQueueInsertionPoint(List<LegacySongRequest> queue, QueueInsertionStyle style, String requestorTwitchId)
         {
             int lastPosition = queue.Count;
             switch (style)
@@ -659,7 +532,8 @@ namespace SongRequestManager
                         if (requestCountsPerUser.ContainsKey(ithRequestorId))
                         {
                             requestCountsPerUser[ithRequestorId]++;
-                        } else
+                        }
+                        else
                         {
                             requestCountsPerUser[ithRequestorId] = 1;
                         }
@@ -701,9 +575,9 @@ namespace SongRequestManager
                     return;
                 }
 
-                if (RequestBotConfig.Instance.OfflineMode && RequestBotConfig.Instance.offlinepath != "" && !MapDatabase.MapLibrary.ContainsKey(id))
+                if (QueueConfig.Instance.OfflineMode && QueueConfig.Instance.offlinepath != "" && !MapDatabase.MapLibrary.ContainsKey(id))
                 {
-                    foreach (string directory in Directory.GetDirectories(RequestBotConfig.Instance.offlinepath, id + "*"))
+                    foreach (string directory in Directory.GetDirectories(QueueConfig.Instance.offlinepath, id + "*"))
                     {
                         await MapDatabase.LoadCustomSongs(directory, id);
 
@@ -725,14 +599,14 @@ namespace SongRequestManager
             string errorMessage = "";
 
             // Get song query results from beatsaver.com
-            if (!RequestBotConfig.Instance.OfflineMode)
+            if (!QueueConfig.Instance.OfflineMode)
             {
                 //string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref request, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text/0?q={normalrequest}";
                 string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{id}" : $"https://beatsaver.com/api/search/text/0?q={normalrequest}";
 
                 var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
 
-                
+
                 if (resp.IsSuccessStatusCode)
                 {
                     result = resp.ConvertToJsonNode();
@@ -751,7 +625,7 @@ namespace SongRequestManager
 
             List<JSONObject> songs = GetSongListFromResults(result, request, ref errorMessage, filter, requestInfo.state.sort != "" ? requestInfo.state.sort : AddSortOrder.ToString());
 
-            bool autopick = RequestBotConfig.Instance.AutopickFirstSong || requestInfo.flags.HasFlag(CmdFlags.Autopick);
+            bool autopick = QueueConfig.Instance.AutopickFirstSong || requestInfo.flags.HasFlag(CmdFlags.Autopick);
 
             // Filter out too many or too few results
             if (songs.Count == 0)
@@ -796,27 +670,27 @@ namespace SongRequestManager
             int requestIndex = 0;
             JSONObject oldSong = null;
 
-            SongRequest newRequest = new SongRequest(song, requestor, requestInfo.requestTime, RequestStatus.Queued, requestInfo.requestInfo);
+            LegacySongRequest newRequest = new LegacySongRequest(song, requestor, requestInfo.requestTime, RequestStatus.Queued, requestInfo.requestInfo);
             if (requestInfo.toReplace != null)
             {
-                requestIndex = RequestQueue.Songs.IndexOf(requestInfo.toReplace);
+                requestIndex = LegacyRequestQueue.Songs.IndexOf(requestInfo.toReplace);
                 if (requestIndex >= 0)
                 {
-                    oldSong = RequestQueue.Songs[requestIndex].song;
-                    RequestQueue.Songs[requestIndex].song = song;
+                    oldSong = LegacyRequestQueue.Songs[requestIndex].song;
+                    LegacyRequestQueue.Songs[requestIndex].song = song;
                 }
             }
             else
             {
                 RequestTracker[requestor.Id].IncrementRequests();
                 listcollection.add(duplicatelist, song["id"].Value);
-                
+
                 QueueInsertionStyle queueInsertionStyle;
                 if (requestInfo.flags.HasFlag(CmdFlags.MoveToTop))
                 {
                     queueInsertionStyle = QueueInsertionStyle.MoveToTop;
                 }
-                else if (RequestBotConfig.Instance.UseRoundRobinQueue)
+                else if (QueueConfig.Instance.UseRoundRobinQueue)
                 {
                     queueInsertionStyle = QueueInsertionStyle.RoundRobin;
                 }
@@ -825,17 +699,17 @@ namespace SongRequestManager
                     queueInsertionStyle = QueueInsertionStyle.FIFO;
                 }
 
-                requestIndex = GetQueueInsertionPoint(RequestQueue.Songs, queueInsertionStyle, requestInfo.requestor.Id);
-                RequestQueue.Songs.Insert(requestIndex, newRequest);
+                requestIndex = GetQueueInsertionPoint(LegacyRequestQueue.Songs, queueInsertionStyle, requestInfo.requestor.Id);
+                LegacyRequestQueue.Songs.Insert(requestIndex, newRequest);
             }
 
-            RequestQueue.Write();
+            LegacyRequestQueue.Write();
 
             Writedeck(requestor, "savedqueue"); // This can be used as a backup if persistent Queue is turned off.
 
             if (requestIndex >= 0 && !requestInfo.flags.HasFlag(CmdFlags.SilentResult))
             {
-                IEnumerable<SongRequest> songsBefore = RequestQueue.Songs.Take(requestIndex);
+                IEnumerable<LegacySongRequest> songsBefore = LegacyRequestQueue.Songs.Take(requestIndex);
                 int duration = songsBefore.Sum(s => s.song["songduration"].AsInt);
 
                 string behindDuration = string.Empty;
@@ -866,13 +740,13 @@ namespace SongRequestManager
 
         private static async void ProcessSongRequest(int index, bool fromHistory = false)
         {
-            if ((RequestQueue.Songs.Count > 0 && !fromHistory) || (RequestHistory.Songs.Count > 0 && fromHistory))
+            if ((LegacyRequestQueue.Songs.Count > 0 && !fromHistory) || (RequestHistory.Songs.Count > 0 && fromHistory))
             {
-                SongRequest request = null;
+                LegacySongRequest request = null;
                 if (!fromHistory)
                 {
                     SetRequestStatus(index, RequestStatus.Played);
-                    listcollection.add(duplicatelist, RequestQueue.Songs[index].song["id"].Value);
+                    listcollection.add(duplicatelist, LegacyRequestQueue.Songs[index].song["id"].Value);
                     request = DequeueRequest(index);
                 }
                 else
@@ -961,12 +835,12 @@ namespace SongRequestManager
                     //}
                     byte[] songZip = null;
 
-                    if (!string.IsNullOrEmpty(RequestBotConfig.Instance.offlinepath))
+                    if (!string.IsNullOrEmpty(QueueConfig.Instance.offlinepath))
                     {
                         // build cache name to check
                         var cacheName = $"{request.song["id"].Value}_{request.song["hash"].Value}.zip";
-                        Plugin.Log($"{RequestBotConfig.Instance.offlinepath} - {cacheName}");
-                        var cachePath = Path.Combine(RequestBotConfig.Instance.offlinepath, cacheName);
+                        Plugin.Log($"{QueueConfig.Instance.offlinepath} - {cacheName}");
+                        var cachePath = Path.Combine(QueueConfig.Instance.offlinepath, cacheName);
 
                         // check if a local cache exists, if so, copy it
                         if (File.Exists(cachePath))
@@ -1049,7 +923,7 @@ namespace SongRequestManager
                     Plugin.Log("Failed to find new level!");
                 }
 
-                if (!request.song.IsNull && RequestBotConfig.Instance.SendNextSongBeingPlayedtoChat)
+                if (!request.song.IsNull && QueueConfig.Instance.SendNextSongBeingPlayedtoChat)
                 {
                     new DynamicText().AddUser(ref request.requestor).AddSong(request.song).QueueMessage(NextSonglink.ToString()); // Display next song message
                 }
@@ -1084,7 +958,7 @@ namespace SongRequestManager
 
                     _requestButton.interactable = enabled;
 
-                    if (RequestQueue.Songs.Count == 0)
+                    if (LegacyRequestQueue.Songs.Count == 0)
                     {
                         _requestButton.SetButtonUnderlineColor(Color.red);
                     }
@@ -1100,7 +974,7 @@ namespace SongRequestManager
             }
         }
 
-        public static void DequeueRequest(SongRequest request, bool updateUI = true)
+        public static void DequeueRequest(LegacySongRequest request, bool updateUI = true)
         {
             switch (request.status)
             {
@@ -1114,18 +988,18 @@ namespace SongRequestManager
                     break;
             }
 
-            if (RequestHistory.Songs.Count > RequestBotConfig.Instance.RequestHistoryLimit)
+            if (RequestHistory.Songs.Count > QueueConfig.Instance.RequestHistoryLimit)
             {
-                int diff = RequestHistory.Songs.Count - RequestBotConfig.Instance.RequestHistoryLimit;
+                int diff = RequestHistory.Songs.Count - QueueConfig.Instance.RequestHistoryLimit;
                 RequestHistory.Songs.RemoveRange(RequestHistory.Songs.Count - diff - 1, diff);
             }
-            RequestQueue.Songs.Remove(request);
+            LegacyRequestQueue.Songs.Remove(request);
             RequestHistory.Write();
-            RequestQueue.Write();
+            LegacyRequestQueue.Write();
 
             // Decrement the requestors request count, since their request is now out of the queue
 
-            if (!RequestBotConfig.Instance.LimitUserRequestsToSession)
+            if (!QueueConfig.Instance.LimitUserRequestsToSession)
             {
                 if (RequestTracker.ContainsKey(request.requestor.Id))
                 {
@@ -1142,9 +1016,9 @@ namespace SongRequestManager
             _refreshQueue = true;
         }
 
-        public static SongRequest DequeueRequest(int index, bool updateUI = true)
+        public static LegacySongRequest DequeueRequest(int index, bool updateUI = true)
         {
-            SongRequest request = RequestQueue.Songs.ElementAt(index);
+            LegacySongRequest request = LegacyRequestQueue.Songs.ElementAt(index);
 
             if (request != null)
             {
@@ -1155,7 +1029,7 @@ namespace SongRequestManager
             // If the queue is empty, Execute a custom command, the could be a chat message, a deck request, or nothing
             try
             {
-                if (RequestBotConfig.Instance.RequestQueueOpen && updateUI == true && RequestQueue.Songs.Count == 0) RequestBot.listcollection.runscript("emptyqueue.script");
+                if (QueueConfig.Instance.RequestQueueOpen && updateUI == true && LegacyRequestQueue.Songs.Count == 0) RequestBot.listcollection.runscript("emptyqueue.script");
             }
             catch (Exception ex) { Plugin.Log(ex.ToString()); }
 #endif
@@ -1166,7 +1040,7 @@ namespace SongRequestManager
         {
             if (!fromHistory)
             {
-                RequestQueue.Songs[index].status = status;
+                LegacyRequestQueue.Songs[index].status = status;
             }
             else
             {
@@ -1177,7 +1051,7 @@ namespace SongRequestManager
         public static void Blacklist(int index, bool fromHistory, bool skip)
         {
             // Add the song to the blacklist
-            SongRequest request = fromHistory ? RequestHistory.Songs.ElementAt(index) : RequestQueue.Songs.ElementAt(index);
+            LegacySongRequest request = fromHistory ? RequestHistory.Songs.ElementAt(index) : LegacyRequestQueue.Songs.ElementAt(index);
 
             listcollection.add(banlist, request.song["id"].Value);
 
@@ -1309,7 +1183,7 @@ namespace SongRequestManager
             return success;
         }
 
-        private bool CanModifyRequest(SongRequest request, ChatUser user)
+        private bool CanModifyRequest(LegacySongRequest request, ChatUser user)
         {
             return request.requestor.Id == user.Id || user.IsBroadcaster || user.IsModerator;
         }
@@ -1329,14 +1203,14 @@ namespace SongRequestManager
 
                     Plugin.Log($"ReplaceRequest: {prevId} -> {newId}");
 
-                    SongRequest toReplace = null;
+                    LegacySongRequest toReplace = null;
                     if (!string.IsNullOrEmpty(prevId))
                     {
-                        toReplace = RequestQueue.Songs.FirstOrDefault(request => request.song["id"].Value.ToLower() == prevId.ToLower() && CanModifyRequest(request, newState.user));
+                        toReplace = LegacyRequestQueue.Songs.FirstOrDefault(request => request.song["id"].Value.ToLower() == prevId.ToLower() && CanModifyRequest(request, newState.user));
                     }
                     else if (!string.IsNullOrEmpty(newId))
                     {
-                        toReplace = RequestQueue.Songs.FirstOrDefault(request => request.requestor.Id == newState.user.Id);
+                        toReplace = LegacyRequestQueue.Songs.FirstOrDefault(request => request.requestor.Id == newState.user.Id);
                     }
 
                     if (toReplace != null)
@@ -1369,11 +1243,11 @@ namespace SongRequestManager
             return ProcessSongRequest(state, null);
         }
 
-        private string ProcessSongRequest(ParseState state, SongRequest toReplace)
+        private string ProcessSongRequest(ParseState state, LegacySongRequest toReplace)
         {
             try
             {
-                if (RequestBotConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local) && toReplace == null) // BUG: Complex permission, Queue state message needs to be handled higher up
+                if (QueueConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local) && toReplace == null) // BUG: Complex permission, Queue state message needs to be handled higher up
                 {
                     QueueChatMessage($"Queue is currently closed.");
                     return success;
@@ -1384,41 +1258,41 @@ namespace SongRequestManager
                     RequestTracker.Add(state.user.Id, new RequestUserTracker());
                 }
 
-                int limit = RequestBotConfig.Instance.UserRequestLimit;
+                int limit = QueueConfig.Instance.UserRequestLimit;
                 if (state.user.IsSubscriber)
                 {
-                    limit = Math.Max(limit, RequestBotConfig.Instance.SubRequestLimit);
+                    limit = Math.Max(limit, QueueConfig.Instance.SubRequestLimit);
                 }
 
                 if (state.user.IsModerator)
                 {
-                    limit = Math.Max(limit, RequestBotConfig.Instance.ModRequestLimit);
+                    limit = Math.Max(limit, QueueConfig.Instance.ModRequestLimit);
                 }
 
                 if (state.user.IsVip)
                 {
-                    limit += RequestBotConfig.Instance.VipBonusRequests; // Current idea is to give VIP's a bonus over their base subscription class, you can set this to 0 if you like
+                    limit += QueueConfig.Instance.VipBonusRequests; // Current idea is to give VIP's a bonus over their base subscription class, you can set this to 0 if you like
                 }
 
-                string subscriberUpsell = limit < RequestBotConfig.Instance.SubRequestLimit ? "Subscribers are limited to %RequestLimit%." : string.Empty;
+                string subscriberUpsell = limit < QueueConfig.Instance.SubRequestLimit ? "Subscribers are limited to %RequestLimit%." : string.Empty;
 
                 if (!state.user.IsBroadcaster && toReplace == null)
                 {
-                    if (RequestBotConfig.Instance.LimitUserRequestsToSession)
+                    if (QueueConfig.Instance.LimitUserRequestsToSession)
                     {
                         int requestCount = RequestTracker[state.user.Id].GetNumRequestsInQueue();
                         if (requestCount >= limit)
                         {
-                            new DynamicText().Add("Requests", RequestTracker[state.user.Id].GetNumRequestsInQueue().ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage("You've already used %Requests% requests this stream. Subscribers are limited to %RequestLimit%.");
+                            new DynamicText().Add("Requests", RequestTracker[state.user.Id].GetNumRequestsInQueue().ToString()).Add("RequestLimit", QueueConfig.Instance.SubRequestLimit.ToString()).QueueMessage("You've already used %Requests% requests this stream. Subscribers are limited to %RequestLimit%.");
                             return success;
                         }
                     }
                     else
                     {
-                        int requestCount = RequestQueue.Songs.Count(req => req.requestor.Id == state.user.Id);
+                        int requestCount = LegacyRequestQueue.Songs.Count(req => req.requestor.Id == state.user.Id);
                         if (requestCount >= limit)
                         {
-                            new DynamicText().Add("Requests", requestCount.ToString()).Add("RequestLimit", RequestBotConfig.Instance.SubRequestLimit.ToString()).QueueMessage($"You already have %Requests% on the queue. You can add another once one is played, or use !replace to change your request. {subscriberUpsell}");
+                            new DynamicText().Add("Requests", requestCount.ToString()).Add("RequestLimit", QueueConfig.Instance.SubRequestLimit.ToString()).QueueMessage($"You already have %Requests% on the queue. You can add another once one is played, or use !replace to change your request. {subscriberUpsell}");
                             return success;
                         }
                     }

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SongRequestManager.SimpleJSON;
 using UnityEngine;
+using SongRequestManager.Config;
 // Feature requests: Add Reason for being banned to banlist
 //  
 
@@ -240,7 +241,7 @@ namespace SongRequestManager
             // Fast? Full Text Search
             public static List<SongMap> Search(string SearchKey)
             {
-                if (!DatabaseImported && RequestBotConfig.Instance.LocalSearch)
+                if (!DatabaseImported && QueueConfig.Instance.LocalSearch)
                 {
                     LoadCustomSongs();
                 }
@@ -526,9 +527,9 @@ namespace SongRequestManager
                     DirectoryInfo di = new DirectoryInfo(folder);
                     FullDirList(di, "*");
 
-                    if (RequestBotConfig.Instance.additionalsongpath != "")
+                    if (QueueConfig.Instance.additionalsongpath != "")
                     {
-                        di = new DirectoryInfo(RequestBotConfig.Instance.additionalsongpath);
+                        di = new DirectoryInfo(QueueConfig.Instance.additionalsongpath);
                         FullDirList(di, "*");
                     }
 
@@ -925,7 +926,7 @@ namespace SongRequestManager
 
                     ppmap.TryAdd(id, (int)(maxpp));
 
-                    if (id != "" && maxpp > RequestBotConfig.Instance.PPDeckMiniumumPP)
+                    if (id != "" && maxpp > QueueConfig.Instance.PPDeckMiniumumPP)
                     {
                         listcollection.add("pp.deck", id);
                     }

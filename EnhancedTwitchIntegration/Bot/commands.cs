@@ -118,13 +118,19 @@ namespace SongRequestManager
  
             */
 
+            // PORTED
             new COMMAND(new string[] { "!request", "!bsr", "!add", "!sr", "!srm" }).Action(ProcessSongRequest).Help(Everyone, "usage: %alias%<songname> or <song id>, omit <,>'s. %|%This adds a song to the request queue. Try and be a little specific. You can look up songs on %beatsaver%", _atleast1);
+            new COMMAND("!open").Action(OpenQueue).Help(Mod, "usage: %alias%%|%... Opens the queue allowing song requests.", _nothing);
+            new COMMAND("!close").Action(CloseQueue).Help(Mod, "usage: %alias%%|%... Closes the request queue.", _nothing);
+            new COMMAND("!remap").Action(Remap).Help(Mod, "usage: %alias%<songid1> <songid2>%|%... Remaps future song requests of <songid1> to <songid2> , hopefully a newer/better version of the map.", _RemapRegex);
+            new COMMAND("!unmap").Action(Unmap).Help(Mod, "usage: %alias%<songid> %|%... Remove future remaps for songid.", _beatsaversongversion);
+
+
+            // TODO
+
             new COMMAND(new string[] { "!lookup", "!find" }).AsyncAction(LookupSongs).Help(Mod | Sub | VIP, "usage: %alias%<song name> or <song id>, omit <>'s.%|%Get a list of songs from %beatsaver% matching your search criteria.", _atleast1);
 
             new COMMAND("!link").Action(ShowSongLink).Help(Everyone, "usage: %alias% %|%... Shows song details, and an %beatsaver% link to the current song", _nothing);
-
-            new COMMAND("!open").Action(OpenQueue).Help(Mod, "usage: %alias%%|%... Opens the queue allowing song requests.", _nothing);
-            new COMMAND("!close").Action(CloseQueue).Help(Mod, "usage: %alias%%|%... Closes the request queue.", _nothing);
 
             new COMMAND("!played").Action(ShowSongsplayed).Help(Mod, "usage: %alias%%|%... Displays all the songs already played this session.", _nothing);
             new COMMAND("!history").Action(ShowHistory).Help(Mod, "usage: %alias% %|% Shows a list of the recently played songs, starting from the most recent.", _nothing);
@@ -138,9 +144,6 @@ namespace SongRequestManager
             new COMMAND("!unblock").Action(Unban).Help(Mod, "usage: %alias%<song id>, do not include <,>'s.", _beatsaversongversion);
             new COMMAND("!block").AsyncAction(Ban).Help(Mod, "usage: %alias%<song id>, do not include <,>'s.", _beatsaversongversion);
             new COMMAND("!blist").Action(ShowBanList).Help(Broadcaster, "usage: Don't use, it will spam chat!", _atleast1); // Purposely annoying to use, add a character after the command to make it happen 
-
-            new COMMAND("!remap").Action(Remap).Help(Mod, "usage: %alias%<songid1> <songid2>%|%... Remaps future song requests of <songid1> to <songid2> , hopefully a newer/better version of the map.", _RemapRegex);
-            new COMMAND("!unmap").Action(Unmap).Help(Mod, "usage: %alias%<songid> %|%... Remove future remaps for songid.", _beatsaversongversion);
 
             new COMMAND("!clearqueue").Action(Clearqueue).Help(Mod, "usage: %alias%%|%... Clears the song request queue. You can still get it back from the JustCleared deck, or the history window", _nothing);
             new COMMAND("!clearalreadyplayed").Action(ClearDuplicateList).Help(Mod, "usage: %alias%%|%... clears the list of already requested songs, allowing them to be requested again.", _nothing); // Needs a better name

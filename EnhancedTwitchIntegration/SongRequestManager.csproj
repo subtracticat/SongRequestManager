@@ -210,8 +210,10 @@
     <Compile Include="Commands\ChatMessageExtensions.cs" />
     <Compile Include="Commands\CommandUtils.cs" />
     <Compile Include="Commands\Command.cs" />
-    <Compile Include="Commands\OpenQueueCommand.cs" />
+    <Compile Include="Commands\RemapCommand.cs" />
+    <Compile Include="Commands\SetQueueStatusCommand.cs" />
     <Compile Include="Commands\SongRequestCommand.cs" />
+    <Compile Include="Commands\UnmapCommand.cs" />
     <Compile Include="Config\ChatConfigManager.cs" />
     <Compile Include="Config\ConfigBase.cs" />
     <Compile Include="Config\QueueConfigManager.cs" />

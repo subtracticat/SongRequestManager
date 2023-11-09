@@ -22,7 +22,10 @@ namespace SongRequestManager
 
         private static readonly List<Command> Commands = new List<Command> 
         {
-            new SongRequestCommand()
+            new RemapCommand(),
+            new SetQueueStatusCommand(),
+            new SongRequestCommand(),
+            new UnmapCommand()
         };
         
         public static ChatUser Self => _defaultSelf;
@@ -98,15 +101,18 @@ namespace SongRequestManager
             }
         }
 
-        private void OnChatCommandReceived(object sender, OnChatCommandReceivedArgs chatCommand)
+        private async void OnChatCommandReceived(object sender, OnChatCommandReceivedArgs chatCommand)
         {
-            Plugin.Log($"Handling message: [{chatCommand.Command.ChatMessage.Username}: {chatCommand.Command.ChatMessage.Message}]");
-
             if (CommandMap.TryGetValue(chatCommand.Command.CommandText.ToLower(), out Command command))
             {
                 try
                 {
-                    command.Execute(chatCommand.Command);
+                    var message = chatCommand.Command.ChatMessage;
+
+                    if (message.IsModerator || message.IsBroadcaster || !command.IsModOnly)
+                    {
+                        await command.ExecuteAsync(chatCommand.Command);
+                    }
                 }
                 catch (Exception e)
                 {

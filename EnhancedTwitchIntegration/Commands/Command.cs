@@ -6,10 +6,15 @@ namespace SongRequestManager.Commands
 {
     public abstract class Command
     {
-        public virtual bool IsModOnly { get; } = false;
+        public virtual bool IsModOnly => false;
         
         public abstract List<string> Aliases { get; }
 
-        public abstract Task Execute(ChatCommand command);
+        public abstract Task ExecuteAsync(ChatCommand command);
+    }
+
+    public abstract class ModeratorCommand : Command
+    {
+        public override bool IsModOnly => true;
     }
 }

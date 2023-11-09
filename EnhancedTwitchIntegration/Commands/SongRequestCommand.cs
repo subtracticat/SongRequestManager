@@ -18,7 +18,7 @@ namespace SongRequestManager.Commands
             "srm"
         };
 
-        public override async Task Execute(ChatCommand command)
+        public override async Task ExecuteAsync(ChatCommand command)
         {
             if (!QueueConfigManager.Instance.Config.RequestQueueOpen)
             {

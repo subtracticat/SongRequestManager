@@ -348,15 +348,15 @@ namespace SongRequestManager
                     new Vector2(25f, 15f),
                     () =>
                     {
-                        QueueConfig.Instance.RequestQueueOpen = !QueueConfig.Instance.RequestQueueOpen;
-                        QueueConfig.Instance.Save();
-                        RequestBot.WriteQueueStatusToFile(QueueConfig.Instance.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
-                        RequestBot.Instance.QueueChatMessage(QueueConfig.Instance.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
+                        QueueConfigManager.Instance.Config.RequestQueueOpen = !QueueConfigManager.Instance.Config.RequestQueueOpen;
+                        QueueConfigManager.Instance.Save();
+                        RequestBot.WriteQueueStatusToFile(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
+                        RequestBot.Instance.QueueChatMessage(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         UpdateRequestUI();
-                    }, QueueConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
+                    }, QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue Open" : "Queue Closed");
 
                 _queueButton.ToggleWordWrapping(true);
-                _queueButton.SetButtonUnderlineColor(QueueConfig.Instance.RequestQueueOpen ? Color.green : Color.red);
+                _queueButton.SetButtonUnderlineColor(QueueConfigManager.Instance.Config.RequestQueueOpen ? Color.green : Color.red);
                 _queueButton.SetButtonTextSize(3.5f);
                 UIHelper.AddHintText(_queueButton.transform as RectTransform, "Open/Close the queue.");
                 #endregion
@@ -435,14 +435,14 @@ namespace SongRequestManager
         {
             _playButton.interactable = ((isShowingHistory && RequestHistory.Songs.Count > 0) || (!isShowingHistory && LegacyRequestQueue.Songs.Count > 0));
 
-            _queueButton.SetButtonText(QueueConfig.Instance.RequestQueueOpen ? "Queue Open" : "Queue Closed");
-            _queueButton.SetButtonUnderlineColor(QueueConfig.Instance.RequestQueueOpen ? Color.green : Color.red);
+            _queueButton.SetButtonText(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue Open" : "Queue Closed");
+            _queueButton.SetButtonUnderlineColor(QueueConfigManager.Instance.Config.RequestQueueOpen ? Color.green : Color.red);
 
             _historyHintText.text = isShowingHistory ? "Go back to your current song request queue." : "View the history of song requests from the current session.";
             _historyButton.SetButtonText(isShowingHistory ? "Requests" : "History");
             _playButton.SetButtonText(isShowingHistory ? "Replay" : "Play");
 
-            //_websocketConnectButton.gameObject.SetActive(!ChatHandler.WebsocketHandlerConnected() && RequestQueueConfig.Instance.WebsocketEnabled);
+            //_websocketConnectButton.gameObject.SetActive(!ChatHandler.WebsocketHandlerConnected() && RequestQueueConfigManager.Instance.Config.WebsocketEnabled);
             
             UpdateSelectSongInfo();
 

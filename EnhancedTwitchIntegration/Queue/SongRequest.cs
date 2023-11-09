@@ -10,5 +10,13 @@ namespace SongRequestManager.Queue
         public DateTime Timestamp { get; set; }
         public double PriorityValue { get; set; }
         public Song Song { get; set; }
+
+        public SongRequest() { }
+        public SongRequest(Song song, string requestedBy)
+        {
+            this.Song = song;
+            this.RequestedBy = requestedBy;
+            this.Timestamp = DateTime.Now;
+        }
     }
 }

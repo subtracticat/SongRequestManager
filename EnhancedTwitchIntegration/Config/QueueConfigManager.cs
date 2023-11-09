@@ -1,16 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using IPA.Utilities;
 
 namespace SongRequestManager.Config
 {
     public class QueueConfig
     {
-        private static readonly string FileName = "RequestBotSettings.ini";
-        private static readonly string FilePath = Path.Combine(Plugin.DataPath, FileName);
-
         public bool RequestQueueOpen = true;
         public bool PersistentRequestQueue = true;
 
@@ -64,100 +59,33 @@ namespace SongRequestManager.Config
         public string additionalsongpath = "";
         public string songdownloadpath = "";
         public int minimumUploadTimeCensor = 0;
-        
-        
+
+
         public string WebsocketURL = "ws://127.0.0.1:9090/SRM";
         public bool WebsocketEnabled = false;
         public bool DisableChatcore = false;
-        
+
         public string BeatsaverRequestUIurl = "";
         public string BeatsaverRequestUIId = "";
         public bool BeatsaverRequestUIEnabled = false;
+    }
 
-        public event Action<QueueConfig> ConfigChangedEvent;
+    public class QueueConfigManager : ConfigBase<QueueConfig>
+    {
+        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMQueueConfig.json");
+        protected override string LegacyFilePath => Path.Combine(Plugin.DataPath, "RequestBotSettings.ini");
 
-        private readonly FileSystemWatcher _configWatcher;
-        private bool _saving;
-
-        private static QueueConfig _instance = null;
-        public static QueueConfig Instance
+        private static QueueConfigManager _instance = null;
+        public static QueueConfigManager Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new QueueConfig();
+                    _instance = new QueueConfigManager();
                 }
 
                 return _instance;
-            }
-
-            private set => _instance = value;
-        }
-
-        public QueueConfig()
-        {
-            Instance = this;
-
-            _configWatcher = new FileSystemWatcher();
-
-            Task.Run(() =>
-            {
-                while (!Directory.Exists(Path.GetDirectoryName(FilePath)))
-                {
-                    Thread.Sleep(100);
-                }
-
-                Plugin.Log("FilePath exists! Continuing initialization!");
-
-                if (File.Exists(FilePath))
-                {
-                    Load();
-                }
-                Save();
-
-                _configWatcher.Path = Path.GetDirectoryName(FilePath);
-                _configWatcher.NotifyFilter = NotifyFilters.LastWrite;
-                _configWatcher.Filter = FileName;
-                _configWatcher.EnableRaisingEvents = true;
-
-                _configWatcher.Changed += ConfigWatcherOnChanged;
-            });
-        }
-
-        ~QueueConfig()
-        {
-            _configWatcher.Changed -= ConfigWatcherOnChanged;
-        }
-
-        public void Load()
-        {
-            ConfigSerializer.LoadConfig(this, FilePath);
-        }
-
-        public void Save(bool callback = false)
-        {
-            if (!callback)
-            {
-                _saving = true;
-            }
-
-            ConfigSerializer.SaveConfig(this, FilePath);
-        }
-
-        private void ConfigWatcherOnChanged(object sender, FileSystemEventArgs fileSystemEventArgs)
-        {
-            if (_saving)
-            {
-                _saving = false;
-                return;
-            }
-
-            Load();
-
-            if (ConfigChangedEvent != null)
-            {
-                ConfigChangedEvent(this);
             }
         }
     }

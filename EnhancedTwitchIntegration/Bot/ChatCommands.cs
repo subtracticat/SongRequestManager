@@ -44,7 +44,7 @@ namespace SongRequestManager
             return "";
         }
 
-        public static int MaximumTwitchMessageLength => 498 - QueueConfig.Instance.BotPrefix.Length;
+        public static int MaximumTwitchMessageLength => 498 - QueueConfigManager.Instance.Config.BotPrefix.Length;
 
         public string ChatMessage(ParseState state)
         {
@@ -217,7 +217,7 @@ namespace SongRequestManager
         {
             string songid = song["id"].Value;
 
-            if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"] == true && QueueConfig.Instance.Automap == false) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
+            if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"] == true && QueueConfigManager.Instance.Config.Automap == false) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
 
             if (filter.HasFlag(SongFilter.Queue) && LegacyRequestQueue.Songs.Any(req => req.song["version"] == song["version"])) return fast ? "X" : $"Request {LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by {song["authorName"].Value} already exists in queue!";
 
@@ -232,16 +232,16 @@ namespace SongRequestManager
                 return "";
             }
 
-            if (filter.HasFlag(SongFilter.Duration) && song["songduration"].AsFloat > QueueConfig.Instance.MaximumSongLength*60) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is too long!";
+            if (filter.HasFlag(SongFilter.Duration) && song["songduration"].AsFloat > QueueConfigManager.Instance.Config.MaximumSongLength*60) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is too long!";
 
-            if (filter.HasFlag(SongFilter.NJS) && song["njs"].AsInt < QueueConfig.Instance.MinimumNJS) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) NJS ({song["njs"].Value}) is too low!";
+            if (filter.HasFlag(SongFilter.NJS) && song["njs"].AsInt < QueueConfigManager.Instance.Config.MinimumNJS) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) NJS ({song["njs"].Value}) is too low!";
 
             if (filter.HasFlag(SongFilter.Remap) && songremap.ContainsKey(songid))
             {
                 return fast ? "X" : $"no permitted results found!";
             }
 
-            if (filter.HasFlag(SongFilter.Rating) && song["rating"].AsFloat < QueueConfig.Instance.LowestAllowedRating && song["rating"] != 0) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by {song["authorName"].Value} is below {QueueConfig.Instance.LowestAllowedRating}% rating!";
+            if (filter.HasFlag(SongFilter.Rating) && song["rating"].AsFloat < QueueConfigManager.Instance.Config.LowestAllowedRating && song["rating"] != 0) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by {song["authorName"].Value} is below {QueueConfigManager.Instance.Config.LowestAllowedRating}% rating!";
 
             return "";
         }
@@ -309,7 +309,7 @@ namespace SongRequestManager
             {
                 JSONNode result = null;
 
-                if (!QueueConfig.Instance.OfflineMode)
+                if (!QueueConfigManager.Instance.Config.OfflineMode)
                 {
                     var requestUrl = $"https://api.beatsaver.com/maps/id/{id}";
                     var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
@@ -669,7 +669,7 @@ namespace SongRequestManager
 
             string requestUrl = "https://beatsaver.com/api/maps/latest?automapper=false";
 
-            //if (RequestQueueConfig.Instance.OfflineMode) return;
+            //if (RequestQueueConfigManager.Instance.Config.OfflineMode) return;
 
             int offset = 0;
 
@@ -679,7 +679,7 @@ namespace SongRequestManager
 
             string next = "";
 
-            while (offset < QueueConfig.Instance.MaxiumScanRange) // MaxiumAddScanRange
+            while (offset < QueueConfigManager.Instance.Config.MaxiumScanRange) // MaxiumAddScanRange
             {
                 var resp = await Plugin.WebClient.GetAsync($"{requestUrl}{next}", System.Threading.CancellationToken.None);
 
@@ -770,7 +770,7 @@ namespace SongRequestManager
 
             string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref state.parameter, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text";
 
-            if (QueueConfig.Instance.OfflineMode)
+            if (QueueConfigManager.Instance.Config.OfflineMode)
             {
                 return;
             }
@@ -781,7 +781,7 @@ namespace SongRequestManager
 
             //state.msg($"Flags: {state.flags}");
 
-            while (offset < QueueConfig.Instance.MaxiumScanRange) // MaxiumAddScanRange
+            while (offset < QueueConfigManager.Instance.Config.MaxiumScanRange) // MaxiumAddScanRange
             {
                 var resp = await Plugin.WebClient.GetAsync($"{requestUrl}/{offset}?q={state.parameter}", System.Threading.CancellationToken.None);
 
@@ -858,14 +858,14 @@ namespace SongRequestManager
 
             string errorMessage = "";
 
-            if (QueueConfig.Instance.OfflineMode)
+            if (QueueConfigManager.Instance.Config.OfflineMode)
             {
                 requestUrl = "";
             }
 
             JSONNode result = null;
 
-            if (!QueueConfig.Instance.OfflineMode)
+            if (!QueueConfigManager.Instance.Config.OfflineMode)
             {
                 var resp = await Plugin.WebClient.GetAsync($"{requestUrl}/{normalize.NormalizeBeatSaverString(state.parameter)}", System.Threading.CancellationToken.None);
 
@@ -1024,7 +1024,7 @@ namespace SongRequestManager
 
             JSONNode result = null;
 
-            if (!QueueConfig.Instance.OfflineMode)
+            if (!QueueConfigManager.Instance.Config.OfflineMode)
             {
                 string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{id}" : $"https://api.beatsaver.com/search/text/0?q={normalize.NormalizeBeatSaverString(state.parameter)}";
                 var resp = await Plugin.WebClient.GetAsync(requestUrl, System.Threading.CancellationToken.None);
@@ -1131,7 +1131,7 @@ namespace SongRequestManager
         // BUG: Should be dynamic text
         private void ListQueue(ParseState state)
         {
-            var msg = new QueueLongMessage(QueueConfig.Instance.maximumqueuemessages);
+            var msg = new QueueLongMessage(QueueConfigManager.Instance.Config.maximumqueuemessages);
 
             foreach (LegacySongRequest req in LegacyRequestQueue.Songs.ToArray())
             {
@@ -1218,8 +1218,8 @@ namespace SongRequestManager
 
         private void ToggleQueue(ChatUser requestor, string request, bool state)
         {
-            QueueConfig.Instance.RequestQueueOpen = state;
-            QueueConfig.Instance.Save();
+            QueueConfigManager.Instance.Config.RequestQueueOpen = state;
+            QueueConfigManager.Instance.Save();
 
             QueueChatMessage(state ? "Queue is now open." : "Queue is now closed.");
             WriteQueueStatusToFile(QueueMessage(state));
@@ -1228,7 +1228,7 @@ namespace SongRequestManager
         private static void WriteQueueSummaryToFile()
         {
 
-            if (!QueueConfig.Instance.UpdateQueueStatusFiles)
+            if (!QueueConfigManager.Instance.Config.UpdateQueueStatusFiles)
             {
                 return;
             }
@@ -1246,7 +1246,7 @@ namespace SongRequestManager
                     var song = req.song;
                     queuesummary += new DynamicText().AddSong(song).Parse(QueueTextFileFormat);  // Format of Queue is now user configurable
 
-                    if (++count > QueueConfig.Instance.MaximumQueueTextEntries)
+                    if (++count > QueueConfigManager.Instance.Config.MaximumQueueTextEntries)
                     {
                         queuesummary += "...\n";
                         break;
@@ -1521,7 +1521,7 @@ namespace SongRequestManager
 
         private string QueueStatus(ParseState state)
         {
-            string queuestate = QueueConfig.Instance.RequestQueueOpen ? "Queue is open. " : "Queue is closed. ";
+            string queuestate = QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open. " : "Queue is closed. ";
             QueueChatMessage($"{queuestate} There are {LegacyRequestQueue.Songs.Count} maps ({queueduration()}) in the queue.");
             return success;
         }

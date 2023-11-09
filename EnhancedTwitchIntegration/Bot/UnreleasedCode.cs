@@ -283,9 +283,9 @@ namespace SongRequestManager
         #region Deck Manager
         private string loaddecks(ParseState state)
         {
-            //createdeck(state.user, RequestQueueConfig.Instance.DeckList.ToLower());
+            //createdeck(state.user, RequestQueueConfigManager.Instance.Config.DeckList.ToLower());
 
-            string decklist = QueueConfig.Instance.DeckList.ToLower();
+            string decklist = QueueConfigManager.Instance.Config.DeckList.ToLower();
             state.parameter = decklist;
             return createdeck(state);
         }
@@ -446,7 +446,7 @@ namespace SongRequestManager
                 }
             }
 
-            if (QueueConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local))
+            if (QueueConfigManager.Instance.Config.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local))
             {
                 QueueChatMessage("Queue is currently closed.");
                 return empty;

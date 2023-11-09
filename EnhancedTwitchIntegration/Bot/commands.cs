@@ -1410,7 +1410,7 @@ namespace SongRequestManager
                 return true; // Not sure if this is the best approach actually, not worth thinking about right now
             }
 
-            if (user.IsModerator & QueueConfig.Instance.ModFullRights)
+            if (user.IsModerator & QueueConfigManager.Instance.Config.ModFullRights)
             {
                 return true;
             }

@@ -35,44 +35,44 @@
 //            var menu = SettingsUI.CreateSubMenu("Song Request Manager");
 
 //            var AutopickFirstSong = menu.AddBool("Autopick First Song", "Automatically pick the first song with sr!");
-//            AutopickFirstSong.SetValue += (requests) => { RequestQueueConfig.Instance.AutopickFirstSong = requests; };
-//            AutopickFirstSong.GetValue += () => { return RequestQueueConfig.Instance.AutopickFirstSong; };
+//            AutopickFirstSong.SetValue += (requests) => { RequestQueueConfigManager.Instance.Config.AutopickFirstSong = requests; };
+//            AutopickFirstSong.GetValue += () => { return RequestQueueConfigManager.Instance.Config.AutopickFirstSong; };
 
 //            var MiniumSongRating = menu.AddSlider("Minimum rating", "Minimum allowed song rating", 0, 100, 0.5f, false);
-//            MiniumSongRating.SetValue += (scale) => { RequestQueueConfig.Instance.LowestAllowedRating = scale; };
-//            MiniumSongRating.GetValue += () => { return RequestQueueConfig.Instance.LowestAllowedRating; };
+//            MiniumSongRating.SetValue += (scale) => { RequestQueueConfigManager.Instance.Config.LowestAllowedRating = scale; };
+//            MiniumSongRating.GetValue += () => { return RequestQueueConfigManager.Instance.Config.LowestAllowedRating; };
 
 //            var MaximumAllowedSongLength = menu.AddSlider("Maximum Song Length", "Longest allowed song length in minutes", 0, 999, 1.0f, false);
-//            MaximumAllowedSongLength.SetValue += (scale) => { RequestQueueConfig.Instance.MaximumSongLength =  scale; };
-//            MaximumAllowedSongLength.GetValue += () => { return RequestQueueConfig.Instance.MaximumSongLength; };
+//            MaximumAllowedSongLength.SetValue += (scale) => { RequestQueueConfigManager.Instance.Config.MaximumSongLength =  scale; };
+//            MaximumAllowedSongLength.GetValue += () => { return RequestQueueConfigManager.Instance.Config.MaximumSongLength; };
 
 //            var MinimumNJS = menu.AddSlider("Minimum NJS allowed", "Disallow songs below a certain NJS", 0, 50, 1.0f, false);
-//            MinimumNJS.SetValue += (scale) => { RequestQueueConfig.Instance.MinimumNJS= scale; };
-//            MinimumNJS.GetValue += () => { return RequestQueueConfig.Instance.MinimumNJS; };
+//            MinimumNJS.SetValue += (scale) => { RequestQueueConfigManager.Instance.Config.MinimumNJS= scale; };
+//            MinimumNJS.GetValue += () => { return RequestQueueConfigManager.Instance.Config.MinimumNJS; };
 
 //            var TTSSupport = menu.AddBool("TTS Support", "Add ! to all command outputs for TTS Filtering");
-//            TTSSupport.SetValue += (requests) => { RequestQueueConfig.Instance.BotPrefix = requests ? "! " : ""; };
-//            TTSSupport.GetValue += () => { return RequestQueueConfig.Instance.BotPrefix!=""; };
+//            TTSSupport.SetValue += (requests) => { RequestQueueConfigManager.Instance.Config.BotPrefix = requests ? "! " : ""; };
+//            TTSSupport.GetValue += () => { return RequestQueueConfigManager.Instance.Config.BotPrefix!=""; };
 
 //            var UserRequestLimit = menu.AddSlider("User Request limit", "Maximum requests in queue at one time", 0, 10, 1f, true);
-//            UserRequestLimit.SetValue += (scale) => { RequestQueueConfig.Instance.UserRequestLimit= (int ) scale; };
-//            UserRequestLimit.GetValue += () => { return RequestQueueConfig.Instance.UserRequestLimit; };
+//            UserRequestLimit.SetValue += (scale) => { RequestQueueConfigManager.Instance.Config.UserRequestLimit= (int ) scale; };
+//            UserRequestLimit.GetValue += () => { return RequestQueueConfigManager.Instance.Config.UserRequestLimit; };
 
 //            var SubRequestLimit = menu.AddSlider("Sub Request limit", "Maximum requests in queue at one time", 0, 10, 1f, true);
-//            SubRequestLimit.SetValue += (scale) => { RequestQueueConfig.Instance.SubRequestLimit = (int)scale; };
-//            SubRequestLimit.GetValue += () => { return RequestQueueConfig.Instance.SubRequestLimit; };
+//            SubRequestLimit.SetValue += (scale) => { RequestQueueConfigManager.Instance.Config.SubRequestLimit = (int)scale; };
+//            SubRequestLimit.GetValue += () => { return RequestQueueConfigManager.Instance.Config.SubRequestLimit; };
 
 //            var ModRequestLimit = menu.AddSlider("Moderator Request limit", "Maximum requests in queue at one time", 0, 100, 1f, true);
-//            ModRequestLimit.SetValue += (scale) => { RequestQueueConfig.Instance.ModRequestLimit = (int)scale; };
-//            ModRequestLimit.GetValue += () => { return RequestQueueConfig.Instance.ModRequestLimit; };
+//            ModRequestLimit.SetValue += (scale) => { RequestQueueConfigManager.Instance.Config.ModRequestLimit = (int)scale; };
+//            ModRequestLimit.GetValue += () => { return RequestQueueConfigManager.Instance.Config.ModRequestLimit; };
 
 //            var VIPBonus = menu.AddSlider("VIP Request bonus", "Additional requests allowed in queue", 0, 10, 1f, true);
-//            VIPBonus.SetValue += (scale) => { RequestQueueConfig.Instance.VipBonusRequests = (int)scale; };
-//            VIPBonus.GetValue += () => { return RequestQueueConfig.Instance.VipBonusRequests; };
+//            VIPBonus.SetValue += (scale) => { RequestQueueConfigManager.Instance.Config.VipBonusRequests = (int)scale; };
+//            VIPBonus.GetValue += () => { return RequestQueueConfigManager.Instance.Config.VipBonusRequests; };
 
 //            var ModeratorRights = menu.AddBool("Full moderator rights", "Allow moderators access to ALL bot commands. Do you trust your mods?");
-//            ModeratorRights.SetValue += (requests) => { RequestQueueConfig.Instance.ModFullRights = requests ; };
-//            ModeratorRights.GetValue += () => { return RequestQueueConfig.Instance.ModFullRights; };
+//            ModeratorRights.SetValue += (requests) => { RequestQueueConfigManager.Instance.Config.ModFullRights = requests ; };
+//            ModeratorRights.GetValue += () => { return RequestQueueConfigManager.Instance.Config.ModFullRights; };
 
 //        }
 //    }

@@ -209,11 +209,13 @@
     <Compile Include="ChatHandler\ChatUser.cs" />
     <Compile Include="Commands\ChatMessageExtensions.cs" />
     <Compile Include="Commands\CommandUtils.cs" />
-    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\OpenQueueCommand.cs" />
     <Compile Include="Commands\SongRequestCommand.cs" />
-    <Compile Include="Config\ChatConfig.cs" />
-    <Compile Include="Config\QueueConfig.cs" />
+    <Compile Include="Config\ChatConfigManager.cs" />
+    <Compile Include="Config\ConfigBase.cs" />
+    <Compile Include="Config\QueueConfigManager.cs" />
+    <Compile Include="Config\RemapConfigManager.cs" />
     <Compile Include="Dispatcher.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -222,6 +224,7 @@
     <Compile Include="Queue\RequestStatus.cs" />
     <Compile Include="Queue\Song.cs" />
     <Compile Include="Queue\SongRequest.cs" />
+    <Compile Include="Service\BeatSaverService.cs" />
     <Compile Include="SimpleJson.cs" />
     <Compile Include="UdpListener.cs" />
     <Compile Include="UI\Base64Sprites.cs" />

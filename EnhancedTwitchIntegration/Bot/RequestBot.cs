@@ -149,7 +149,7 @@ namespace SongRequestManager
             ChatHandler.instance.Init();
 
             WriteQueueSummaryToFile();
-            WriteQueueStatusToFile(QueueMessage(QueueConfig.Instance.RequestQueueOpen));
+            WriteQueueStatusToFile(QueueMessage(QueueConfigManager.Instance.Config.RequestQueueOpen));
 
             if (Instance) return;
             new GameObject("SongRequestManager").AddComponent<RequestBot>();
@@ -277,13 +277,13 @@ namespace SongRequestManager
 
                 try
                 {
-                    if (!DateTime.TryParse(QueueConfig.Instance.LastBackup, out DateTime LastBackup))
+                    if (!DateTime.TryParse(QueueConfigManager.Instance.Config.LastBackup, out DateTime LastBackup))
                     {
                         LastBackup = DateTime.MinValue;
                     }
 
                     TimeSpan TimeSinceBackup = DateTime.Now - LastBackup;
-                    if (TimeSinceBackup > TimeSpan.FromHours(QueueConfig.Instance.SessionResetAfterXHours))
+                    if (TimeSinceBackup > TimeSpan.FromHours(QueueConfigManager.Instance.Config.SessionResetAfterXHours))
                     {
                         Backup();
                     }
@@ -299,7 +299,7 @@ namespace SongRequestManager
                 try
                 {
                     TimeSpan PlayedAge = GetFileAgeDifference(playedfilename);
-                    if (PlayedAge < TimeSpan.FromHours(QueueConfig.Instance.SessionResetAfterXHours))
+                    if (PlayedAge < TimeSpan.FromHours(QueueConfigManager.Instance.Config.SessionResetAfterXHours))
                     {
                         resetsession = false;
                         played = ReadJSON(playedfilename); // Read the songsplayed file if less than x hours have passed
@@ -311,19 +311,19 @@ namespace SongRequestManager
                     Instance.QueueChatMessage("Failed to clear played file");
                 }
 
-                if (QueueConfig.Instance.PPSearch)
+                if (QueueConfigManager.Instance.Config.PPSearch)
                 {
                     GetPPData(); // Start loading PP data
                 }
 
                 MapDatabase.LoadDatabase();
 
-                if (QueueConfig.Instance.LocalSearch)
+                if (QueueConfigManager.Instance.Config.LocalSearch)
                 {
                     MapDatabase.LoadCustomSongs(); // This is a background process
                 }
 
-                if (resetsession == false || QueueConfig.Instance.PersistentRequestQueue) LegacyRequestQueue.Read(); // Might added the timespan check for this too. To be decided later.
+                if (resetsession == false || QueueConfigManager.Instance.Config.PersistentRequestQueue) LegacyRequestQueue.Read(); // Might added the timespan check for this too. To be decided later.
 
                 RequestHistory.Read();
                 listcollection.OpenList("banlist.unique");
@@ -334,7 +334,7 @@ namespace SongRequestManager
                 //Instance.QueueChatMessage($"hashentries: {SongMap.hashcount} memory: {(GC.GetTotalMemory(false) - startingmem) / 1048576} MB");
 #endif
 
-                listcollection.ClearOldList("duplicate.list", TimeSpan.FromHours(QueueConfig.Instance.SessionResetAfterXHours));
+                listcollection.ClearOldList("duplicate.list", TimeSpan.FromHours(QueueConfigManager.Instance.Config.SessionResetAfterXHours));
 
                 UpdateRequestUI();
                 InitializeCommands();
@@ -345,7 +345,7 @@ namespace SongRequestManager
 
                 ProcessRequestQueue();
 
-                QueueConfig.Instance.ConfigChangedEvent += OnConfigChangedEvent;
+                QueueConfigManager.Instance.OnChanged += OnConfigChangedEvent;
             }
             catch (Exception ex)
             {
@@ -416,7 +416,7 @@ namespace SongRequestManager
         {
             if (ChatHandler.IsConnected)
             {
-                ChatHandler.Send($"{QueueConfig.Instance.BotPrefix}\uFEFF{message}");
+                ChatHandler.Send($"{QueueConfigManager.Instance.Config.BotPrefix}\uFEFF{message}");
             }
         }
 
@@ -575,9 +575,9 @@ namespace SongRequestManager
                     return;
                 }
 
-                if (QueueConfig.Instance.OfflineMode && QueueConfig.Instance.offlinepath != "" && !MapDatabase.MapLibrary.ContainsKey(id))
+                if (QueueConfigManager.Instance.Config.OfflineMode && QueueConfigManager.Instance.Config.offlinepath != "" && !MapDatabase.MapLibrary.ContainsKey(id))
                 {
-                    foreach (string directory in Directory.GetDirectories(QueueConfig.Instance.offlinepath, id + "*"))
+                    foreach (string directory in Directory.GetDirectories(QueueConfigManager.Instance.Config.offlinepath, id + "*"))
                     {
                         await MapDatabase.LoadCustomSongs(directory, id);
 
@@ -599,7 +599,7 @@ namespace SongRequestManager
             string errorMessage = "";
 
             // Get song query results from beatsaver.com
-            if (!QueueConfig.Instance.OfflineMode)
+            if (!QueueConfigManager.Instance.Config.OfflineMode)
             {
                 //string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{normalize.RemoveSymbols(ref request, normalize._SymbolsNoDash)}" : $"https://api.beatsaver.com/search/text/0?q={normalrequest}";
                 string requestUrl = (id != "") ? $"https://api.beatsaver.com/maps/id/{id}" : $"https://beatsaver.com/api/search/text/0?q={normalrequest}";
@@ -625,7 +625,7 @@ namespace SongRequestManager
 
             List<JSONObject> songs = GetSongListFromResults(result, request, ref errorMessage, filter, requestInfo.state.sort != "" ? requestInfo.state.sort : AddSortOrder.ToString());
 
-            bool autopick = QueueConfig.Instance.AutopickFirstSong || requestInfo.flags.HasFlag(CmdFlags.Autopick);
+            bool autopick = QueueConfigManager.Instance.Config.AutopickFirstSong || requestInfo.flags.HasFlag(CmdFlags.Autopick);
 
             // Filter out too many or too few results
             if (songs.Count == 0)
@@ -690,7 +690,7 @@ namespace SongRequestManager
                 {
                     queueInsertionStyle = QueueInsertionStyle.MoveToTop;
                 }
-                else if (QueueConfig.Instance.UseRoundRobinQueue)
+                else if (QueueConfigManager.Instance.Config.UseRoundRobinQueue)
                 {
                     queueInsertionStyle = QueueInsertionStyle.RoundRobin;
                 }
@@ -835,12 +835,12 @@ namespace SongRequestManager
                     //}
                     byte[] songZip = null;
 
-                    if (!string.IsNullOrEmpty(QueueConfig.Instance.offlinepath))
+                    if (!string.IsNullOrEmpty(QueueConfigManager.Instance.Config.offlinepath))
                     {
                         // build cache name to check
                         var cacheName = $"{request.song["id"].Value}_{request.song["hash"].Value}.zip";
-                        Plugin.Log($"{QueueConfig.Instance.offlinepath} - {cacheName}");
-                        var cachePath = Path.Combine(QueueConfig.Instance.offlinepath, cacheName);
+                        Plugin.Log($"{QueueConfigManager.Instance.Config.offlinepath} - {cacheName}");
+                        var cachePath = Path.Combine(QueueConfigManager.Instance.Config.offlinepath, cacheName);
 
                         // check if a local cache exists, if so, copy it
                         if (File.Exists(cachePath))
@@ -923,7 +923,7 @@ namespace SongRequestManager
                     Plugin.Log("Failed to find new level!");
                 }
 
-                if (!request.song.IsNull && QueueConfig.Instance.SendNextSongBeingPlayedtoChat)
+                if (!request.song.IsNull && QueueConfigManager.Instance.Config.SendNextSongBeingPlayedtoChat)
                 {
                     new DynamicText().AddUser(ref request.requestor).AddSong(request.song).QueueMessage(NextSonglink.ToString()); // Display next song message
                 }
@@ -988,9 +988,9 @@ namespace SongRequestManager
                     break;
             }
 
-            if (RequestHistory.Songs.Count > QueueConfig.Instance.RequestHistoryLimit)
+            if (RequestHistory.Songs.Count > QueueConfigManager.Instance.Config.RequestHistoryLimit)
             {
-                int diff = RequestHistory.Songs.Count - QueueConfig.Instance.RequestHistoryLimit;
+                int diff = RequestHistory.Songs.Count - QueueConfigManager.Instance.Config.RequestHistoryLimit;
                 RequestHistory.Songs.RemoveRange(RequestHistory.Songs.Count - diff - 1, diff);
             }
             LegacyRequestQueue.Songs.Remove(request);
@@ -999,7 +999,7 @@ namespace SongRequestManager
 
             // Decrement the requestors request count, since their request is now out of the queue
 
-            if (!QueueConfig.Instance.LimitUserRequestsToSession)
+            if (!QueueConfigManager.Instance.Config.LimitUserRequestsToSession)
             {
                 if (RequestTracker.ContainsKey(request.requestor.Id))
                 {
@@ -1029,7 +1029,7 @@ namespace SongRequestManager
             // If the queue is empty, Execute a custom command, the could be a chat message, a deck request, or nothing
             try
             {
-                if (QueueConfig.Instance.RequestQueueOpen && updateUI == true && LegacyRequestQueue.Songs.Count == 0) RequestBot.listcollection.runscript("emptyqueue.script");
+                if (QueueConfigManager.Instance.Config.RequestQueueOpen && updateUI == true && LegacyRequestQueue.Songs.Count == 0) RequestBot.listcollection.runscript("emptyqueue.script");
             }
             catch (Exception ex) { Plugin.Log(ex.ToString()); }
 #endif
@@ -1247,7 +1247,7 @@ namespace SongRequestManager
         {
             try
             {
-                if (QueueConfig.Instance.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local) && toReplace == null) // BUG: Complex permission, Queue state message needs to be handled higher up
+                if (QueueConfigManager.Instance.Config.RequestQueueOpen == false && !state.flags.HasFlag(CmdFlags.NoFilter) && !state.flags.HasFlag(CmdFlags.Local) && toReplace == null) // BUG: Complex permission, Queue state message needs to be handled higher up
                 {
                     QueueChatMessage($"Queue is currently closed.");
                     return success;
@@ -1258,32 +1258,32 @@ namespace SongRequestManager
                     RequestTracker.Add(state.user.Id, new RequestUserTracker());
                 }
 
-                int limit = QueueConfig.Instance.UserRequestLimit;
+                int limit = QueueConfigManager.Instance.Config.UserRequestLimit;
                 if (state.user.IsSubscriber)
                 {
-                    limit = Math.Max(limit, QueueConfig.Instance.SubRequestLimit);
+                    limit = Math.Max(limit, QueueConfigManager.Instance.Config.SubRequestLimit);
                 }
 
                 if (state.user.IsModerator)
                 {
-                    limit = Math.Max(limit, QueueConfig.Instance.ModRequestLimit);
+                    limit = Math.Max(limit, QueueConfigManager.Instance.Config.ModRequestLimit);
                 }
 
                 if (state.user.IsVip)
                 {
-                    limit += QueueConfig.Instance.VipBonusRequests; // Current idea is to give VIP's a bonus over their base subscription class, you can set this to 0 if you like
+                    limit += QueueConfigManager.Instance.Config.VipBonusRequests; // Current idea is to give VIP's a bonus over their base subscription class, you can set this to 0 if you like
                 }
 
-                string subscriberUpsell = limit < QueueConfig.Instance.SubRequestLimit ? "Subscribers are limited to %RequestLimit%." : string.Empty;
+                string subscriberUpsell = limit < QueueConfigManager.Instance.Config.SubRequestLimit ? "Subscribers are limited to %RequestLimit%." : string.Empty;
 
                 if (!state.user.IsBroadcaster && toReplace == null)
                 {
-                    if (QueueConfig.Instance.LimitUserRequestsToSession)
+                    if (QueueConfigManager.Instance.Config.LimitUserRequestsToSession)
                     {
                         int requestCount = RequestTracker[state.user.Id].GetNumRequestsInQueue();
                         if (requestCount >= limit)
                         {
-                            new DynamicText().Add("Requests", RequestTracker[state.user.Id].GetNumRequestsInQueue().ToString()).Add("RequestLimit", QueueConfig.Instance.SubRequestLimit.ToString()).QueueMessage("You've already used %Requests% requests this stream. Subscribers are limited to %RequestLimit%.");
+                            new DynamicText().Add("Requests", RequestTracker[state.user.Id].GetNumRequestsInQueue().ToString()).Add("RequestLimit", QueueConfigManager.Instance.Config.SubRequestLimit.ToString()).QueueMessage("You've already used %Requests% requests this stream. Subscribers are limited to %RequestLimit%.");
                             return success;
                         }
                     }
@@ -1292,7 +1292,7 @@ namespace SongRequestManager
                         int requestCount = LegacyRequestQueue.Songs.Count(req => req.requestor.Id == state.user.Id);
                         if (requestCount >= limit)
                         {
-                            new DynamicText().Add("Requests", requestCount.ToString()).Add("RequestLimit", QueueConfig.Instance.SubRequestLimit.ToString()).QueueMessage($"You already have %Requests% on the queue. You can add another once one is played, or use !replace to change your request. {subscriberUpsell}");
+                            new DynamicText().Add("Requests", requestCount.ToString()).Add("RequestLimit", QueueConfigManager.Instance.Config.SubRequestLimit.ToString()).QueueMessage($"You already have %Requests% on the queue. You can add another once one is played, or use !replace to change your request. {subscriberUpsell}");
                             return success;
                         }
                     }

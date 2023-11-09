@@ -48,7 +48,7 @@ namespace SongRequestManager.Queue
                 return new QueuePosition
                 {
                     Position = index + 1,
-                    DurationAheadSeconds = Instance.Requests.GetRange(0, index).Sum(r => r.Song.DurationSeconds)
+                    DurationAheadSeconds = (int)Instance.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
                 };
             }
 
@@ -58,14 +58,14 @@ namespace SongRequestManager.Queue
         public static QueuePosition Add(SongRequest request)
         {
             int previousCount = Instance.Requests.Count;
-            int previousDuration = Instance.Requests.Sum(r => r.Song.DurationSeconds);
+            double previousDuration = Instance.Requests.Sum(r => r.Song.Metadata.Duration);
 
             Instance.Requests.Add(request);
 
             return new QueuePosition
             {
                 Position = previousCount + 1,
-                DurationAheadSeconds = previousDuration
+                DurationAheadSeconds = (int)previousDuration
             };
         }
 
@@ -79,7 +79,7 @@ namespace SongRequestManager.Queue
                 return new QueuePosition
                 {
                     Position = index + 1,
-                    DurationAheadSeconds = Instance.Requests.GetRange(0, index).Sum(r => r.Song.DurationSeconds)
+                    DurationAheadSeconds = (int)Instance.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
                 };
             }
 

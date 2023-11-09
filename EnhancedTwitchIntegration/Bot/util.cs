@@ -56,19 +56,19 @@ namespace SongRequestManager
         public static string Backup()
         {
             DateTime Now = DateTime.Now;
-            string BackupName = Path.Combine(QueueConfig.Instance.backuppath, $"SRMBACKUP-{Now.ToString("yyyy-MM-dd-HHmm")}.zip");
+            string BackupName = Path.Combine(QueueConfigManager.Instance.Config.backuppath, $"SRMBACKUP-{Now.ToString("yyyy-MM-dd-HHmm")}.zip");
 
             Plugin.Log($"Backing up {Plugin.DataPath}");
             try
             {
-                if (!Directory.Exists(QueueConfig.Instance.backuppath))
+                if (!Directory.Exists(QueueConfigManager.Instance.Config.backuppath))
                 {
-                    Directory.CreateDirectory(QueueConfig.Instance.backuppath);
+                    Directory.CreateDirectory(QueueConfigManager.Instance.Config.backuppath);
                 }
 
                 ZipFile.CreateFromDirectory(Plugin.DataPath, BackupName, System.IO.Compression.CompressionLevel.Fastest, true);
-                QueueConfig.Instance.LastBackup = DateTime.Now.ToString();
-                QueueConfig.Instance.Save();
+                QueueConfigManager.Instance.Config.LastBackup = DateTime.Now.ToString();
+                QueueConfigManager.Instance.Save();
 
                 Plugin.Log($"Backup success writing {BackupName}");
                 return success;

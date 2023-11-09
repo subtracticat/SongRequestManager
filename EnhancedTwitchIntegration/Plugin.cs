@@ -113,7 +113,6 @@ namespace SongRequestManager
 
             // main load point
             RequestBot.OnLoad();
-            RequestBotConfig.Save(true);
         }
 
         internal enum GameMode

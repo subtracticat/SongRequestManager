@@ -47,7 +47,7 @@ namespace SongRequestManager
 
         public static string GetCensoredData(JSONObject song, string field,  DateTime timeSince)
         {
-            //if (RequestQueueConfig.Instance.minimumUploadTimeCensor < (timeSince - DateTime.Parse(song["createdAt"].Value)).Minutes) 
+            //if (RequestQueueConfigManager.Instance.Config.minimumUploadTimeCensor < (timeSince - DateTime.Parse(song["createdAt"].Value)).Minutes) 
             //    return "***";
             return song[field].Value;
         }

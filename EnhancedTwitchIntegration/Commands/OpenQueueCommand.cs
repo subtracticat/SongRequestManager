@@ -11,9 +11,9 @@ namespace SongRequestManager.Commands
     {
         public override List<string> Aliases => new List<string> { "open" };
 
-        public override void Execute(ChatCommand command)
+        public override Task Execute(ChatCommand command)
         {
-            
+            return Task.CompletedTask;
         }
     }
 }

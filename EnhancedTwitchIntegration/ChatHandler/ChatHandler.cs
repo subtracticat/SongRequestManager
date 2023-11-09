@@ -39,9 +39,9 @@ namespace SongRequestManager
             if (!initialized)
             {
                 this.InitializeCommandMap();
-                this.ConfigureChatClient(ChatConfig.Instance);
+                this.ConfigureChatClient(ChatConfigManager.Instance.Config);
 
-                ChatConfig.Instance.OnChanged += ConfigureChatClient;
+                ChatConfigManager.Instance.OnChanged += ConfigureChatClient;
 
                 initialized = true;
             }
@@ -138,11 +138,11 @@ namespace SongRequestManager
             {
                 if (!string.IsNullOrEmpty(replyToId))
                 {
-                    _chatClient.SendReply(ChatConfig.Instance.ChatChannel, replyToId, message);
+                    _chatClient.SendReply(ChatConfigManager.Instance.Config.ChatChannel, replyToId, message);
                 }
                 else
                 {
-                    _chatClient.SendMessage(ChatConfig.Instance.ChatChannel, message);
+                    _chatClient.SendMessage(ChatConfigManager.Instance.Config.ChatChannel, message);
                 }
             }
             catch (Exception e)

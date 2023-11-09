@@ -241,7 +241,7 @@ namespace SongRequestManager
             // Fast? Full Text Search
             public static List<SongMap> Search(string SearchKey)
             {
-                if (!DatabaseImported && QueueConfig.Instance.LocalSearch)
+                if (!DatabaseImported && QueueConfigManager.Instance.Config.LocalSearch)
                 {
                     LoadCustomSongs();
                 }
@@ -527,9 +527,9 @@ namespace SongRequestManager
                     DirectoryInfo di = new DirectoryInfo(folder);
                     FullDirList(di, "*");
 
-                    if (QueueConfig.Instance.additionalsongpath != "")
+                    if (QueueConfigManager.Instance.Config.additionalsongpath != "")
                     {
-                        di = new DirectoryInfo(QueueConfig.Instance.additionalsongpath);
+                        di = new DirectoryInfo(QueueConfigManager.Instance.Config.additionalsongpath);
                         FullDirList(di, "*");
                     }
 
@@ -926,7 +926,7 @@ namespace SongRequestManager
 
                     ppmap.TryAdd(id, (int)(maxpp));
 
-                    if (id != "" && maxpp > QueueConfig.Instance.PPDeckMiniumumPP)
+                    if (id != "" && maxpp > QueueConfigManager.Instance.Config.PPDeckMiniumumPP)
                     {
                         listcollection.add("pp.deck", id);
                     }

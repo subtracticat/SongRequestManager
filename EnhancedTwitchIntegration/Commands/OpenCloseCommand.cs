@@ -14,10 +14,7 @@ namespace SongRequestManager.Commands
         {
             bool targetState = command.CommandText.Equals("open", StringComparison.CurrentCultureIgnoreCase);
 
-            QueueConfigManager.Instance.Update(config =>
-            {
-                config.RequestQueueOpen = targetState;
-            });
+            QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = targetState);
 
             command.Reply($"The queue is now {(targetState ? "open" : "closed")}!");
             return Task.CompletedTask;

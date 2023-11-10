@@ -31,10 +31,7 @@ namespace SongRequestManager.Commands
             }
             else
             {
-                ListConfigManager.Instance.Update(config =>
-                {
-                    config.Bans.Add(id);
-                });
+                ListConfigManager.Instance.UpdateSettings(config => config.Bans.Add(id));
                 command.Reply($"ID {id} blocked!");
             }
 
@@ -64,10 +61,7 @@ namespace SongRequestManager.Commands
 
             if (ListConfigManager.Instance.Config.Bans.Contains(id))
             {
-                ListConfigManager.Instance.Update(config =>
-                {
-                    config.Bans.Remove(id);
-                });
+                ListConfigManager.Instance.UpdateSettings(config => config.Bans.Remove(id));
                 command.Reply($"ID {id} unblocked!");
             }
             else

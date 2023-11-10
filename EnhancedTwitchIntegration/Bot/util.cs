@@ -67,8 +67,8 @@ namespace SongRequestManager
                 }
 
                 ZipFile.CreateFromDirectory(Plugin.DataPath, BackupName, System.IO.Compression.CompressionLevel.Fastest, true);
-                QueueConfigManager.Instance.Config.LastBackup = DateTime.Now.ToString();
-                QueueConfigManager.Instance.Save();
+
+                QueueConfigManager.Instance.UpdateSettings(config => config.LastBackup = DateTime.Now.ToString());
 
                 Plugin.Log($"Backup success writing {BackupName}");
                 return success;

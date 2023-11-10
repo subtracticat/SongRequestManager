@@ -106,7 +106,7 @@ namespace SongRequestManager
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            
+
             if (firstActivation)
             {
                 if (!SongCore.Loader.AreSongsLoaded)
@@ -348,8 +348,7 @@ namespace SongRequestManager
                     new Vector2(25f, 15f),
                     () =>
                     {
-                        QueueConfigManager.Instance.Config.RequestQueueOpen = !QueueConfigManager.Instance.Config.RequestQueueOpen;
-                        QueueConfigManager.Instance.Save();
+                        QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = !QueueConfigManager.Instance.Config.RequestQueueOpen);
                         RequestBot.WriteQueueStatusToFile(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         RequestBot.Instance.QueueChatMessage(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         UpdateRequestUI();
@@ -375,15 +374,15 @@ namespace SongRequestManager
                 //_websocketConnectButton.SetButtonUnderlineColor(Color.red);
                 //_websocketConnectButton.SetButtonTextSize(3.5f);
                 //UIHelper.AddHintText(_websocketConnectButton.transform as RectTransform, "Connects the Websocket");
-            
+
                 #endregion
-                
+
                 // Set default RequestFlowCoordinator title
                 RequestBot.SetTitle(isShowingHistory ? "Song Request History" : "Song Request Queue");
             }
-            
-            
-            
+
+
+
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 
             if (addedToHierarchy)
@@ -443,7 +442,7 @@ namespace SongRequestManager
             _playButton.SetButtonText(isShowingHistory ? "Replay" : "Play");
 
             //_websocketConnectButton.gameObject.SetActive(!ChatHandler.WebsocketHandlerConnected() && RequestQueueConfigManager.Instance.Config.WebsocketEnabled);
-            
+
             UpdateSelectSongInfo();
 
             _songListTableView.ReloadData();
@@ -486,7 +485,7 @@ namespace SongRequestManager
             SetUIInteractivity();
         }
 
-        private void SongLoader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary <string,CustomPreviewBeatmapLevel> arg2)
+        private void SongLoader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> arg2)
         {
             _songListTableView?.ReloadData();
         }
@@ -613,11 +612,11 @@ namespace SongRequestManager
             songDurationText.text = request.song["songlength"].Value;
 
             var songBpm = _tableCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songBpmText");
-            if(!request.requestor.IsModerator && !request.requestor.IsVip)
+            if (!request.requestor.IsModerator && !request.requestor.IsVip)
                 (songBpm.transform as RectTransform).anchoredPosition = new Vector2(-2.5f, -1.8f);
             (songBpm.transform as RectTransform).sizeDelta += new Vector2(15f, 0f);
 
-            
+
             var k = new List<string>();
             if (hasMessage) k.Add("MSG");
             if (isChallenge) k.Add("VS");
@@ -629,7 +628,7 @@ namespace SongRequestManager
             if (songBmpIcon != null)
             {
                 songBmpIcon.color = request.requestor.IsModerator ? Color.green : request.requestor.IsVip ? Color.magenta : Color.white;
-                if(!request.requestor.IsModerator && !request.requestor.IsVip)
+                if (!request.requestor.IsModerator && !request.requestor.IsVip)
                     Destroy(songBmpIcon);
             }
 

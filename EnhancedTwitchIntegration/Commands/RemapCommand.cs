@@ -26,10 +26,7 @@ namespace SongRequestManager.Commands
                 return Task.CompletedTask;
             }
 
-            ListConfigManager.Instance.Update((config) =>
-            {
-                config.Remaps[from] = to;
-            });
+            ListConfigManager.Instance.UpdateSettings((config) => config.Remaps[from] = to);
 
             command.Reply($"Remapped id {from} to {to}");
 
@@ -59,10 +56,7 @@ namespace SongRequestManager.Commands
 
             if (ListConfigManager.Instance.Config.Remaps.ContainsKey(id))
             {
-                ListConfigManager.Instance.Update(config =>
-                {
-                    config.Remaps.Remove(id);
-                });
+                ListConfigManager.Instance.UpdateSettings(config => config.Remaps.Remove(id));
                 command.Reply($"Unmapped {id}. Be free, {id}!");
                 return Task.CompletedTask;
             }

@@ -17,13 +17,13 @@ namespace SongRequestManager
         // BUG: This one needs to be cleaned up a lot imo
         // BUG: This file needs to be split up a little, but not just yet... Its easier for me to move around in one massive file, since I can see the whole thing at once. 
 
-        static StringBuilder AddSongToQueueText = new StringBuilder( "Request %songName% %songSubName%/%authorName% %Rating% %PP% (%version%) added to queue.");
-        static StringBuilder LookupSongDetail= new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% %PP% (%version%)");
-        static StringBuilder BsrSongDetail=new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% (%version%)");
-        static StringBuilder LinkSonglink=new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% (%version%) %BeatsaverLink%");
-        static StringBuilder NextSonglink=new StringBuilder ("%songName% %songSubName%/%authorName% %Rating% (%version%) requested by %user% is next.");
-        static public  StringBuilder SongHintText=new StringBuilder ("Requested by %user%%LF%Status: %Status%%Info%%LF%%PP%%LF%<size=60%>Request Time: %RequestTime%</size>");
-        static StringBuilder QueueTextFileFormat=new StringBuilder ("%songName%%LF%");         // Don't forget to include %LF% for these. 
+        static StringBuilder AddSongToQueueText = new StringBuilder("Request %songName% %songSubName%/%authorName% %Rating% %PP% (%version%) added to queue.");
+        static StringBuilder LookupSongDetail = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% %PP% (%version%)");
+        static StringBuilder BsrSongDetail = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% (%version%)");
+        static StringBuilder LinkSonglink = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% (%version%) %BeatsaverLink%");
+        static StringBuilder NextSonglink = new StringBuilder("%songName% %songSubName%/%authorName% %Rating% (%version%) requested by %user% is next.");
+        static public StringBuilder SongHintText = new StringBuilder("Requested by %user%%LF%Status: %Status%%Info%%LF%%PP%%LF%<size=60%>Request Time: %RequestTime%</size>");
+        static StringBuilder QueueTextFileFormat = new StringBuilder("%songName%%LF%");         // Don't forget to include %LF% for these. 
 
         static public StringBuilder QueueListRow2 = new StringBuilder("%authorName% %levelAuthor%");
 
@@ -211,37 +211,37 @@ namespace SongRequestManager
 
         // Returns error text if filter triggers, or "" otherwise, "fast" version returns X if filter triggers
 
-        [Flags] enum SongFilter { none = 0, Queue = 1, Blacklist = 2, Mapper = 4, Duplicate = 8, Remap = 16, Rating = 32, Duration=64,NJS=128,AutoMAP=256,All = -1 };
+        [Flags] enum SongFilter { none = 0, Queue = 1, Blacklist = 2, Mapper = 4, Duplicate = 8, Remap = 16, Rating = 32, Duration = 64, NJS = 128, AutoMAP = 256, All = -1 };
 
         private string SongSearchFilter(JSONObject song, bool fast = false, SongFilter filter = SongFilter.All) // BUG: This could be nicer
         {
             string songid = song["id"].Value;
 
-            if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"] == true && QueueConfigManager.Instance.Config.Automap == false) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
+            if (filter.HasFlag(SongFilter.AutoMAP) && song["automapper"] == true && QueueConfigManager.Instance.Config.Automap == false) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is banned due to being automapped!"; ;
 
-            if (filter.HasFlag(SongFilter.Queue) && LegacyRequestQueue.Songs.Any(req => req.song["version"] == song["version"])) return fast ? "X" : $"Request {LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by {song["authorName"].Value} already exists in queue!";
+            if (filter.HasFlag(SongFilter.Queue) && LegacyRequestQueue.Songs.Any(req => req.song["version"] == song["version"])) return fast ? "X" : $"Request {LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} by {song["authorName"].Value} already exists in queue!";
 
-            if (filter.HasFlag(SongFilter.Blacklist) && listcollection.contains(ref banlist,songid)) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by {song["authorName"].Value} ({song["version"].Value}) is banned!";
+            if (filter.HasFlag(SongFilter.Blacklist) && listcollection.contains(ref banlist, songid)) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} by {song["authorName"].Value} ({song["version"].Value}) is banned!";
 
-            if (filter.HasFlag(SongFilter.Mapper) &&  mapperfiltered(song,_mapperWhitelist)) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by {song["authorName"].Value} does not have a permitted mapper!";
+            if (filter.HasFlag(SongFilter.Mapper) && mapperfiltered(song, _mapperWhitelist)) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} by {song["authorName"].Value} does not have a permitted mapper!";
 
-            if (filter.HasFlag(SongFilter.Duplicate) && listcollection.contains(ref duplicatelist, songid)) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by  {song["authorName"].Value} already requested this session!";
+            if (filter.HasFlag(SongFilter.Duplicate) && listcollection.contains(ref duplicatelist, songid)) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} by  {song["authorName"].Value} already requested this session!";
 
             if (listcollection.contains(ref _whitelist, songid))
             {
                 return "";
             }
 
-            if (filter.HasFlag(SongFilter.Duration) && song["songduration"].AsFloat > QueueConfigManager.Instance.Config.MaximumSongLength*60) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is too long!";
+            if (filter.HasFlag(SongFilter.Duration) && song["songduration"].AsFloat > QueueConfigManager.Instance.Config.MaximumSongLength * 60) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) is too long!";
 
-            if (filter.HasFlag(SongFilter.NJS) && song["njs"].AsInt < QueueConfigManager.Instance.Config.MinimumNJS) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) NJS ({song["njs"].Value}) is too low!";
+            if (filter.HasFlag(SongFilter.NJS) && song["njs"].AsInt < QueueConfigManager.Instance.Config.MinimumNJS) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} ({song["songlength"].Value}) by {song["authorName"].Value} ({song["version"].Value}) NJS ({song["njs"].Value}) is too low!";
 
             if (filter.HasFlag(SongFilter.Remap) && songremap.ContainsKey(songid))
             {
                 return fast ? "X" : $"no permitted results found!";
             }
 
-            if (filter.HasFlag(SongFilter.Rating) && song["rating"].AsFloat < QueueConfigManager.Instance.Config.LowestAllowedRating && song["rating"] != 0) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song,"songName",DateTime.Now)} by {song["authorName"].Value} is below {QueueConfigManager.Instance.Config.LowestAllowedRating}% rating!";
+            if (filter.HasFlag(SongFilter.Rating) && song["rating"].AsFloat < QueueConfigManager.Instance.Config.LowestAllowedRating && song["rating"] != 0) return fast ? "X" : $"{LegacySongRequest.GetCensoredData(song, "songName", DateTime.Now)} by {song["authorName"].Value} is below {QueueConfigManager.Instance.Config.LowestAllowedRating}% rating!";
 
             return "";
         }
@@ -267,7 +267,7 @@ namespace SongRequestManager
             foreach (LegacySongRequest req in LegacyRequestQueue.Songs.ToArray())
             {
                 var song = req.song;
-                if (song[matchby].Value == request) return fast ? "X" : $"Request {LegacySongRequest.GetCensoredData(song,"songName",req.requestTime)} by {song["authorName"].Value} ({song["version"].Value}) already exists in queue!";
+                if (song[matchby].Value == request) return fast ? "X" : $"Request {LegacySongRequest.GetCensoredData(song, "songName", req.requestTime)} by {song["authorName"].Value} ({song["version"].Value}) already exists in queue!";
             }
             return ""; // Empty string: The request is not in the RequestQueue.Songs
         }
@@ -1218,8 +1218,7 @@ namespace SongRequestManager
 
         private void ToggleQueue(ChatUser requestor, string request, bool state)
         {
-            QueueConfigManager.Instance.Config.RequestQueueOpen = state;
-            QueueConfigManager.Instance.Save();
+            QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = state);
 
             QueueChatMessage(state ? "Queue is now open." : "Queue is now closed.");
             WriteQueueStatusToFile(QueueMessage(state));
@@ -1340,7 +1339,7 @@ namespace SongRequestManager
                         LotteryWinners.Add(request.requestor.DisplayName);
                         LegacyRequestQueue.Songs.Add(request);
                         if (RequestTracker.ContainsKey(request.requestor.Id))
-                        { 
+                        {
                             RequestTracker[request.requestor.Id].IncrementRequests();
                         }
                     }

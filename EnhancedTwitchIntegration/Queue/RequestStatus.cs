@@ -1,8 +1,5 @@
-﻿using System;
-
-namespace SongRequestManager.Queue
+﻿namespace SongRequestManager.Queue
 {
-    [Flags]
     public enum RequestStatus
     {
         Invalid,

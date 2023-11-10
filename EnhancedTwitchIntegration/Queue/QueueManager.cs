@@ -10,17 +10,17 @@ namespace SongRequestManager.Queue
         public int DurationAheadSeconds { get; set; }
     }
 
-    public class RequestManager
+    public class QueueManager
     {
-        private static RequestManager instance;
+        private static QueueManager instance;
 
-        private static RequestManager Instance
+        private static QueueManager Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new RequestManager();
+                    instance = new QueueManager();
                 }
 
                 return instance;
@@ -86,17 +86,35 @@ namespace SongRequestManager.Queue
             return null;
         }
 
-        public static SongRequest Remove(string id)
+        public static SongRequest Remove(string id, RequestStatus newStatus = RequestStatus.Deleted)
         {
-            int index = Instance.Requests.FindIndex(request => request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+            SongRequest request = null;
+
+            int index = Instance.Requests.FindIndex(item => item.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
             if (index >= 0)
             {
-                var request = Instance.Requests[index];
+                request = Instance.Requests[index];
                 Instance.Requests.RemoveAt(index);
-                return request;
+
+                request.Status = newStatus;
+
+                switch (newStatus)
+                {
+                    case RequestStatus.Played:
+                        request.PlayedTimestamp = DateTime.Now;
+                        Instance.History.Insert(0, request);
+                        break;
+
+                    case RequestStatus.Skipped:
+                        Instance.History.Insert(0, request);
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
-            return null;
+            return request;
         }
 
         public static bool HasPlayed(string id)

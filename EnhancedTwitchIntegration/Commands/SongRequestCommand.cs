@@ -37,27 +37,32 @@ namespace SongRequestManager.Commands
                 return $"Hmm... I'm looking for a song ID and that doesn't look like one - are you sure you grabbed the right thing?";
             }
 
+            if (ListConfigManager.Instance.Config.Bans.Contains(id))
+            {
+                return $"{id} is blocked! 😬 Try picking something else?";
+            }
+
             if (ListConfigManager.Instance.Config.Remaps.ContainsKey(id))
             {
                 id = ListConfigManager.Instance.Config.Remaps[id];
             }
 
-            SongRequest existingUserRequest = RequestManager.GetRequestByUsername(command.ChatMessage.Username);
+            SongRequest existingUserRequest = QueueManager.GetRequestByUsername(command.ChatMessage.Username);
             if (existingUserRequest != null)
             {
                 return $"One request at a time, please! If you'd like to replace your current request, use '!replace {id}'.";
             }
 
-            SongRequest duplicateRequest = RequestManager.GetRequestById(id);
+            SongRequest duplicateRequest = QueueManager.GetRequestById(id);
             if (duplicateRequest != null)
             {
-                QueuePosition position = RequestManager.GetPositionOf(duplicateRequest);
+                QueuePosition position = QueueManager.GetPositionOf(duplicateRequest);
                 return $"{duplicateRequest.Song.Name} is already #{position.Position} in the queue, requested by @{duplicateRequest.RequestedBy}.";
             }
 
-            if (RequestManager.HasPlayed(id))
+            if (QueueManager.HasPlayed(id))
             {
-                return $"Sorry, we've already already been played that song! :(");
+                return $"Sorry, we've already already been played that song! :(";
             }
 
             Song songData;
@@ -79,9 +84,9 @@ namespace SongRequestManager.Commands
             }
 
             SongRequest request = new SongRequest(songData, command.ChatMessage.Username);
-            var queuePosition = RequestManager.Add(request);
+            var queuePosition = QueueManager.Add(request);
 
-            return $"{songData.Name} added at position #{queuePosition.Position}!";
+            return $"{songData.Name} [{songData.Metadata.LevelAuthorName}] {(songData.Stats.Score > 0 ? $"({(int)songData.Stats.Score}%)" : "")} added at position #{queuePosition.Position}!";
         }
     }
 }

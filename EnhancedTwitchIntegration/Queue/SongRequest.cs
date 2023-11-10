@@ -7,7 +7,8 @@ namespace SongRequestManager.Queue
         public string RequestedBy { get; set; }
         public RequestStatus Status { get; set; }
         public string Comment { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime RequestTimestamp { get; set; }
+        public DateTime PlayedTimestamp { get; set; }
         public double PriorityValue { get; set; }
         public Song Song { get; set; }
 
@@ -16,7 +17,7 @@ namespace SongRequestManager.Queue
         {
             this.Song = song;
             this.RequestedBy = requestedBy;
-            this.Timestamp = DateTime.Now;
+            this.RequestTimestamp = DateTime.Now;
         }
     }
 }

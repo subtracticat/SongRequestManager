@@ -212,6 +212,7 @@
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\RemapCommand.cs" />
     <Compile Include="Commands\OpenCloseCommand.cs" />
+    <Compile Include="Commands\SabotageCommand.cs" />
     <Compile Include="Commands\SongRequestCommand.cs" />
     <Compile Include="Config\ChatConfigManager.cs" />
     <Compile Include="Config\ConfigBase.cs" />
@@ -221,7 +222,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queue\RequestHistory.cs" />
-    <Compile Include="Queue\RequestManager.cs" />
+    <Compile Include="Queue\QueueManager.cs" />
     <Compile Include="Queue\RequestStatus.cs" />
     <Compile Include="Queue\Song.cs" />
     <Compile Include="Queue\SongRequest.cs" />

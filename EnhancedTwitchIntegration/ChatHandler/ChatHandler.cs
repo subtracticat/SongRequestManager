@@ -22,12 +22,14 @@ namespace SongRequestManager
 
         private static readonly List<Command> Commands = new List<Command>
         {
-            new BlockSongCommand(), // Untested
+            new BlockSongCommand(),
             new OpenCloseCommand(),
             new RemapCommand(),
+            new SabotageCommand(),
             new SongRequestCommand(),
-            new UnblockSongCommand(),  // Untested
-            new UnmapCommand()
+            new UnblockSongCommand(),
+            new UnmapCommand(),
+            new WhoCommand()
         };
 
         public static ChatUser Self => _defaultSelf;

@@ -22,9 +22,17 @@ namespace SongRequestManager
 
         private static readonly List<Command> Commands = new List<Command>
         {
+            new AddToTopCommand(),
             new BlockSongCommand(),
+            new ClearHistoryCommand(),
+            new ClearQueueCommand(),
+            new ModAddCommand(),
+            new MoveCommand(),
+            new MoveToBottomCommand(),
+            new MoveToTopCommand(),
             new OpenCloseCommand(),
             new RemapCommand(),
+            new RemoveSongCommand(),
             new SabotageCommand(),
             new SongRequestCommand(),
             new UnblockSongCommand(),

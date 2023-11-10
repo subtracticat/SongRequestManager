@@ -69,7 +69,18 @@ namespace SongRequestManager.Queue
             };
         }
 
-        public static QueuePosition Replace(SongRequest request, Song newSong)
+        public static QueuePosition InsertAt(int index, SongRequest request)
+        {
+            Instance.Requests.Insert(index, request);
+
+            return new QueuePosition
+            {
+                Position = index + 1,
+                DurationAheadSeconds = (int)Instance.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
+            };
+        }
+
+        public static QueuePosition ReplaceSong(SongRequest request, Song newSong)
         {
             int index = Instance.Requests.IndexOf(request);
             if (index >= 0)
@@ -115,6 +126,29 @@ namespace SongRequestManager.Queue
             }
 
             return request;
+        }
+
+        public static int ClearQueue()
+        {
+            int songCount = Instance.Requests.Count;
+
+            foreach (var request in Instance.Requests)
+            {
+                request.Status = RequestStatus.Skipped;
+                Instance.History.Insert(0, request);
+            }
+
+            Instance.Requests.Clear();
+
+            return songCount;
+        }
+
+        public static int ClearHistory()
+        {
+            int songCount = Instance.History.Count;
+            Instance.History.Clear();
+
+            return songCount;
         }
 
         public static bool HasPlayed(string id)

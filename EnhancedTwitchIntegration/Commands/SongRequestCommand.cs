@@ -40,9 +40,9 @@ namespace SongRequestManager.Commands
                 return;
             }
 
-            if (RemapConfigManager.Instance.Config.ContainsKey(id))
+            if (ListConfigManager.Instance.Config.ContainsKey(id))
             {
-                id = RemapConfigManager.Instance.Config[id];
+                id = ListConfigManager.Instance.Config[id];
             }
 
             SongRequest existingUserRequest = RequestManager.GetRequestByUsername(command.ChatMessage.Username);

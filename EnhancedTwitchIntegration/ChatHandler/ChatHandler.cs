@@ -22,9 +22,11 @@ namespace SongRequestManager
 
         private static readonly List<Command> Commands = new List<Command> 
         {
+            new BlockSongCommand(), // Untested
+            new OpenCloseCommand(),
             new RemapCommand(),
-            new SetQueueStatusCommand(),
             new SongRequestCommand(),
+            new UnblockSongCommand(),  // Untested
             new UnmapCommand()
         };
         

@@ -40,6 +40,7 @@ namespace SongRequestManager.Service
             }
             else
             {
+                Plugin.Log($"Failed to retrieve song info for id [{id}]: {response.StatusCode}");
                 return null;
             }
         }

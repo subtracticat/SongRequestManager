@@ -6,7 +6,7 @@ using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
-    public class SetQueueStatusCommand : ModeratorCommand
+    public class OpenCloseCommand : ModeratorCommand
     {
         public override List<string> Aliases => new List<string> { "close", "open" };
 
@@ -14,8 +14,10 @@ namespace SongRequestManager.Commands
         {
             bool targetState = command.CommandText.Equals("open", StringComparison.CurrentCultureIgnoreCase);
 
-            QueueConfigManager.Instance.Config.RequestQueueOpen = targetState;
-            QueueConfigManager.Instance.Save();
+            QueueConfigManager.Instance.Update(config =>
+            {
+                config.RequestQueueOpen = targetState;
+            });
 
             command.Reply($"The queue is now {(targetState ? "open" : "closed")}!");
             return Task.CompletedTask;

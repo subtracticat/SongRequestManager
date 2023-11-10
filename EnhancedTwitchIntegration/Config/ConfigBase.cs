@@ -51,7 +51,13 @@ namespace SongRequestManager.Config
             this.configWatcher.Changed -= this.OnFileChanged;
         }
 
-        public void Save()
+        public void Update(Action<T> updateFunc)
+        {
+            updateFunc(this.Config);
+            this.Save();
+        }
+
+        private void Save()
         {
             File.WriteAllText(FilePath, JsonConvert.SerializeObject(this.Config, SerializerSettings));
         }

@@ -208,7 +208,6 @@
     <Compile Include="ChatHandler\ChatHandler.cs" />
     <Compile Include="ChatHandler\ChatUser.cs" />
     <Compile Include="Commands\BlockSongCommand.cs" />
-    <Compile Include="Commands\ChatMessageExtensions.cs" />
     <Compile Include="Commands\CommandUtils.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\RemapCommand.cs" />

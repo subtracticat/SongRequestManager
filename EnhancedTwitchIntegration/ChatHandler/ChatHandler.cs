@@ -20,7 +20,7 @@ namespace SongRequestManager
         public static string CurrentUsername => _chatClient?.TwitchUsername;
         public static bool IsConnected => _chatClient?.IsConnected == true;
 
-        private static readonly List<Command> Commands = new List<Command> 
+        private static readonly List<Command> Commands = new List<Command>
         {
             new BlockSongCommand(), // Untested
             new OpenCloseCommand(),
@@ -29,7 +29,7 @@ namespace SongRequestManager
             new UnblockSongCommand(),  // Untested
             new UnmapCommand()
         };
-        
+
         public static ChatUser Self => _defaultSelf;
 
         private static readonly Dictionary<string, Command> CommandMap = new Dictionary<string, Command>();
@@ -113,7 +113,11 @@ namespace SongRequestManager
 
                     if (message.IsModerator || message.IsBroadcaster || !command.IsModOnly)
                     {
-                        await command.ExecuteAsync(chatCommand.Command);
+                        string response = await command.ExecuteAsync(chatCommand.Command);
+                        if (!string.IsNullOrEmpty(response))
+                        {
+                            ChatHandler.Send(response, chatCommand.Command.ChatMessage.Id);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -138,10 +142,13 @@ namespace SongRequestManager
             }
 
             if (CensorList.Any(word => message.Contains(word)))
+            {
                 foreach (var word in CensorList)
                 {
                     message = message.Replace(word, "***");
                 }
+            }
+
             try
             {
                 if (!string.IsNullOrEmpty(replyToId))

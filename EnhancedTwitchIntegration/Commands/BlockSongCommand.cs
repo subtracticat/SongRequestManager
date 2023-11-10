@@ -9,33 +9,29 @@ namespace SongRequestManager.Commands
     {
         public override List<string> Aliases { get; } = new List<string> { "block" };
 
-        public override Task ExecuteAsync(ChatCommand command)
+        public override Task<string> ExecuteAsync(ChatCommand command)
         {
             if (command.ArgumentsAsList.Count != 1)
             {
-                command.Reply("Expected a song ID: '!block [id]'");
-                return Task.CompletedTask;
+                return Task.FromResult("Expected a song ID: '!block [id]'");
             }
 
             string id = command.ArgumentsAsList[0];
 
             if (!CommandUtils.IsBeatSaverId(id))
             {
-                command.Reply("I'm confused, you sure that's a song ID? 🤔");
-                return Task.CompletedTask;
+                return Task.FromResult("I'm confused, you sure that's a song ID? 🤔");
             }
 
             if (ListConfigManager.Instance.Config.Bans.Contains(id))
             {
-                command.Reply($"ID {id} is already blocked!");
+                return Task.FromResult($"ID {id} is already blocked!");
             }
             else
             {
                 ListConfigManager.Instance.UpdateSettings(config => config.Bans.Add(id));
-                command.Reply($"ID {id} blocked!");
+                return Task.FromResult($"ID {id} blocked!");
             }
-
-            return Task.CompletedTask;
         }
     }
 
@@ -43,33 +39,29 @@ namespace SongRequestManager.Commands
     {
         public override List<string> Aliases { get; } = new List<string> { "unblock" };
 
-        public override Task ExecuteAsync(ChatCommand command)
+        public override Task<string> ExecuteAsync(ChatCommand command)
         {
             if (command.ArgumentsAsList.Count != 1)
             {
-                command.Reply("Expected a song ID: '!unblock [id]'");
-                return Task.CompletedTask;
+                return Task.FromResult("Expected a song ID: '!unblock [id]'");
             }
 
             string id = command.ArgumentsAsList[0];
 
             if (!CommandUtils.IsBeatSaverId(id))
             {
-                command.Reply("I'm confused, you sure that's a song ID? 🤔");
-                return Task.CompletedTask;
+                return Task.FromResult("I'm confused, you sure that's a song ID? 🤔");
             }
 
             if (ListConfigManager.Instance.Config.Bans.Contains(id))
             {
                 ListConfigManager.Instance.UpdateSettings(config => config.Bans.Remove(id));
-                command.Reply($"ID {id} unblocked!");
+                return Task.FromResult($"ID {id} unblocked!");
             }
             else
             {
-                command.Reply($"ID {id} wasn't blocked? So uh.. we're good? ¯\\_(ツ)_/¯");
+                return Task.FromResult($"ID {id} wasn't blocked? So uh.. we're good? ¯\\_(ツ)_/¯");
             }
-
-            return Task.CompletedTask;
         }
     }
 }

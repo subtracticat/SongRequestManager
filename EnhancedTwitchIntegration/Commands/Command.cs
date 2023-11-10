@@ -10,7 +10,7 @@ namespace SongRequestManager.Commands
         
         public abstract List<string> Aliases { get; }
 
-        public abstract Task ExecuteAsync(ChatCommand command);
+        public abstract Task<string> ExecuteAsync(ChatCommand command);
     }
 
     public abstract class ModeratorCommand : Command

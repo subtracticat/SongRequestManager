@@ -10,14 +10,13 @@ namespace SongRequestManager.Commands
     {
         public override List<string> Aliases => new List<string> { "close", "open" };
 
-        public override Task ExecuteAsync(ChatCommand command)
+        public override Task<string> ExecuteAsync(ChatCommand command)
         {
             bool targetState = command.CommandText.Equals("open", StringComparison.CurrentCultureIgnoreCase);
 
             QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = targetState);
 
-            command.Reply($"The queue is now {(targetState ? "open" : "closed")}!");
-            return Task.CompletedTask;
+            return Task.FromResult($"The queue is now {(targetState ? "open" : "closed")}!");
         }
     }
 }

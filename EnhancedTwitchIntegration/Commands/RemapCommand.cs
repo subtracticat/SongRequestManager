@@ -9,12 +9,11 @@ namespace SongRequestManager.Commands
     {
         public override List<string> Aliases { get; } = new List<string> { "remap" };
 
-        public override Task ExecuteAsync(ChatCommand command)
+        public override Task<string> ExecuteAsync(ChatCommand command)
         {
             if (command.ArgumentsAsList.Count != 2)
             {
-                command.Reply("Expected two song IDs: '!remap [fromId] [toId]'");
-                return Task.CompletedTask;
+                return Task.FromResult("Expected two song IDs: '!remap [fromId] [toId]'");
             }
 
             string from = command.ArgumentsAsList[0];
@@ -22,15 +21,12 @@ namespace SongRequestManager.Commands
 
             if (!CommandUtils.IsBeatSaverId(from) || !CommandUtils.IsBeatSaverId(to))
             {
-                command.Reply("I'm confused, you sure those are song IDs? 🤔");
-                return Task.CompletedTask;
+                return Task.FromResult("I'm confused, you sure those are song IDs? 🤔");
             }
 
             ListConfigManager.Instance.UpdateSettings((config) => config.Remaps[from] = to);
 
-            command.Reply($"Remapped id {from} to {to}");
-
-            return Task.CompletedTask;
+            return Task.FromResult($"Remapped id {from} to {to}");
         }
     }
 
@@ -38,32 +34,28 @@ namespace SongRequestManager.Commands
     {
         public override List<string> Aliases { get; } = new List<string> { "unmap" };
 
-        public override Task ExecuteAsync(ChatCommand command)
+        public override Task<string> ExecuteAsync(ChatCommand command)
         {
             if (command.ArgumentsAsList.Count != 1)
             {
-                command.Reply("Expected a song ID: '!unmap [id]'");
-                return Task.CompletedTask;
+                return Task.FromResult("Expected a song ID: '!unmap [id]'");
             }
 
             string id = command.ArgumentsAsList[0];
 
             if (!CommandUtils.IsBeatSaverId(id))
             {
-                command.Reply("I'm confused, you sure that's a song ID? 🤔");
-                return Task.CompletedTask;
+                return Task.FromResult("I'm confused, you sure that's a song ID? 🤔");
             }
 
             if (ListConfigManager.Instance.Config.Remaps.ContainsKey(id))
             {
                 ListConfigManager.Instance.UpdateSettings(config => config.Remaps.Remove(id));
-                command.Reply($"Unmapped {id}. Be free, {id}!");
-                return Task.CompletedTask;
+                return Task.FromResult($"Unmapped {id}. Be free, {id}!");
             }
             else
             {
-                command.Reply($"{id} wasn't mapped to anything anyway, but it's now extra unmapped. 🙃");
-                return Task.CompletedTask;
+                return Task.FromResult($"{id} wasn't mapped to anything anyway, but it's now extra unmapped. 🙃");
             }
         }
     }

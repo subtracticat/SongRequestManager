@@ -38,8 +38,6 @@ namespace SongRequestManager.Queue
         public int Upvotes { get; set; }
         public int Downvotes { get; set; }
         public int Reviews { get; set; }
-
-        [JsonProperty(PropertyName = "score")]
-        public float Rating { get; set; }
+        public float Score { get; set; }
     }
 }

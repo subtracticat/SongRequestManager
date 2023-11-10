@@ -8,7 +8,7 @@ using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
-    public class RemoveSongCommand : Command
+    public class RemoveRequestCommand : Command
     {
         public override List<string> Aliases { get; } = new List<string> { "remove" };
 

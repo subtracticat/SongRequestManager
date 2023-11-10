@@ -113,5 +113,10 @@ namespace SongRequestManager.Commands
         {
             return $"{song.Name} [{song.Metadata.LevelAuthorName}] {(song.Stats.Score > 0 ? $"({(int)song.Stats.Score}%)" : "")} added at position #{position.Position}!";
         }
+
+        public static string GetDurationString(int seconds)
+        {
+            return $"{seconds / 60}:{(seconds % 60):00}";
+        }
     }
 }

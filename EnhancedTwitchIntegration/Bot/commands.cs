@@ -138,6 +138,8 @@ namespace SongRequestManager
             new COMMAND("!clearqueue").Action(Clearqueue).Help(Mod, "usage: %alias%%|%... Clears the song request queue. You can still get it back from the JustCleared deck, or the history window", _nothing);
             new COMMAND("!clearalreadyplayed").Action(ClearDuplicateList).Help(Mod, "usage: %alias%%|%... clears the list of already requested songs, allowing them to be requested again.", _nothing); // Needs a better name
             new COMMAND("!remove").Action(DequeueSong).Help(Everyone, "usage: %alias%<songname>,<username>,<song id> %|%... Removes a song from the queue.", _anything);
+            new COMMAND("!replace").Action(ReplaceRequest).Help(Everyone, "usage: %alias% <old id (optional)> <new id> %|% ... Replaces your current song request with a new song while maintaining your queue position.", _replaceRegex);
+            new COMMAND(new string[] { "!myqueue", "!myrequest", "!my", "!me" }).Action(MyQueue).Help(Everyone, "usage: %alias%%|% ... Displays the current status of your own song request.", _nothing);
 
             // TODO
             new COMMAND("!songmsg").Action(SongMsg).Help(Mod, "usage: %alias% <songid> Message%|% Assign a message to a songid, which will be visible to the player during song selection.", _atleast1);
@@ -145,8 +147,6 @@ namespace SongRequestManager
             new COMMAND(new string[] { "!queue", "!q" }).Action(GetQueue).Help(Everyone, "usage: %alias%%|% ... Displays a list of the currently requested songs.", _nothing);
             new COMMAND(new string[] { "!wrongsong", "!wrong", "!oops" }).Action(RedirectOopsMessage).Help(Everyone, "usage: %alias%%|%... Use !remove to remove your request or !replace <id> to replace it.", _nothing);
             new COMMAND("!queuestatus").Action(QueueStatus).Help(Everyone, "usage: %alias% %|% Show current queue status", _nothing);
-            new COMMAND(new string[] { "!myqueue", "!myrequest", "!my", "!me" }).Action(MyQueue).Help(Everyone, "usage: %alias%%|% ... Displays the current status of your own song request.", _nothing);
-            new COMMAND("!replace").Action(ReplaceRequest).Help(Everyone, "usage: %alias% <old id (optional)> <new id> %|% ... Replaces your current song request with a new song while maintaining your queue position.", _replaceRegex);
 
             new COMMAND("!link").Action(ShowSongLink).Help(Everyone, "usage: %alias% %|%... Shows song details, and an %beatsaver% link to the current song", _nothing);
             new COMMAND("!played").Action(ShowSongsplayed).Help(Mod, "usage: %alias%%|%... Displays all the songs already played this session.", _nothing);

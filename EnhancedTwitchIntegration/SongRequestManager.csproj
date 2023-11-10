@@ -217,9 +217,11 @@
     <Compile Include="Commands\MoveCommand.cs" />
     <Compile Include="Commands\MoveToBottomCommand.cs" />
     <Compile Include="Commands\MoveToTopCommand.cs" />
+    <Compile Include="Commands\MyRequestCommand.cs" />
     <Compile Include="Commands\RemapCommand.cs" />
     <Compile Include="Commands\OpenCloseCommand.cs" />
-    <Compile Include="Commands\RemoveSongCommand.cs" />
+    <Compile Include="Commands\RemoveRequestCommand.cs" />
+    <Compile Include="Commands\ReplaceRequestCommand.cs" />
     <Compile Include="Commands\SabotageCommand.cs" />
     <Compile Include="Commands\SongRequestCommand.cs" />
     <Compile Include="Commands\WhoCommand.cs" />

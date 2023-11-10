@@ -207,6 +207,7 @@
     <Compile Include="Bot\util.cs" />
     <Compile Include="ChatHandler\ChatHandler.cs" />
     <Compile Include="ChatHandler\ChatUser.cs" />
+    <Compile Include="Commands\SetRequestNoteCommand.cs" />
     <Compile Include="Commands\AddToTopCommand.cs" />
     <Compile Include="Commands\BlockSongCommand.cs" />
     <Compile Include="Commands\ClearHistoryCommand.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Commands\MoveToBottomCommand.cs" />
     <Compile Include="Commands\MoveToTopCommand.cs" />
     <Compile Include="Commands\MyRequestCommand.cs" />
+    <Compile Include="Commands\OopsCommand.cs" />
     <Compile Include="Commands\RemapCommand.cs" />
     <Compile Include="Commands\OpenCloseCommand.cs" />
     <Compile Include="Commands\RemoveRequestCommand.cs" />

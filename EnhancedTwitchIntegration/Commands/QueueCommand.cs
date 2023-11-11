@@ -24,7 +24,7 @@ namespace SongRequestManager.Commands
                     return Task.FromResult("The queue is empty!");
                 }
 
-                var entries = queue.Select((request, index) => $"{index + 1}{(request.PriorityValue > 0 ? "!" : string.Empty)}: {request.Song.ID} [{request.RequestedBy}]");
+                var entries = queue.Select((request, index) => $"{index + 1}{(request.PriorityValue > 0 ? "*" : string.Empty)}:[{request.RequestedBy}:{request.Song.ID}]");
                 return Task.FromResult(string.Join(", ", entries));
             }
 

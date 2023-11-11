@@ -52,9 +52,10 @@ namespace SongRequestManager.Utils
                 return new GetSongResult($"{id} is blocked! 😬 Try picking something else?");
             }
 
-            if (ListConfigManager.Instance.Config.Remaps.ContainsKey(id))
+            if (ListConfigManager.Instance.Config.Remaps.TryGetValue(id, out string remapValue))
             {
-                id = ListConfigManager.Instance.Config.Remaps[id];
+                ChatHandler.Send($"Remapping request {id} to {remapValue}");
+                id = remapValue;
             }
 
             if (config.EnforceConcurrentByUser)
@@ -62,7 +63,7 @@ namespace SongRequestManager.Utils
                 SongRequest existingUserRequest = QueueManager.Instance.GetRequestByUsername(requestedBy);
                 if (existingUserRequest != null)
                 {
-                    return new GetSongResult($"One request at a time, please! If you'd like to replace your current request, use '!replace {id}'.");
+                    return new GetSongResult($"Sorry, just one request at a time, please! If you'd like to replace your current request, use '!replace {id}'.");
                 }
             }
 

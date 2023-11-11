@@ -207,6 +207,9 @@
     <Compile Include="Bot\util.cs" />
     <Compile Include="ChatHandler\ChatHandler.cs" />
     <Compile Include="ChatHandler\ChatUser.cs" />
+    <Compile Include="Commands\QueueCommand.cs" />
+    <Compile Include="Commands\QueueLotteryCommand.cs" />
+    <Compile Include="Commands\QueueStatusCommand.cs" />
     <Compile Include="Commands\SetRequestNoteCommand.cs" />
     <Compile Include="Commands\AddToTopCommand.cs" />
     <Compile Include="Commands\BlockSongCommand.cs" />

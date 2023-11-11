@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using SongRequestManager.Config;
 
 namespace SongRequestManager.Queue
 {
@@ -10,11 +12,19 @@ namespace SongRequestManager.Queue
         public int DurationAheadSeconds { get; set; }
     }
 
-    public class QueueManager
+    public class QueueData
     {
+        public List<SongRequest> Requests = new List<SongRequest>();
+        public List<SongRequest> History = new List<SongRequest>();
+    }
+
+    public class QueueManager : ConfigBase<QueueData>
+    {
+        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMQueueData.json");
+
         private static QueueManager instance;
 
-        private static QueueManager Instance
+        public static QueueManager Instance
         {
             get
             {
@@ -27,40 +37,37 @@ namespace SongRequestManager.Queue
             }
         }
 
-        public List<SongRequest> Requests { get; private set; } = new List<SongRequest>();
-        public List<SongRequest> History { get; private set; } = new List<SongRequest>();
-
-        public static SongRequest GetRequestById(string id)
+        public SongRequest GetRequestById(string id)
         {
-            return Instance.Requests.FirstOrDefault(request => request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+            return this.Config.Requests.FirstOrDefault(request => request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
         }
 
-        public static SongRequest GetRequestByUsername(string username)
+        public SongRequest GetRequestByUsername(string username)
         {
-            return Instance.Requests.FirstOrDefault(request => request.RequestedBy.Equals(username, StringComparison.CurrentCultureIgnoreCase));
+            return this.Config.Requests.FirstOrDefault(request => request.RequestedBy.Equals(username, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public static QueuePosition GetPositionOf(SongRequest request)
+        public QueuePosition GetPositionOf(SongRequest request)
         {
-            int index = Instance.Requests.IndexOf(request);
+            int index = this.Config.Requests.IndexOf(request);
             if (index >= 0)
             {
                 return new QueuePosition
                 {
                     Position = index + 1,
-                    DurationAheadSeconds = (int)Instance.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
+                    DurationAheadSeconds = (int)this.Config.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
                 };
             }
 
             return null;
         }
 
-        public static QueuePosition Add(SongRequest request)
+        public QueuePosition Add(SongRequest request)
         {
-            int previousCount = Instance.Requests.Count;
-            double previousDuration = Instance.Requests.Sum(r => r.Song.Metadata.Duration);
+            int previousCount = this.Config.Requests.Count;
+            double previousDuration = this.Config.Requests.Sum(r => r.Song.Metadata.Duration);
 
-            Instance.Requests.Add(request);
+            this.UpdateSettings(config => config.Requests.Add(request));
 
             return new QueuePosition
             {
@@ -69,91 +76,101 @@ namespace SongRequestManager.Queue
             };
         }
 
-        public static QueuePosition InsertAt(int index, SongRequest request)
+        public void Add(IEnumerable<SongRequest> requests)
         {
-            Instance.Requests.Insert(index, request);
+            this.UpdateSettings(config => config.Requests.AddRange(requests));
+        }
+
+        public QueuePosition InsertAt(int index, SongRequest request)
+        {
+            this.UpdateSettings(config => config.Requests.Insert(index, request));
 
             return new QueuePosition
             {
                 Position = index + 1,
-                DurationAheadSeconds = (int)Instance.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
+                DurationAheadSeconds = (int)this.Config.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
             };
         }
 
-        public static QueuePosition ReplaceSong(SongRequest request, Song newSong)
+        public QueuePosition ReplaceSong(SongRequest request, Song newSong)
         {
-            int index = Instance.Requests.IndexOf(request);
+            int index = this.Config.Requests.IndexOf(request);
             if (index >= 0)
             {
-                Instance.Requests[index].Song = newSong;
+                this.UpdateSettings(config => config.Requests[index].Song = newSong);
 
                 return new QueuePosition
                 {
                     Position = index + 1,
-                    DurationAheadSeconds = (int)Instance.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
+                    DurationAheadSeconds = (int)this.Config.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
                 };
             }
 
             return null;
         }
 
-        public static SongRequest Remove(string id, RequestStatus newStatus = RequestStatus.Deleted)
+        public SongRequest Remove(string id, RequestStatus newStatus = RequestStatus.Deleted)
         {
             SongRequest request = null;
 
-            int index = Instance.Requests.FindIndex(item => item.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+            int index = this.Config.Requests.FindIndex(item => item.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
             if (index >= 0)
             {
-                request = Instance.Requests[index];
-                Instance.Requests.RemoveAt(index);
-
-                request.Status = newStatus;
-
-                switch (newStatus)
+                request = this.Config.Requests[index];
+                this.UpdateSettings(config =>
                 {
-                    case RequestStatus.Played:
-                        request.PlayedTimestamp = DateTime.Now;
-                        Instance.History.Insert(0, request);
-                        break;
+                    config.Requests.RemoveAt(index);
+                    request.Status = newStatus;
 
-                    case RequestStatus.Skipped:
-                        Instance.History.Insert(0, request);
-                        break;
+                    switch (newStatus)
+                    {
+                        case RequestStatus.Played:
+                            request.PlayedTimestamp = DateTime.Now;
+                            config.History.Insert(0, request);
+                            break;
 
-                    default:
-                        break;
-                }
+                        case RequestStatus.Skipped:
+                            config.History.Insert(0, request);
+                            break;
+
+                        default:
+                            break;
+                    }
+                });
             }
 
             return request;
         }
 
-        public static int ClearQueue()
+        public int ClearQueue()
         {
-            int songCount = Instance.Requests.Count;
+            int songCount = this.Config.Requests.Count;
 
-            foreach (var request in Instance.Requests)
+            this.UpdateSettings(config =>
             {
-                request.Status = RequestStatus.Skipped;
-                Instance.History.Insert(0, request);
-            }
+                foreach (var request in config.Requests)
+                {
+                    request.Status = RequestStatus.Skipped;
+                    config.History.Insert(0, request);
+                }
 
-            Instance.Requests.Clear();
-
-            return songCount;
-        }
-
-        public static int ClearHistory()
-        {
-            int songCount = Instance.History.Count;
-            Instance.History.Clear();
+                config.Requests.Clear();
+            });
 
             return songCount;
         }
 
-        public static bool HasPlayed(string id)
+        public int ClearHistory()
         {
-            return Instance.History.Any(request => request.Status == RequestStatus.Played && request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+            int songCount = this.Config.History.Count;
+            this.UpdateSettings(config => config.History.Clear());
+
+            return songCount;
+        }
+
+        public bool HasPlayed(string id)
+        {
+            return this.Config.History.Any(request => request.Status == RequestStatus.Played && request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

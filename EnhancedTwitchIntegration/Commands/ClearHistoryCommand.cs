@@ -14,7 +14,7 @@ namespace SongRequestManager.Commands
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {
-            int songCount = QueueManager.ClearHistory();
+            int songCount = QueueManager.Instance.ClearHistory();
             if (songCount > 0)
             {
                 return Task.FromResult($"Wiped {songCount} song(s) from history. They're gone. Poof.");

@@ -11,7 +11,7 @@ namespace SongRequestManager.Commands
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {
-            int songCount = QueueManager.ClearQueue();
+            int songCount = QueueManager.Instance.ClearQueue();
             if (songCount > 0)
             {
                 return Task.FromResult($"Cleared {songCount} song(s).");

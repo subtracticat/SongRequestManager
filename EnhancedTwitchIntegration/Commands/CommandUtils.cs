@@ -59,7 +59,7 @@ namespace SongRequestManager.Commands
 
             if (config.EnforceConcurrentByUser)
             {
-                SongRequest existingUserRequest = QueueManager.GetRequestByUsername(requestedBy);
+                SongRequest existingUserRequest = QueueManager.Instance.GetRequestByUsername(requestedBy);
                 if (existingUserRequest != null)
                 {
                     return new GetSongResult($"One request at a time, please! If you'd like to replace your current request, use '!replace {id}'.");
@@ -68,17 +68,17 @@ namespace SongRequestManager.Commands
 
             if (config.EnforceDuplicate)
             {
-                SongRequest duplicateRequest = QueueManager.GetRequestById(id);
+                SongRequest duplicateRequest = QueueManager.Instance.GetRequestById(id);
                 if (duplicateRequest != null)
                 {
-                    QueuePosition position = QueueManager.GetPositionOf(duplicateRequest);
+                    QueuePosition position = QueueManager.Instance.GetPositionOf(duplicateRequest);
                     return new GetSongResult($"{duplicateRequest.Song.Name} is already #{position.Position} in the queue, requested by @{duplicateRequest.RequestedBy}.");
                 }
             }
 
             if (config.EnforceAlreadyPlayed)
             {
-                if (QueueManager.HasPlayed(id))
+                if (QueueManager.Instance.HasPlayed(id))
                 {
                     return new GetSongResult($"Sorry, we've already already been played that song! :(");
                 }

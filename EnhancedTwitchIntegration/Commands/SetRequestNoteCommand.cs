@@ -21,7 +21,7 @@ namespace SongRequestManager.Commands
             string id = args[0];
             string message = string.Join(" ", args.GetRange(1, args.Count - 1));
 
-            SongRequest request = QueueManager.GetRequestById(id);
+            SongRequest request = QueueManager.Instance.GetRequestById(id);
             if (request == null)
             {
                 return Task.FromResult($"No request found for ID {id}");

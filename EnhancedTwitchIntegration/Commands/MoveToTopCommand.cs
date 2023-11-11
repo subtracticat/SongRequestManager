@@ -25,14 +25,14 @@ namespace SongRequestManager.Commands
                 return Task.FromResult($"That doesn't look like an ID 🤔");
             }
 
-            var request = QueueManager.Remove(id, RequestStatus.Queued);
+            var request = QueueManager.Instance.Remove(id, RequestStatus.Queued);
 
             if (request == null)
             {
                 return Task.FromResult($"Couldn't find request {id} in the queue.");
             }
 
-            var result = QueueManager.InsertAt(0, request);
+            var result = QueueManager.Instance.InsertAt(0, request);
             return Task.FromResult($"{request.Song.Name} requested by {request.RequestedBy} moved to position #{result.Position}");
         }
     }

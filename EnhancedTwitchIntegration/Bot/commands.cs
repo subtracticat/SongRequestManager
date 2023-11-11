@@ -142,11 +142,11 @@ namespace SongRequestManager
             new COMMAND(new string[] { "!myqueue", "!myrequest", "!my", "!me" }).Action(MyQueue).Help(Everyone, "usage: %alias%%|% ... Displays the current status of your own song request.", _nothing);
             new COMMAND(new string[] { "!wrongsong", "!wrong", "!oops" }).Action(RedirectOopsMessage).Help(Everyone, "usage: %alias%%|%... Use !remove to remove your request or !replace <id> to replace it.", _nothing);
             new COMMAND("!songmsg").Action(SongMsg).Help(Mod, "usage: %alias% <songid> Message%|% Assign a message to a songid, which will be visible to the player during song selection.", _atleast1);
-
-            // TODO
             new COMMAND("!QueueLottery").Action(QueueLottery).Help(Broadcaster, "usage: %alias% <entry count> %|% Shuffle the queue and reduce to <entry count> entries. Close the queue.", _anything);
             new COMMAND(new string[] { "!queue", "!q" }).Action(GetQueue).Help(Everyone, "usage: %alias%%|% ... Displays a list of the currently requested songs.", _nothing);
             new COMMAND("!queuestatus").Action(QueueStatus).Help(Everyone, "usage: %alias% %|% Show current queue status", _nothing);
+
+            // TODO
 
             new COMMAND("!link").Action(ShowSongLink).Help(Everyone, "usage: %alias% %|%... Shows song details, and an %beatsaver% link to the current song", _nothing);
             new COMMAND("!played").Action(ShowSongsplayed).Help(Mod, "usage: %alias%%|%... Displays all the songs already played this session.", _nothing);

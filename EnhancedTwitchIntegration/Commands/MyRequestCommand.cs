@@ -12,14 +12,14 @@ namespace SongRequestManager.Commands
         public override Task<string> ExecuteAsync(ChatCommand command)
         {
             var username = command.ChatMessage.Username;
-            var request = QueueManager.GetRequestByUsername(username);
+            var request = QueueManager.Instance.GetRequestByUsername(username);
 
             if (request == null)
             {
                 return Task.FromResult($"Couldn't find a request for user @{username} 🤔");
             }
 
-            var position = QueueManager.GetPositionOf(request);
+            var position = QueueManager.Instance.GetPositionOf(request);
             string messageRoot = $"Request {request.Song.Name} is in position #{position.Position}";
 
             if (position.Position == 1)

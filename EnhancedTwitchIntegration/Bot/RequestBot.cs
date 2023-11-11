@@ -134,7 +134,7 @@ namespace SongRequestManager
             Instance = this;
 
             // Filter out history > 14d ago
-            QueueManager.Instance.UpdateSettings(config => config.History.RemoveAll(request => request.PlayedTimestamp.AddDays(14) > DateTime.Now));
+            QueueManager.Instance.UpdateSettings(config => config.History.RemoveAll(request => request.RequestTimestamp.AddDays(14) < DateTime.Now));
             QueueConfigManager.Instance.OnChanged += OnConfigChangedEvent;
         }
 

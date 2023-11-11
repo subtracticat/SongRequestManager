@@ -28,6 +28,7 @@ namespace SongRequestManager
         private Button _pageDownButton;
         private Button _playButton;
         private Button _skipButton;
+        private Button _pingButton;
         private Button _blacklistButton;
         private Button _historyButton;
         private Button _queueButton;
@@ -244,6 +245,27 @@ namespace SongRequestManager
                 _historyHintText = UIHelper.AddHintText(_historyButton.transform as RectTransform, "");
                 #endregion
 
+                #region Ping button
+                // Blacklist button
+                _pingButton = UIHelper.CreateUIButton("SRMPing", container, "PracticeButton", new Vector2(53f, 20f),
+                    new Vector2(25f, 15f),
+                    () =>
+                    {
+                        if (NumberOfCells() > 0)
+                        {
+                            var request = GetRequest(_selectedRow, _isShowingHistory);
+
+                            if (request != null)
+                            {
+                                ChatHandler.Send($"Hey @{request.RequestedBy} - you still here? 🤔 Let us know!");
+                            }
+                        }
+                    }, "Ping");
+
+                _pingButton.ToggleWordWrapping(false);
+                UIHelper.AddHintText(_pingButton.transform as RectTransform, "Hey, hey you! Still here?");
+                #endregion
+
                 #region Blacklist button
                 // Blacklist button
                 _blacklistButton = UIHelper.CreateUIButton("SRMBlacklist", container, "PracticeButton", new Vector2(53f, 10f),
@@ -278,10 +300,10 @@ namespace SongRequestManager
                                 confirmDialogActive = true;
 
                                 // show dialog
-                                YesNoModal.instance.ShowDialog("Blacklist Song Warning", $"Blocking {song.Metadata.SongName} by {song.Metadata.LevelAuthorName}\r\nDo you want to continue?", _onConfirm, () => { confirmDialogActive = false; });
+                                YesNoModal.instance.ShowDialog("Block Song Warning", $"Blocking {song.Metadata.SongName} by {song.Metadata.LevelAuthorName}\r\nDo you want to continue?", _onConfirm, () => { confirmDialogActive = false; });
                             }
                         }
-                    }, "Blacklist");
+                    }, "Block");
 
                 _blacklistButton.ToggleWordWrapping(false);
                 UIHelper.AddHintText(_blacklistButton.transform as RectTransform, "Block the selected request from being queued in the future.");
@@ -362,7 +384,9 @@ namespace SongRequestManager
                     new Vector2(25f, 15f),
                     () =>
                     {
-                        QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = !QueueConfigManager.Instance.Config.RequestQueueOpen);
+                        bool newState = !QueueConfigManager.Instance.Config.RequestQueueOpen;
+                        QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = newState);
+                        ChatHandler.Send($"Queue is now {(newState ? "open!" : "closed.")}");
                         //RequestBot.WriteQueueStatusToFile(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         //RequestBot.Instance.QueueChatMessage(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         UpdateRequestUI();
@@ -517,6 +541,7 @@ namespace SongRequestManager
             _playButton.interactable = toggled;
             _skipButton.interactable = toggled && !_isShowingHistory;
             _blacklistButton.interactable = toggled;
+            _pingButton.interactable = toggled;
 
             // history button can be enabled even if others are disabled
             _historyButton.interactable = true;
@@ -592,9 +617,7 @@ namespace SongRequestManager
 
             var songBpm = _tableCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songBpmText");
             //if (!request.requestor.IsModerator && !request.requestor.IsVip)
-            //{
-            //    (songBpm.transform as RectTransform).anchoredPosition = new Vector2(-2.5f, -1.8f);
-            //}
+            (songBpm.transform as RectTransform).anchoredPosition = new Vector2(-2.5f, -1.8f);
             (songBpm.transform as RectTransform).sizeDelta += new Vector2(15f, 0f);
             songBpm.text = string.Join(" - ", tags);
 
@@ -608,7 +631,7 @@ namespace SongRequestManager
 
             var songName = _tableCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songNameText");
             songName.richText = true;
-            songName.text = $"{request.Song.Metadata.SongName} <size=50%>{string.Format("{0:P0}", request.Song.Stats.Score)}<color=#3fff3f>{(request.Song.Ranked ? "RANKED" : string.Empty)}</color></size>";
+            songName.text = $"{request.Song.Metadata.SongName} <size=50%>{(int)(request.Song.Stats.Score * 100)}% <color=#3fff3f>{(request.Song.Ranked ? "[RANKED]" : string.Empty)}</color></size>";
 
             var author = _tableCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songAuthorText");
             author.richText = true;
@@ -655,7 +678,7 @@ namespace SongRequestManager
 
             List<string> hoverSegments = new List<string>();
             hoverSegments.Add($"Requested by: {request.RequestedBy}");
-            hoverSegments.Add($"At: {request.RequestTimestamp.ToString("hh:mm:ss")}");
+            hoverSegments.Add($"At: {request.RequestTimestamp.ToString("hh:mm tt")}");
             hoverSegments.Add($"Status: {request.Status}");
             if (request.Status == RequestStatus.Played)
             {

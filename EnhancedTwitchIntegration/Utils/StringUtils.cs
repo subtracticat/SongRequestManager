@@ -6,7 +6,7 @@ namespace SongRequestManager.Utils
     {
         public static string GetSongAddedMessage(Song song, QueuePosition position)
         {
-            return $"{song.Name} [{song.Metadata.LevelAuthorName}] {(song.Stats.Score > 0 ? $"({song.Stats.Score.ToString("P0")})" : "")} added at position #{position.Position}!";
+            return $"{song.Name} [{song.Metadata.LevelAuthorName}] {(song.Stats.Score > 0 ? $"({(int)(song.Stats.Score * 100)}%)" : "")} added at position #{position.Position}!";
         }
 
         public static string GetDurationString(int seconds)

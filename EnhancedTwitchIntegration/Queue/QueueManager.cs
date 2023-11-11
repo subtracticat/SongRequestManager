@@ -78,6 +78,7 @@ namespace SongRequestManager.Queue
             int previousCount = this.Config.Requests.Count;
             double previousDuration = this.Config.Requests.Sum(r => r.Song.Metadata.Duration);
 
+            request.Status = RequestStatus.Queued;
             this.UpdateSettings(config => config.Requests.Add(request));
 
             return new QueuePosition
@@ -181,7 +182,12 @@ namespace SongRequestManager.Queue
 
         public bool HasPlayed(string id)
         {
-            return this.Config.History.Any(request => request.Status == RequestStatus.Played && request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+            var lastPlayedTimeoutHours = QueueConfigManager.Instance.Config.SessionResetAfterXHours;
+            return this.Config.History.Any(request => 
+                request.Status == RequestStatus.Played && 
+                request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase) && 
+                request.PlayedTimestamp.AddHours(lastPlayedTimeoutHours) < DateTime.Now
+            );
         }
     }
 }

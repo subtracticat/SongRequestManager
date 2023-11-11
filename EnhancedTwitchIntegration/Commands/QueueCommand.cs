@@ -18,8 +18,13 @@ namespace SongRequestManager.Commands
 
             if (message.IsModerator || message.IsBroadcaster)
             {
-                var entries = QueueManager.Instance.Config.Requests.Select((request, index) => $"{index + 1}{(request.PriorityValue > 0 ? "!" : string.Empty)}: {request.Song.ID} [{request.RequestedBy}]");
+                var queue = QueueManager.Instance.Config.Requests;
+                if (queue.Count == 0)
+                {
+                    return Task.FromResult("The queue is empty!");
+                }
 
+                var entries = queue.Select((request, index) => $"{index + 1}{(request.PriorityValue > 0 ? "!" : string.Empty)}: {request.Song.ID} [{request.RequestedBy}]");
                 return Task.FromResult(string.Join(", ", entries));
             }
 

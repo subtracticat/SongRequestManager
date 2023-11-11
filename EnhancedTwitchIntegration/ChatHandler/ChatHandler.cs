@@ -83,7 +83,7 @@ namespace SongRequestManager
                     var processedAlias = alias.ToLower();
                     if (CommandMap.ContainsKey(processedAlias))
                     {
-                        throw new InvalidOperationException($"Duplicate command alias: ${processedAlias}");
+                        throw new InvalidOperationException($"Duplicate command alias: {processedAlias}");
                     }
 
                     CommandMap[processedAlias] = command;

@@ -42,7 +42,7 @@ namespace SongRequestManager.Commands
                     return $"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}";
                 }
 
-                return $"Couldn't find a request for user ${command.ChatMessage.DisplayName} in the queue.";
+                return $"Couldn't find a request for user {command.ChatMessage.DisplayName} in the queue.";
             }
         }
     }

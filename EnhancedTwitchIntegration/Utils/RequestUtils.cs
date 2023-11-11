@@ -91,7 +91,7 @@ namespace SongRequestManager.Utils
             }
             catch (Exception e)
             {
-                Plugin.Log($"Exception loading song details for ID ${id}: ${e.ToString()}");
+                Plugin.Log($"Exception loading song details for ID {id}: {e.ToString()}");
                 return new GetSongResult($"Encountered an error loading song details, double check the ID and try again.");
             }
 
@@ -102,7 +102,7 @@ namespace SongRequestManager.Utils
                 float songSeconds = song.Metadata.Duration % 60;
                 if (maxLengthMinutes > 0 && songLengthMinutes > maxLengthMinutes)
                 {
-                    return new GetSongResult($"Song length ({songLengthMinutes:0}:${songSeconds:00}) is longer than the maximum allowed song length ({maxLengthMinutes}:00)");
+                    return new GetSongResult($"Song length ({songLengthMinutes:0}:{songSeconds:00}) is longer than the maximum allowed song length ({maxLengthMinutes}:00)");
                 }
             }
 

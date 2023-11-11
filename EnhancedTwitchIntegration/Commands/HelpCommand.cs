@@ -23,7 +23,7 @@ namespace SongRequestManager.Commands
                 if (!targetCommand.IsModOnly || message.IsModerator || message.IsBroadcaster)
                 {
                     var modPrefix = targetCommand.IsModOnly ? "[Mod Only] " : string.Empty;
-                    return $"{modPrefix}{targetCommand.HelpText} - Usage: [{targetCommand.SampleUsage}]";
+                    return $"{modPrefix}{targetCommand.HelpText} - Usage: \"{targetCommand.SampleUsage}\"";
                 }
             }
 

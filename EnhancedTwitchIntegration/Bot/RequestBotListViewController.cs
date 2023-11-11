@@ -687,7 +687,7 @@ namespace SongRequestManager
 
             if (isPrio)
             {
-                hoverSegments.Add($"Prio: ${request.PriorityValue:0.00}");
+                hoverSegments.Add($"Prio: {request.PriorityValue:0.00}");
             }
 
             if (hasComment)

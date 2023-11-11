@@ -25,7 +25,7 @@ namespace SongRequestManager.Commands
             // Include trailing space here instead of the host string to avoid ending up with a double space if this were to be empty.
             string duration = songCount > 0 ? $"({StringUtils.GetDurationString((int)durationSeconds)}) " : string.Empty;
 
-            return $"${queueState} There are {songCount} songs ${duration}in the queue.";
+            return $"{queueState} There are {songCount} songs {duration}in the queue.";
         }
     }
 }

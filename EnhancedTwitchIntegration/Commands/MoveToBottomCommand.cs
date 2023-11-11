@@ -27,14 +27,14 @@ namespace SongRequestManager.Commands
                 return $"That doesn't look like an ID 🤔";
             }
 
-            var request = QueueManager.Instance.Remove(id, RequestStatus.Queued);
+            var request = RequestQueue.Current.Remove(id, RequestStatus.Queued);
 
             if (request == null)
             {
                 return $"Couldn't find request {id} in the queue.";
             }
 
-            var result = QueueManager.Instance.Add(request);
+            var result = RequestQueue.Current.Add(request);
             return $"{request.Song.Name} requested by {request.RequestedBy} moved to position #{result.Position}";
         }
     }

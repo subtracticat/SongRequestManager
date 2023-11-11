@@ -25,13 +25,13 @@ namespace SongRequestManager.Commands
                 return "I'm confused, you sure that's a song ID? 🤔";
             }
 
-            if (ListConfigManager.Instance.Config.Bans.Contains(id))
+            if (SongModerationSettings.Current.Data.Bans.Contains(id))
             {
                 return $"ID {id} is already blocked!";
             }
             else
             {
-                ListConfigManager.Instance.UpdateSettings(config => config.Bans.Add(id));
+                SongModerationSettings.Current.Update(config => config.Bans.Add(id));
                 return $"ID {id} blocked!";
             }
         }
@@ -57,9 +57,9 @@ namespace SongRequestManager.Commands
                 return "I'm confused, you sure that's a song ID? 🤔";
             }
 
-            if (ListConfigManager.Instance.Config.Bans.Contains(id))
+            if (SongModerationSettings.Current.Data.Bans.Contains(id))
             {
-                ListConfigManager.Instance.UpdateSettings(config => config.Bans.Remove(id));
+                SongModerationSettings.Current.Update(config => config.Bans.Remove(id));
                 return $"ID {id} unblocked!";
             }
             else

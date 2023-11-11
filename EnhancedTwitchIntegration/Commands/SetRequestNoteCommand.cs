@@ -22,7 +22,7 @@ namespace SongRequestManager.Commands
             string id = args[0];
             string message = string.Join(" ", args.GetRange(1, args.Count - 1));
 
-            SongRequest request = QueueManager.Instance.GetRequestById(id);
+            SongRequest request = RequestQueue.Current.GetRequestById(id);
             if (request == null)
             {
                 return $"No request found for ID {id}";

@@ -37,7 +37,7 @@ namespace SongRequestManager.Commands
             if (result.Song != null)
             {
                 SongRequest request = new SongRequest(result.Song, username);
-                var queuePosition = QueueManager.Instance.Add(request);
+                var queuePosition = RequestQueue.Current.Add(request);
 
                 return StringUtils.GetSongAddedMessage(result.Song, queuePosition);
             }

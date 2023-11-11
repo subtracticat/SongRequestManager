@@ -12,7 +12,7 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = true);
+            RequestBotSettings.Current.Update(config => config.RequestQueueOpen = true);
             return "The queue is now open!";
         }
     }
@@ -25,7 +25,7 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = false);
+            RequestBotSettings.Current.Update(config => config.RequestQueueOpen = false);
             return "The queue is now closed.";
         }
     }

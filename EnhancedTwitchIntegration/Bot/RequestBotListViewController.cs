@@ -84,7 +84,7 @@ namespace SongRequestManager
 
         public void ColorDeckButtons(KEYBOARD kb, Color basecolor, Color Present, bool setSprite = false)
         {
-            if (QueueManager.Instance.Config.History.Count == 0)
+            if (RequestQueue.Current.Data.History.Count == 0)
             {
                 return;
             }
@@ -277,11 +277,11 @@ namespace SongRequestManager
                             void _onConfirm()
                             {
                                 var request = GetRequest(_selectedRow, _isShowingHistory);
-                                ListConfigManager.Instance.UpdateSettings(config => config.Bans.Add(request.Song.ID));
+                                SongModerationSettings.Current.Update(config => config.Bans.Add(request.Song.ID));
                                 
                                 if (!_isShowingHistory)
                                 {
-                                    QueueManager.Instance.Remove(request.Song.ID, RequestStatus.Blacklisted);
+                                    RequestQueue.Current.Remove(request.Song.ID, RequestStatus.Blacklisted);
                                 }
 
                                 ChatHandler.Send($"{request.Song.ID} blocked.");
@@ -323,7 +323,7 @@ namespace SongRequestManager
                             Action onConfirm = () =>
                             {
                                 // skip it
-                                QueueManager.Instance.Remove(song.ID, RequestStatus.Skipped);
+                                RequestQueue.Current.Remove(song.ID, RequestStatus.Skipped);
 
                                 // select previous song if not first song
                                 if (_selectedRow > 0)
@@ -361,7 +361,7 @@ namespace SongRequestManager
                             var request = GetRequest(_selectedRow, _isShowingHistory);
                             if (!_isShowingHistory)
                             {
-                                QueueManager.Instance.Remove(request.Song.ID, RequestStatus.Played);
+                                RequestQueue.Current.Remove(request.Song.ID, RequestStatus.Played);
                             }
 
                             SetUIInteractivity(false);
@@ -374,7 +374,7 @@ namespace SongRequestManager
                 _playButton.GetComponent<NoTransitionsButton>().enabled = true;
 
                 _playButton.ToggleWordWrapping(false);
-                _playButton.interactable = ((_isShowingHistory && QueueManager.Instance.Config.Requests.Count > 0) || (!_isShowingHistory && QueueManager.Instance.Config.History.Count > 0));
+                _playButton.interactable = ((_isShowingHistory && RequestQueue.Current.Data.Requests.Count > 0) || (!_isShowingHistory && RequestQueue.Current.Data.History.Count > 0));
                 UIHelper.AddHintText(_playButton.transform as RectTransform, "Download and scroll to the currently selected request.");
                 #endregion
 
@@ -384,16 +384,16 @@ namespace SongRequestManager
                     new Vector2(25f, 15f),
                     () =>
                     {
-                        bool newState = !QueueConfigManager.Instance.Config.RequestQueueOpen;
-                        QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = newState);
+                        bool newState = !RequestBotSettings.Current.Data.RequestQueueOpen;
+                        RequestBotSettings.Current.Update(config => config.RequestQueueOpen = newState);
                         ChatHandler.Send($"Queue is now {(newState ? "open!" : "closed.")}");
                         //RequestBot.WriteQueueStatusToFile(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         //RequestBot.Instance.QueueChatMessage(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue is open." : "Queue is closed.");
                         UpdateRequestUI();
-                    }, QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue Open" : "Queue Closed");
+                    }, RequestBotSettings.Current.Data.RequestQueueOpen ? "Queue Open" : "Queue Closed");
 
                 _queueButton.ToggleWordWrapping(true);
-                _queueButton.SetButtonUnderlineColor(QueueConfigManager.Instance.Config.RequestQueueOpen ? Color.green : Color.red);
+                _queueButton.SetButtonUnderlineColor(RequestBotSettings.Current.Data.RequestQueueOpen ? Color.green : Color.red);
                 _queueButton.SetButtonTextSize(3.5f);
                 UIHelper.AddHintText(_queueButton.transform as RectTransform, "Open/Close the queue.");
                 #endregion
@@ -444,7 +444,7 @@ namespace SongRequestManager
 
         public SongRequest CurrentlySelectedSong()
         {
-            var selected = QueueManager.Instance.Config.History[0];
+            var selected = RequestQueue.Current.Data.History[0];
 
             if (_selectedRow != -1 && NumberOfCells() > _selectedRow)
             {
@@ -455,7 +455,7 @@ namespace SongRequestManager
 
         public void UpdateSelectSongInfo()
         {
-            if (QueueManager.Instance.Config.History.Count > 0)
+            if (RequestQueue.Current.Data.History.Count > 0)
             {
                 var selected = CurrentlySelectedSong();
 
@@ -468,10 +468,10 @@ namespace SongRequestManager
 
         public void UpdateRequestUI(bool selectRowCallback = false)
         {
-            _playButton.interactable = ((_isShowingHistory && QueueManager.Instance.Config.History.Count > 0) || (!_isShowingHistory && QueueManager.Instance.Config.Requests.Count > 0));
+            _playButton.interactable = ((_isShowingHistory && RequestQueue.Current.Data.History.Count > 0) || (!_isShowingHistory && RequestQueue.Current.Data.Requests.Count > 0));
 
-            _queueButton.SetButtonText(QueueConfigManager.Instance.Config.RequestQueueOpen ? "Queue Open" : "Queue Closed");
-            _queueButton.SetButtonUnderlineColor(QueueConfigManager.Instance.Config.RequestQueueOpen ? Color.green : Color.red);
+            _queueButton.SetButtonText(RequestBotSettings.Current.Data.RequestQueueOpen ? "Queue Open" : "Queue Closed");
+            _queueButton.SetButtonUnderlineColor(RequestBotSettings.Current.Data.RequestQueueOpen ? Color.green : Color.red);
 
             _historyHintText.text = _isShowingHistory ? "Go back to your current song request queue." : "View the history of song requests from the current session.";
             _historyButton.SetButtonText(_isShowingHistory ? "Requests" : "History");
@@ -517,7 +517,7 @@ namespace SongRequestManager
             _songListTableView?.ReloadData();
         }
 
-        private List<SongRequest> Songs => _isShowingHistory ? QueueManager.Instance.Config.History : QueueManager.Instance.Config.Requests;
+        private List<SongRequest> Songs => _isShowingHistory ? RequestQueue.Current.Data.History : RequestQueue.Current.Data.Requests;
 
         /// <summary>
         /// Alter the state of the buttons based on selection
@@ -598,7 +598,7 @@ namespace SongRequestManager
 
             List<string> tags = new List<string>();
 
-            bool isPrio = request.PriorityValue >= QueueConfigManager.Instance.Config.MinimumPriorityRequestValue;
+            bool isPrio = request.PriorityValue >= RequestBotSettings.Current.Data.MinimumPriorityRequestValue;
             if (isPrio)
             {
                 tags.Add("PRIO");
@@ -700,7 +700,7 @@ namespace SongRequestManager
 
         private SongRequest GetRequest(int index, bool fromHistory)
         {
-            var source = fromHistory ? QueueManager.Instance.Config.History : QueueManager.Instance.Config.Requests;
+            var source = fromHistory ? RequestQueue.Current.Data.History : RequestQueue.Current.Data.Requests;
 
             if (index >= 0 && index < source.Count)
             {

@@ -31,7 +31,7 @@ namespace SongRequestManager.Commands
 
             if (int.TryParse(position, out int positionInt))
             {
-                var request = QueueManager.Instance.Remove(id, RequestStatus.Queued);
+                var request = RequestQueue.Current.Remove(id, RequestStatus.Queued);
 
                 if (request == null)
                 {
@@ -39,7 +39,7 @@ namespace SongRequestManager.Commands
                 }
 
                 // -1 to convert to base-0 indexing
-                var result = QueueManager.Instance.InsertAt(positionInt - 1, request);
+                var result = RequestQueue.Current.InsertAt(positionInt - 1, request);
                 return $"{request.Song.Name} requested by {request.RequestedBy} moved to position #{result.Position}";
             }
             else

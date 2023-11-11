@@ -47,12 +47,12 @@ namespace SongRequestManager.Utils
                 return new GetSongResult($"Hmm... I'm looking for a song ID and that doesn't look like one - are you sure you grabbed the right thing?");
             }
 
-            if (ListConfigManager.Instance.Config.Bans.Contains(id))
+            if (SongModerationSettings.Current.Data.Bans.Contains(id))
             {
                 return new GetSongResult($"{id} is blocked! 😬 Try picking something else?");
             }
 
-            if (ListConfigManager.Instance.Config.Remaps.TryGetValue(id, out string remapValue))
+            if (SongModerationSettings.Current.Data.Remaps.TryGetValue(id, out string remapValue))
             {
                 ChatHandler.Send($"Remapping request {id} to {remapValue}");
                 id = remapValue;
@@ -60,7 +60,7 @@ namespace SongRequestManager.Utils
 
             if (config.EnforceConcurrentByUser)
             {
-                SongRequest existingUserRequest = QueueManager.Instance.GetRequestByUsername(requestedBy);
+                SongRequest existingUserRequest = RequestQueue.Current.GetRequestByUsername(requestedBy);
                 if (existingUserRequest != null)
                 {
                     return new GetSongResult($"Sorry, just one request at a time, please! If you'd like to replace your current request, use '!replace {id}'.");
@@ -69,17 +69,17 @@ namespace SongRequestManager.Utils
 
             if (config.EnforceDuplicate)
             {
-                SongRequest duplicateRequest = QueueManager.Instance.GetRequestById(id);
+                SongRequest duplicateRequest = RequestQueue.Current.GetRequestById(id);
                 if (duplicateRequest != null)
                 {
-                    QueuePosition position = QueueManager.Instance.GetPositionOf(duplicateRequest);
+                    QueuePosition position = RequestQueue.Current.GetPositionOf(duplicateRequest);
                     return new GetSongResult($"{duplicateRequest.Song.Name} is already #{position.Position} in the queue, requested by @{duplicateRequest.RequestedBy}.");
                 }
             }
 
             if (config.EnforceAlreadyPlayed)
             {
-                if (QueueManager.Instance.HasPlayed(id))
+                if (RequestQueue.Current.HasPlayed(id))
                 {
                     return new GetSongResult($"Sorry, we've already already been played that song! :(");
                 }
@@ -98,7 +98,7 @@ namespace SongRequestManager.Utils
 
             if (config.EnforceMaxLength)
             {
-                float maxLengthMinutes = QueueConfigManager.Instance.Config.MaximumSongLength;
+                float maxLengthMinutes = RequestBotSettings.Current.Data.MaximumSongLength;
                 float songLengthMinutes = song.Metadata.Duration / 60.0f;
                 float songSeconds = song.Metadata.Duration % 60;
                 if (maxLengthMinutes > 0 && songLengthMinutes > maxLengthMinutes)

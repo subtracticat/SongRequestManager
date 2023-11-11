@@ -19,10 +19,10 @@ namespace SongRequestManager.Commands
 
             if (args.Count == 0)
             {
-                SongRequest request = QueueManager.Instance.GetRequestByUsername(message.DisplayName);
+                SongRequest request = RequestQueue.Current.GetRequestByUsername(message.DisplayName);
                 if (request != null)
                 {
-                    QueueManager.Instance.Remove(request.Song.ID, RequestStatus.Deleted);
+                    RequestQueue.Current.Remove(request.Song.ID, RequestStatus.Deleted);
                     return $"Request {request.Song.Name} removed";
                 }
                 else
@@ -38,7 +38,7 @@ namespace SongRequestManager.Commands
                     return $"Expected a song ID: '!remove [id?]'";
                 }
 
-                SongRequest request = QueueManager.Instance.GetRequestById(id);
+                SongRequest request = RequestQueue.Current.GetRequestById(id);
                 if (request == null)
                 {
                     return $"No request found for ID {id}";
@@ -46,7 +46,7 @@ namespace SongRequestManager.Commands
 
                 if (request.RequestedBy.Equals(message.DisplayName, StringComparison.CurrentCultureIgnoreCase) || message.IsModerator || message.IsBroadcaster)
                 {
-                    QueueManager.Instance.Remove(id, RequestStatus.Deleted);
+                    RequestQueue.Current.Remove(id, RequestStatus.Deleted);
                     return $"Request {request.Song.Name} removed";
                 }
                 else

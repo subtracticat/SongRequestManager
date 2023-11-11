@@ -31,7 +31,7 @@ namespace SongRequestManager.Commands
                 string oldId = args[0];
                 string newId = args[1];
 
-                SongRequest currentRequest = QueueManager.Instance.GetRequestById(oldId);
+                SongRequest currentRequest = RequestQueue.Current.GetRequestById(oldId);
 
                 if (currentRequest != null)
                 {
@@ -46,7 +46,7 @@ namespace SongRequestManager.Commands
             {
                 string newId = args[0];
 
-                var currentRequest = QueueManager.Instance.GetRequestByUsername(message.DisplayName);
+                var currentRequest = RequestQueue.Current.GetRequestByUsername(message.DisplayName);
                 if (currentRequest != null)
                 {
                     return this.ProcessReplace(message, currentRequest, newId);
@@ -75,7 +75,7 @@ namespace SongRequestManager.Commands
                 if (result.Song != null)
                 {
                     var originalSong = currentRequest.Song;
-                    var position = QueueManager.Instance.ReplaceSong(currentRequest, result.Song);
+                    var position = RequestQueue.Current.ReplaceSong(currentRequest, result.Song);
                     return $"Request {originalSong.Name} at position #{position.Position} replaced with {result.Song.Name}";
                 }
                 else

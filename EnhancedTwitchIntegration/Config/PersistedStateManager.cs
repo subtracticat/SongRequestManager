@@ -5,14 +5,14 @@ using Newtonsoft.Json;
 namespace SongRequestManager.Config
 {
 
-    public abstract class ConfigBase<T> where T : new()
+    public abstract class PersistedStateManager<T> where T : new()
     {
         public static JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented
         };
 
-        public T Config { get; private set; }
+        public T Data { get; private set; }
         public event Action<T> OnChanged;
 
         protected abstract string FilePath { get; }
@@ -20,7 +20,7 @@ namespace SongRequestManager.Config
 
         private readonly FileSystemWatcher configWatcher = new FileSystemWatcher();
 
-        protected ConfigBase()
+        protected PersistedStateManager()
         {
             if (File.Exists(FilePath))
             {
@@ -28,13 +28,13 @@ namespace SongRequestManager.Config
             }
             else if (File.Exists(LegacyFilePath))
             {
-                this.Config = new T();
-                ConfigSerializer.LoadConfig(this.Config, LegacyFilePath);
+                this.Data = new T();
+                ConfigSerializer.LoadConfig(this.Data, LegacyFilePath);
                 this.Save();
             }
             else
             {
-                this.Config = new T();
+                this.Data = new T();
                 this.Save();
             }
 
@@ -46,31 +46,31 @@ namespace SongRequestManager.Config
             this.configWatcher.Changed += this.OnFileChanged;
         }
 
-        ~ConfigBase()
+        ~PersistedStateManager()
         {
             this.configWatcher.Changed -= this.OnFileChanged;
         }
 
-        public virtual void UpdateSettings(Action<T> updateFunc)
+        public virtual void Update(Action<T> updateFunc)
         {
-            updateFunc(this.Config);
+            updateFunc(this.Data);
             this.Save();
         }
 
         private void Save()
         {
-            File.WriteAllText(FilePath, JsonConvert.SerializeObject(this.Config, SerializerSettings));
+            File.WriteAllText(FilePath, JsonConvert.SerializeObject(this.Data, SerializerSettings));
         }
 
         private void LoadData()
         {
-            this.Config = JsonConvert.DeserializeObject<T>(File.ReadAllText(FilePath));
+            this.Data = JsonConvert.DeserializeObject<T>(File.ReadAllText(FilePath));
         }
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
             this.LoadData();
-            OnChanged?.Invoke(this.Config);
+            OnChanged?.Invoke(this.Data);
         }
     }
 }

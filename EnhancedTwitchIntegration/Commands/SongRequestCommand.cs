@@ -30,7 +30,7 @@ namespace SongRequestManager.Commands
 
         public override async Task<string> ExecuteAsync(ChatCommand command)
         {
-            if (!QueueConfigManager.Instance.Config.RequestQueueOpen)
+            if (!RequestBotSettings.Current.Data.RequestQueueOpen)
             {
                 return "Sorry, the queue is closed :(";
             }
@@ -47,7 +47,7 @@ namespace SongRequestManager.Commands
             if (result.Song != null)
             {
                 SongRequest request = new SongRequest(result.Song, command.ChatMessage.DisplayName);
-                var queuePosition = QueueManager.Instance.Add(request);
+                var queuePosition = RequestQueue.Current.Add(request);
 
                 return StringUtils.GetSongAddedMessage(result.Song, queuePosition);
             }

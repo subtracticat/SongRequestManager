@@ -2,26 +2,26 @@
 
 namespace SongRequestManager.Config
 {
-    public class ChatConfig
+    public class TwitchConnectionSettingsData
     {
         public string ChatUsername = "";
         public string ChatToken = "";
         public string ChatChannel = "";
     }
 
-    public class ChatConfigManager : ConfigBase<ChatConfig>
+    public class TwitchConnectionSettings : PersistedStateManager<TwitchConnectionSettingsData>
     {
-        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMChatConfig.json");
+        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMTwitchSettings.json");
         protected override string LegacyFilePath => Path.Combine(Plugin.DataPath, "SRMChatConfig.ini");
 
-        private static ChatConfigManager _instance = null;
-        public static ChatConfigManager Instance
+        private static TwitchConnectionSettings _instance = null;
+        public static TwitchConnectionSettings Current
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new ChatConfigManager();
+                    _instance = new TwitchConnectionSettings();
                 }
 
                 return _instance;

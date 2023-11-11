@@ -27,7 +27,7 @@ namespace SongRequestManager
         public bool IsApplicationExiting = false;
         public static Plugin Instance { get; private set; }
 
-        private QueueConfig RequestBotConfig;
+        private RequestBotSettingsData RequestBotConfig;
 
         internal static GameMode gameMode;
 
@@ -74,7 +74,7 @@ namespace SongRequestManager
             }
 
             // initialize config
-            RequestBotConfig = new QueueConfig();
+            RequestBotConfig = new RequestBotSettingsData();
 
             Dispatcher.Initialize();
 

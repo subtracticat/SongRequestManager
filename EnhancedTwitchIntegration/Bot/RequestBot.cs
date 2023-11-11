@@ -130,11 +130,11 @@ namespace SongRequestManager
             Instance = this;
 
             // Filter out history > 14d ago
-            QueueManager.Instance.UpdateSettings(config => config.History.RemoveAll(request => request.RequestTimestamp.AddDays(14) < DateTime.Now));
-            QueueConfigManager.Instance.OnChanged += OnConfigChangedEvent;
+            RequestQueue.Current.Update(config => config.History.RemoveAll(request => request.RequestTimestamp.AddDays(14) < DateTime.Now));
+            RequestBotSettings.Current.OnChanged += OnConfigChangedEvent;
         }
 
-        private void OnConfigChangedEvent(QueueConfig config)
+        private void OnConfigChangedEvent(RequestBotSettingsData config)
         {
             _configChanged = true;
         }
@@ -192,12 +192,12 @@ namespace SongRequestManager
 
                 byte[] songZip = null;
 
-                if (!string.IsNullOrEmpty(QueueConfigManager.Instance.Config.offlinepath))
+                if (!string.IsNullOrEmpty(RequestBotSettings.Current.Data.offlinepath))
                 {
                     // build cache name to check
                     var cacheName = $"{songId}_{songHash}.zip";
-                    Plugin.Log($"{QueueConfigManager.Instance.Config.offlinepath} - {cacheName}");
-                    var cachePath = Path.Combine(QueueConfigManager.Instance.Config.offlinepath, cacheName);
+                    Plugin.Log($"{RequestBotSettings.Current.Data.offlinepath} - {cacheName}");
+                    var cachePath = Path.Combine(RequestBotSettings.Current.Data.offlinepath, cacheName);
 
                     // check if a local cache exists, if so, copy it
                     if (File.Exists(cachePath))
@@ -264,7 +264,7 @@ namespace SongRequestManager
             bool success = false;
             Dispatcher.RunCoroutine(SongListUtils.ScrollToLevel(songHash, (s) => success = s, false));
 
-            if (QueueConfigManager.Instance.Config.SendNextSongBeingPlayedtoChat)
+            if (RequestBotSettings.Current.Data.SendNextSongBeingPlayedtoChat)
             {
                 ChatHandler.Send($"{request.Song.Name} ({songId}) requested by {request.RequestedBy} is next!");
             }
@@ -291,7 +291,7 @@ namespace SongRequestManager
 
                     _requestButton.interactable = enabled;
 
-                    if (QueueManager.Instance.Config.Requests.Count == 0)
+                    if (RequestQueue.Current.Data.Requests.Count == 0)
                     {
                         _requestButton.SetButtonUnderlineColor(Color.red);
                     }

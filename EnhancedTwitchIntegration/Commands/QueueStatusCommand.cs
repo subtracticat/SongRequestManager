@@ -15,8 +15,8 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            bool isOpen = QueueConfigManager.Instance.Config.RequestQueueOpen;
-            var queue = QueueManager.Instance.Config.Requests;
+            bool isOpen = RequestBotSettings.Current.Data.RequestQueueOpen;
+            var queue = RequestQueue.Current.Data.Requests;
             int songCount = queue.Count;
             float durationSeconds = queue.Sum(request => request.Song.Metadata.Duration);
 

@@ -64,9 +64,9 @@ namespace SongRequestManager
             if (!initialized)
             {
                 this.InitializeCommandMap();
-                this.ConfigureChatClient(ChatConfigManager.Instance.Config);
+                this.ConfigureChatClient(TwitchConnectionSettings.Current.Data);
 
-                ChatConfigManager.Instance.OnChanged += ConfigureChatClient;
+                TwitchConnectionSettings.Current.OnChanged += ConfigureChatClient;
 
                 initialized = true;
             }
@@ -91,7 +91,7 @@ namespace SongRequestManager
             }
         }
 
-        private void ConfigureChatClient(ChatConfig config)
+        private void ConfigureChatClient(TwitchConnectionSettingsData config)
         {
             Plugin.Log("Configuring chat client");
             if (!string.IsNullOrEmpty(config.ChatToken) && !string.IsNullOrEmpty(config.ChatUsername) && !string.IsNullOrEmpty(config.ChatChannel))
@@ -173,11 +173,11 @@ namespace SongRequestManager
             {
                 if (!string.IsNullOrEmpty(replyToId))
                 {
-                    _chatClient.SendReply(ChatConfigManager.Instance.Config.ChatChannel, replyToId, message);
+                    _chatClient.SendReply(TwitchConnectionSettings.Current.Data.ChatChannel, replyToId, message);
                 }
                 else
                 {
-                    _chatClient.SendMessage(ChatConfigManager.Instance.Config.ChatChannel, message);
+                    _chatClient.SendMessage(TwitchConnectionSettings.Current.Data.ChatChannel, message);
                 }
             }
             catch (Exception e)

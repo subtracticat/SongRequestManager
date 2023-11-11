@@ -3,24 +3,24 @@ using System.IO;
 
 namespace SongRequestManager.Config
 {
-    public class ListConfig
+    public class SongModerationSettingsData
     {
         public Dictionary<string, string> Remaps = new Dictionary<string, string>();
         public List<string> Bans = new List<string>();
     }
 
-    public class ListConfigManager : ConfigBase<ListConfig>
+    public class SongModerationSettings : PersistedStateManager<SongModerationSettingsData>
     {
-        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMListConfig.json");
+        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMSongSettings.json");
 
-        private static ListConfigManager _instance = null;
-        public static ListConfigManager Instance
+        private static SongModerationSettings _instance = null;
+        public static SongModerationSettings Current
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new ListConfigManager();
+                    _instance = new SongModerationSettings();
                 }
 
                 return _instance;

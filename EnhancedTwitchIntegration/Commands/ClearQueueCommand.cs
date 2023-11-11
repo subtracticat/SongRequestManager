@@ -12,7 +12,7 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            int songCount = QueueManager.Instance.ClearQueue();
+            int songCount = RequestQueue.Current.ClearQueue();
             if (songCount > 0)
             {
                 return $"Cleared {songCount} song(s).";

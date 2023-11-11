@@ -19,13 +19,13 @@ namespace SongRequestManager.Commands
 
             if (args.Count == 1 && int.TryParse(args[0], out int count))
             {
-                if (QueueConfigManager.Instance.Config.RequestQueueOpen)
+                if (RequestBotSettings.Current.Data.RequestQueueOpen)
                 {
-                    QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = false);
+                    RequestBotSettings.Current.Update(config => config.RequestQueueOpen = false);
                     ChatHandler.Send("Queue is now closed!");
                 }
 
-                var queue = QueueManager.Instance.Config.Requests;
+                var queue = RequestQueue.Current.Data.Requests;
                 count = Math.Min(count, queue.Count);
                 List<SongRequest> savedRequests = new List<SongRequest>();
                 var random = new Random();
@@ -33,11 +33,11 @@ namespace SongRequestManager.Commands
                 for (int i = 0; i < count; i++)
                 {
                     int selectedIndex = random.Next(queue.Count);
-                    savedRequests.Add(QueueManager.Instance.Remove(queue[selectedIndex].Song.ID, RequestStatus.Queued));
+                    savedRequests.Add(RequestQueue.Current.Remove(queue[selectedIndex].Song.ID, RequestStatus.Queued));
                 }
 
-                QueueManager.Instance.ClearQueue();
-                QueueManager.Instance.Add(savedRequests);
+                RequestQueue.Current.ClearQueue();
+                RequestQueue.Current.Add(savedRequests);
 
                 return $"Selected {string.Join(", ", savedRequests.Select(request => $"{request.Song.Metadata.SongName} ({request.RequestedBy})"))}";
             }

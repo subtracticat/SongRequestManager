@@ -8,92 +8,92 @@ namespace SongRequestManager.UI
         [UIValue("autopick-first-song")]
         public bool AutopickFirstSong
         {
-            get => QueueConfigManager.Instance.Config.AutopickFirstSong;
-            set => QueueConfigManager.Instance.Config.AutopickFirstSong = value;
+            get => RequestBotSettings.Current.Data.AutopickFirstSong;
+            set => RequestBotSettings.Current.Data.AutopickFirstSong = value;
         }
 
         [UIValue("lowest-allowed-rating")]
         public float LowestAllowedRating
         {
-            get => QueueConfigManager.Instance.Config.LowestAllowedRating;
-            set => QueueConfigManager.Instance.Config.LowestAllowedRating = value;
+            get => RequestBotSettings.Current.Data.LowestAllowedRating;
+            set => RequestBotSettings.Current.Data.LowestAllowedRating = value;
         }
 
         [UIValue("maximum-song-length")]
         public int MaximumSongLength
         {
-            get => (int) QueueConfigManager.Instance.Config.MaximumSongLength;
-            set => QueueConfigManager.Instance.Config.MaximumSongLength = value;
+            get => (int) RequestBotSettings.Current.Data.MaximumSongLength;
+            set => RequestBotSettings.Current.Data.MaximumSongLength = value;
         }
 
         [UIValue("minimum-njs")]
         public int MinimumNJS
         {
-            get => (int) QueueConfigManager.Instance.Config.MinimumNJS;
-            set => QueueConfigManager.Instance.Config.MinimumNJS = value;
+            get => (int) RequestBotSettings.Current.Data.MinimumNJS;
+            set => RequestBotSettings.Current.Data.MinimumNJS = value;
         }
 
         [UIValue("automap")]
         public bool Automap
         {
-            get => QueueConfigManager.Instance.Config.Automap;
-            set => QueueConfigManager.Instance.Config.Automap = value;
+            get => RequestBotSettings.Current.Data.Automap;
+            set => RequestBotSettings.Current.Data.Automap = value;
         }
 
         [UIValue("tts-support")]
         public bool TtsSupport
         {
-            get => QueueConfigManager.Instance.Config.BotPrefix != "";
-            set => QueueConfigManager.Instance.Config.BotPrefix = value ? "! " : "";
+            get => RequestBotSettings.Current.Data.BotPrefix != "";
+            set => RequestBotSettings.Current.Data.BotPrefix = value ? "! " : "";
         }
 
         [UIValue("user-request-limit")]
         public int UserRequestLimit
         {
-            get => QueueConfigManager.Instance.Config.UserRequestLimit;
-            set => QueueConfigManager.Instance.Config.UserRequestLimit = value;
+            get => RequestBotSettings.Current.Data.UserRequestLimit;
+            set => RequestBotSettings.Current.Data.UserRequestLimit = value;
         }
 
         [UIValue("sub-request-limit")]
         public int SubRequestLimit
         {
-            get => QueueConfigManager.Instance.Config.SubRequestLimit;
-            set => QueueConfigManager.Instance.Config.SubRequestLimit = value;
+            get => RequestBotSettings.Current.Data.SubRequestLimit;
+            set => RequestBotSettings.Current.Data.SubRequestLimit = value;
         }
 
         [UIValue("mod-request-limit")]
         public int ModRequestLimit
         {
-            get => QueueConfigManager.Instance.Config.ModRequestLimit;
-            set => QueueConfigManager.Instance.Config.ModRequestLimit = value;
+            get => RequestBotSettings.Current.Data.ModRequestLimit;
+            set => RequestBotSettings.Current.Data.ModRequestLimit = value;
         }
 
         [UIValue("vip-bonus-requests")]
         public int VipBonusRequests
         {
-            get => QueueConfigManager.Instance.Config.VipBonusRequests;
-            set => QueueConfigManager.Instance.Config.VipBonusRequests = value;
+            get => RequestBotSettings.Current.Data.VipBonusRequests;
+            set => RequestBotSettings.Current.Data.VipBonusRequests = value;
         }
 
         
         [UIValue("request-time-censor")]
         public int minimumUploadTimeCensor
         {
-            get => QueueConfigManager.Instance.Config.minimumUploadTimeCensor;
-            set => QueueConfigManager.Instance.Config.minimumUploadTimeCensor = value;
+            get => RequestBotSettings.Current.Data.minimumUploadTimeCensor;
+            set => RequestBotSettings.Current.Data.minimumUploadTimeCensor = value;
         }
             
         [UIValue("websocket-url")]
         public string WebsocketURL {
-            get => QueueConfigManager.Instance.Config.WebsocketURL;
-            set => QueueConfigManager.Instance.Config.WebsocketURL = value;
+            get => RequestBotSettings.Current.Data.WebsocketURL;
+            set => RequestBotSettings.Current.Data.WebsocketURL = value;
         }
 
         [UIValue("websocket-enable")]
         public bool WebsocketEnabled
         {
-            get => QueueConfigManager.Instance.Config.WebsocketEnabled;
-            set => QueueConfigManager.Instance.Config.WebsocketEnabled = value;
+            get => RequestBotSettings.Current.Data.WebsocketEnabled;
+            set => RequestBotSettings.Current.Data.WebsocketEnabled = value;
         }
         
         [UIAction("connect-click")]
@@ -106,34 +106,34 @@ namespace SongRequestManager.UI
         [UIValue("disable-chatcore")]
         public bool DisableChatcore
         {
-            get => QueueConfigManager.Instance.Config.DisableChatcore;
-            set => QueueConfigManager.Instance.Config.DisableChatcore = value;
+            get => RequestBotSettings.Current.Data.DisableChatcore;
+            set => RequestBotSettings.Current.Data.DisableChatcore = value;
         }
             
         [UIValue("mod-full-rights")]
         public bool ModFullRights
         {
-            get => QueueConfigManager.Instance.Config.ModFullRights;
-            set => QueueConfigManager.Instance.Config.ModFullRights = value;
+            get => RequestBotSettings.Current.Data.ModFullRights;
+            set => RequestBotSettings.Current.Data.ModFullRights = value;
         }
         
         [UIValue("requestui-enable")]
         public bool BeatsaverRequestUIEnabled
         {
-            get => QueueConfigManager.Instance.Config.BeatsaverRequestUIEnabled;
-            set => QueueConfigManager.Instance.Config.BeatsaverRequestUIEnabled = value;
+            get => RequestBotSettings.Current.Data.BeatsaverRequestUIEnabled;
+            set => RequestBotSettings.Current.Data.BeatsaverRequestUIEnabled = value;
         }
         
         [UIValue("requestui-id")]
         public string BeatsaverRequestUIId {
-            get => QueueConfigManager.Instance.Config.BeatsaverRequestUIId;
-            set => QueueConfigManager.Instance.Config.BeatsaverRequestUIId = value;
+            get => RequestBotSettings.Current.Data.BeatsaverRequestUIId;
+            set => RequestBotSettings.Current.Data.BeatsaverRequestUIId = value;
         }
         
         [UIValue("requestui-url")]
         public string BeatsaverRequestUIurl {
-            get => QueueConfigManager.Instance.Config.BeatsaverRequestUIurl;
-            set => QueueConfigManager.Instance.Config.BeatsaverRequestUIurl = value;
+            get => RequestBotSettings.Current.Data.BeatsaverRequestUIurl;
+            set => RequestBotSettings.Current.Data.BeatsaverRequestUIurl = value;
         }
         
         [UIAction("rqui-connect-click")]

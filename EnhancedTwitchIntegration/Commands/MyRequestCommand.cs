@@ -14,14 +14,14 @@ namespace SongRequestManager.Commands
         protected override string Execute(ChatCommand command)
         {
             var username = command.ChatMessage.DisplayName;
-            var request = QueueManager.Instance.GetRequestByUsername(username);
+            var request = RequestQueue.Current.GetRequestByUsername(username);
 
             if (request == null)
             {
                 return $"Couldn't find a request for user @{username} 🤔";
             }
 
-            var position = QueueManager.Instance.GetPositionOf(request);
+            var position = RequestQueue.Current.GetPositionOf(request);
             string messageRoot = $"Request {request.Song.Name} is in position #{position.Position}";
 
             if (position.Position == 1)

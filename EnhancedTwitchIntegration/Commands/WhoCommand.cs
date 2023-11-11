@@ -22,11 +22,11 @@ namespace SongRequestManager.Commands
 
             if (RequestUtils.IsBeatSaverId(arg))
             {
-                var request = QueueManager.Instance.GetRequestById(arg);
+                var request = RequestQueue.Current.GetRequestById(arg);
 
                 if (request != null)
                 {
-                    var position = QueueManager.Instance.GetPositionOf(request);
+                    var position = RequestQueue.Current.GetPositionOf(request);
                     return $"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}";
                 }
 
@@ -34,11 +34,11 @@ namespace SongRequestManager.Commands
             }
             else
             {
-                var request = QueueManager.Instance.GetRequestByUsername(arg.Replace("@", string.Empty));
+                var request = RequestQueue.Current.GetRequestByUsername(arg.Replace("@", string.Empty));
 
                 if (request != null)
                 {
-                    var position = QueueManager.Instance.GetPositionOf(request);
+                    var position = RequestQueue.Current.GetPositionOf(request);
                     return $"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}";
                 }
 

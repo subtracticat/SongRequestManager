@@ -18,7 +18,7 @@ namespace SongRequestManager.Commands
 
             if (message.IsModerator || message.IsBroadcaster)
             {
-                var queue = QueueManager.Instance.Config.Requests;
+                var queue = RequestQueue.Current.Data.Requests;
                 if (queue.Count == 0)
                 {
                     return Task.FromResult("The queue is empty!");
@@ -28,7 +28,7 @@ namespace SongRequestManager.Commands
                 return Task.FromResult(string.Join(", ", entries));
             }
 
-            var currentRequest = QueueManager.Instance.GetRequestByUsername(message.DisplayName);
+            var currentRequest = RequestQueue.Current.GetRequestByUsername(message.DisplayName);
 
             if (currentRequest != null)
             {

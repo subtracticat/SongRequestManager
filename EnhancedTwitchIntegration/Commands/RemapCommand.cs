@@ -27,7 +27,7 @@ namespace SongRequestManager.Commands
                 return "I'm confused, you sure those are song IDs? 🤔";
             }
 
-            ListConfigManager.Instance.UpdateSettings((config) => config.Remaps[from] = to);
+            SongModerationSettings.Current.Update((config) => config.Remaps[from] = to);
 
             return $"Remapped id {from} to {to}";
         }
@@ -53,9 +53,9 @@ namespace SongRequestManager.Commands
                 return "I'm confused, you sure that's a song ID? 🤔";
             }
 
-            if (ListConfigManager.Instance.Config.Remaps.ContainsKey(id))
+            if (SongModerationSettings.Current.Data.Remaps.ContainsKey(id))
             {
-                ListConfigManager.Instance.UpdateSettings(config => config.Remaps.Remove(id));
+                SongModerationSettings.Current.Update(config => config.Remaps.Remove(id));
                 return $"Unmapped {id}. Be free, {id}!";
             }
             else

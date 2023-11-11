@@ -126,7 +126,7 @@ namespace SongRequestManager
                     Plugin.Log("Selected song with index " + songIndex);
                     callback?.Invoke(true);
 
-                    if (QueueConfigManager.Instance.Config.ClearNoFail)
+                    if (RequestBotSettings.Current.Data.ClearNoFail)
                     {
                         try
                         {

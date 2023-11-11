@@ -12,7 +12,7 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            int songCount = QueueManager.Instance.ClearHistory();
+            int songCount = RequestQueue.Current.ClearHistory();
             if (songCount > 0)
             {
                 return $"Wiped {songCount} song(s) from history. They're gone. Poof.";

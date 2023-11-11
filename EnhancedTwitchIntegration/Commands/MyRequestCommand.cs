@@ -12,7 +12,7 @@ namespace SongRequestManager.Commands
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {
-            var username = command.ChatMessage.Username;
+            var username = command.ChatMessage.DisplayName;
             var request = QueueManager.Instance.GetRequestByUsername(username);
 
             if (request == null)

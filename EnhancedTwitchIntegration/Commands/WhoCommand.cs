@@ -41,7 +41,7 @@ namespace SongRequestManager.Commands
                     return Task.FromResult($"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}");
                 }
 
-                return Task.FromResult($"Couldn't find a request for user ${command.ChatMessage.Username}");
+                return Task.FromResult($"Couldn't find a request for user ${command.ChatMessage.DisplayName}");
             }
         }
     }

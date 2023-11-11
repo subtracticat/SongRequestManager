@@ -28,7 +28,7 @@ namespace SongRequestManager.Commands
             }
 
             string id = args[0].ToLower();
-            string username = args.Count == 1 ? command.ChatMessage.Username : args[1];
+            string username = args.Count == 1 ? command.ChatMessage.DisplayName : args[1];
 
             GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, username, Config);
 

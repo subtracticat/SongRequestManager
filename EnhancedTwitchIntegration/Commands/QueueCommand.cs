@@ -23,7 +23,7 @@ namespace SongRequestManager.Commands
                 return Task.FromResult(string.Join(", ", entries));
             }
 
-            var currentRequest = QueueManager.Instance.GetRequestByUsername(message.Username);
+            var currentRequest = QueueManager.Instance.GetRequestByUsername(message.DisplayName);
 
             if (currentRequest != null)
             {

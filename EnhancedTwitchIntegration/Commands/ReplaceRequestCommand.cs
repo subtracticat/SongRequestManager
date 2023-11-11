@@ -44,14 +44,14 @@ namespace SongRequestManager.Commands
             {
                 string newId = args[0];
 
-                var currentRequest = QueueManager.Instance.GetRequestByUsername(message.Username);
+                var currentRequest = QueueManager.Instance.GetRequestByUsername(message.DisplayName);
                 if (currentRequest != null)
                 {
                     return this.ProcessReplace(message, currentRequest, newId);
                 }
                 else
                 {
-                    return Task.FromResult($"Couldn't find a request for @{message.Username}");
+                    return Task.FromResult($"Couldn't find a request for @{message.DisplayName}");
                 }
             }
 
@@ -67,7 +67,7 @@ namespace SongRequestManager.Commands
 
         private async Task<string> ProcessReplace(ChatMessage message, SongRequest currentRequest, string newId)
         {
-            if (currentRequest.RequestedBy.Equals(message.Username, StringComparison.CurrentCultureIgnoreCase) || message.IsModerator || message.IsBroadcaster)
+            if (currentRequest.RequestedBy.Equals(message.DisplayName, StringComparison.CurrentCultureIgnoreCase) || message.IsModerator || message.IsBroadcaster)
             {
                 GetSongResult result = await RequestUtils.GetRequestableSongAsync(newId, currentRequest.RequestedBy, Config);
                 if (result.Song != null)

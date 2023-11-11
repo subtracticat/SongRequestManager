@@ -39,11 +39,11 @@ namespace SongRequestManager.Commands
 
             string id = command.ArgumentsAsList[0].ToLower();
 
-            GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, command.ChatMessage.Username, Config);
+            GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, command.ChatMessage.DisplayName, Config);
 
             if (result.Song != null)
             {
-                SongRequest request = new SongRequest(result.Song, command.ChatMessage.Username);
+                SongRequest request = new SongRequest(result.Song, command.ChatMessage.DisplayName);
                 var queuePosition = QueueManager.Instance.Add(request);
 
                 return StringUtils.GetSongAddedMessage(result.Song, queuePosition);

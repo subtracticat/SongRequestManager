@@ -24,13 +24,15 @@ namespace SongRequestManager
             new BlockSongCommand(),
             new ClearHistoryCommand(),
             new ClearQueueCommand(),
+            new CloseQueueCommand(),
+            new HelpCommand(),
             new ModAddCommand(),
             new MoveCommand(),
             new MoveToBottomCommand(),
             new MoveToTopCommand(),
             new MyRequestCommand(),
             new OopsCommand(),
-            new OpenCloseCommand(),
+            new OpenQueueCommand(),
             new QueueCommand(),
             new QueueLotteryCommand(),
             new QueueStatusCommand(),
@@ -46,6 +48,11 @@ namespace SongRequestManager
         };
 
         private static readonly Dictionary<string, Command> CommandMap = new Dictionary<string, Command>();
+
+        public static bool TryGetCommand(string alias, out Command command)
+        {
+            return CommandMap.TryGetValue(alias, out command);
+        }
 
         public void Awake()
         {

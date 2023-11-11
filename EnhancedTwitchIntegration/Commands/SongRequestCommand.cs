@@ -25,6 +25,9 @@ namespace SongRequestManager.Commands
             "srm"
         };
 
+        public override string HelpText { get; } = "Adds a new song request to the queue - requests must be less than 6 minutes long, and please try to keep it clean! Search for songs on https://beatsaver.com/ then click the twitch icon to copy the !bsr command! (Please pay attention to the rating to find the best map for your request!)";
+        public override string SampleUsage { get; } = "!bsr [id]";
+
         public override async Task<string> ExecuteAsync(ChatCommand command)
         {
             if (!QueueConfigManager.Instance.Config.RequestQueueOpen)

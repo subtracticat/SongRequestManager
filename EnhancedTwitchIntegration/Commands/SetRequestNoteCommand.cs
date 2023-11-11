@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using SongRequestManager.Queue;
 using TwitchLib.Client.Models;
 
@@ -8,14 +7,16 @@ namespace SongRequestManager.Commands
     public class SetRequestNoteCommand : ModeratorCommand
     {
         public override List<string> Aliases { get; } = new List<string> { "comment", "note", "songmsg" };
+        public override string HelpText { get; } = "Sets a comment on the song request, visible to the streamer on the in-game queue page.";
+        public override string SampleUsage { get; } = "!comment [id] [text]";
 
-        public override Task<string> ExecuteAsync(ChatCommand command)
+        protected override string Execute(ChatCommand command)
         {
             var args = command.ArgumentsAsList;
 
             if (args.Count <= 1)
             {
-                return Task.FromResult($"What would you like to say? '!{command.CommandText} [id] [message]");
+                return $"What would you like to say? '!{command.CommandText} [id] [message]";
             }
 
             string id = args[0];
@@ -24,11 +25,11 @@ namespace SongRequestManager.Commands
             SongRequest request = QueueManager.Instance.GetRequestById(id);
             if (request == null)
             {
-                return Task.FromResult($"No request found for ID {id}");
+                return $"No request found for ID {id}";
             }
 
             request.Comment = message;
-            return Task.FromResult($"{request.Song.Metadata.SongName} comment updated!");
+            return $"{request.Song.Metadata.SongName} comment updated!";
         }
     }
 }

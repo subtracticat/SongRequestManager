@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
@@ -9,15 +8,17 @@ namespace SongRequestManager.Commands
     public class MyRequestCommand : Command
     {
         public override List<string> Aliases { get; } = new List<string> { "my", "myqueue", "myrequest", "me" };
+        public override string HelpText { get; } = "View the current position of your own song request in the request queue.";
+        public override string SampleUsage { get; } = "!my";
 
-        public override Task<string> ExecuteAsync(ChatCommand command)
+        protected override string Execute(ChatCommand command)
         {
             var username = command.ChatMessage.DisplayName;
             var request = QueueManager.Instance.GetRequestByUsername(username);
 
             if (request == null)
             {
-                return Task.FromResult($"Couldn't find a request for user @{username} 🤔");
+                return $"Couldn't find a request for user @{username} 🤔";
             }
 
             var position = QueueManager.Instance.GetPositionOf(request);
@@ -25,11 +26,11 @@ namespace SongRequestManager.Commands
 
             if (position.Position == 1)
             {
-                return Task.FromResult(messageRoot);
+                return messageRoot;
             }
             else
             {
-                return Task.FromResult($"{messageRoot} behind {StringUtils.GetDurationString(position.DurationAheadSeconds)} of requests");
+                return $"{messageRoot} behind {StringUtils.GetDurationString(position.DurationAheadSeconds)} of requests";
             }
         }
     }

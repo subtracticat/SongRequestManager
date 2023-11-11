@@ -1,22 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using SongRequestManager.Config;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
-    public class OpenCloseCommand : ModeratorCommand
+    public class OpenQueueCommand : ModeratorCommand
     {
-        public override List<string> Aliases => new List<string> { "close", "open" };
+        public override List<string> Aliases => new List<string> { "open" };
+        public override string HelpText { get; } = "Opens the request queue, allowing users to submit requests.";
+        public override string SampleUsage { get; } = "!open";
 
-        public override Task<string> ExecuteAsync(ChatCommand command)
+        protected override string Execute(ChatCommand command)
         {
-            bool targetState = command.CommandText.Equals("open", StringComparison.CurrentCultureIgnoreCase);
+            QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = true);
+            return "The queue is now open!";
+        }
+    }
 
-            QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = targetState);
+    public class CloseQueueCommand : ModeratorCommand
+    {
+        public override List<string> Aliases => new List<string> { "close" };
+        public override string HelpText { get; } = "Closes the request queue, preventing the addition of new requests.";
+        public override string SampleUsage { get; } = "!close";
 
-            return Task.FromResult($"The queue is now {(targetState ? "open" : "closed")}!");
+        protected override string Execute(ChatCommand command)
+        {
+            QueueConfigManager.Instance.UpdateSettings(config => config.RequestQueueOpen = false);
+            return "The queue is now closed.";
         }
     }
 }

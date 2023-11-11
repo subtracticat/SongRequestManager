@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -9,8 +8,10 @@ namespace SongRequestManager.Commands
         public static bool? IsStreamerkitInstalled = null;
 
         public override List<string> Aliases { get; } = new List<string> { "sabotage" };
+        public override string HelpText { get; } = "Sets the status of the !bomb command, enabling or disabling chat bombs.";
+        public override string SampleUsage { get; } = "!sabotage [on/off]";
 
-        public override Task<string> ExecuteAsync(ChatCommand command)
+        protected override string Execute(ChatCommand command)
         {
             if (IsStreamerkitInstalled == null)
             {
@@ -21,26 +22,26 @@ namespace SongRequestManager.Commands
             {
                 if (command.ArgumentsAsList.Count != 1)
                 {
-                    return Task.FromResult("Expected 1 argument: '!sabotage [on/off]'");
+                    return "Expected 1 argument: '!sabotage [on/off]'";
                 }
 
                 switch (command.ArgumentsAsList[0].ToLower())
                 {
                     case "on":
                         this.SetSabotage(true);
-                        return Task.FromResult("Sabotage enabled!");
+                        return "Sabotage enabled!";
 
                     case "off":
                         this.SetSabotage(false);
-                        return Task.FromResult("Sabotage disabled!");
+                        return "Sabotage disabled!";
 
                     default:
-                        return Task.FromResult("🤔 Could I interest you in an 'on' or an 'off' instead?");
+                        return "🤔 Could I interest you in an 'on' or an 'off' instead?";
                 }                
             }
 
             Plugin.Log("Sabotage toggle attempted, but StreamerKit not detected");
-            return Task.FromResult(string.Empty);
+            return string.Empty;
         }
 
         private void SetSabotage(bool enabled)

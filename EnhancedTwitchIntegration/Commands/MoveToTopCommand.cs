@@ -8,7 +8,9 @@ namespace SongRequestManager.Commands
 {
     public class MoveToTopCommand : ModeratorCommand
     {
-        public override List<string> Aliases { get; } = new List<string> { "mtt" };
+        public override List<string> Aliases { get; } = new List<string> { "mtt", "promote" };
+        public override string HelpText { get; } = "Move an existing request to the top of the request queue.";
+        public override string SampleUsage { get; } = "!mtt [id]";
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {

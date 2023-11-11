@@ -17,6 +17,8 @@ namespace SongRequestManager.Commands
         };
 
         public override List<string> Aliases { get; } = new List<string> { "att", "attfor" };
+        public override string HelpText { get; } = "Force-add a new song to the top of the request queue, bypassing most request restrictions, optionally on behalf of another user.";
+        public override string SampleUsage { get; } = "!att [id] [username?]";
 
         public override async Task<string> ExecuteAsync(ChatCommand command)
         {

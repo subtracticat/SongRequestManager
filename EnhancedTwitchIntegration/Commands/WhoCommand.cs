@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
@@ -9,12 +8,14 @@ namespace SongRequestManager.Commands
     public class WhoCommand : ModeratorCommand
     {
         public override List<string> Aliases { get; } = new List<string> { "who" };
+        public override string HelpText { get; } = "Checks to see who requested a specific song in the queue, or what request a specific user has in the queue (if any).";
+        public override string SampleUsage { get; } = "!who [id] OR !who [username]";
 
-        public override Task<string> ExecuteAsync(ChatCommand command)
+        protected override string Execute(ChatCommand command)
         {
             if (command.ArgumentsAsList.Count != 1)
             {
-                return Task.FromResult("What would you like to know? '!who [id/username]`");
+                return "What would you like to know? '!who [id/username]`";
             }
 
             string arg = command.ArgumentsAsList[0];
@@ -26,10 +27,10 @@ namespace SongRequestManager.Commands
                 if (request != null)
                 {
                     var position = QueueManager.Instance.GetPositionOf(request);
-                    return Task.FromResult($"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}");
+                    return $"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}";
                 }
 
-                return Task.FromResult($"Couldn't find a request for ID {arg}");
+                return $"Couldn't find request {arg} in the queue.";
             }
             else
             {
@@ -38,10 +39,10 @@ namespace SongRequestManager.Commands
                 if (request != null)
                 {
                     var position = QueueManager.Instance.GetPositionOf(request);
-                    return Task.FromResult($"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}");
+                    return $"{request.RequestedBy}: {request.Song.Name} ({request.Song.ID}) at position {position.Position}";
                 }
 
-                return Task.FromResult($"Couldn't find a request for user ${command.ChatMessage.DisplayName}");
+                return $"Couldn't find a request for user ${command.ChatMessage.DisplayName} in the queue.";
             }
         }
     }

@@ -18,6 +18,8 @@ namespace SongRequestManager.Commands
         };
 
         public override List<string> Aliases => new List<string> { "replace" };
+        public override string HelpText { get; } = "Replaces the song attached to the current request in the queue. Optionally, moderators can specify 'oldId' ID to replace a request on another user's behalf.";
+        public override string SampleUsage { get; } = "!replace [oldId?] [newId]";
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {

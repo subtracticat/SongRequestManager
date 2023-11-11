@@ -9,8 +9,11 @@ namespace SongRequestManager.Commands
         public virtual bool IsModOnly => false;
         
         public abstract List<string> Aliases { get; }
+        public abstract string HelpText { get; }
+        public abstract string SampleUsage { get; }
 
-        public abstract Task<string> ExecuteAsync(ChatCommand command);
+        public virtual Task<string> ExecuteAsync(ChatCommand command) => Task.FromResult(this.Execute(command));
+        protected virtual string Execute(ChatCommand command) => string.Empty;
     }
 
     public abstract class ModeratorCommand : Command

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
 using TwitchLib.Client.Models;
@@ -11,8 +10,10 @@ namespace SongRequestManager.Commands
     public class QueueLotteryCommand : ModeratorCommand
     {
         public override List<string> Aliases { get; } = new List<string> { "queuelottery", "lottery" };
+        public override string HelpText { get; } = "Randomly selects a given number of requests from the queue, while removing the remaining requests.";
+        public override string SampleUsage { get; } = "!queuelottery [number]";
 
-        public override Task<string> ExecuteAsync(ChatCommand command)
+        protected override string Execute(ChatCommand command)
         {
             var args = command.ArgumentsAsList;
 
@@ -38,10 +39,10 @@ namespace SongRequestManager.Commands
                 QueueManager.Instance.ClearQueue();
                 QueueManager.Instance.Add(savedRequests);
 
-                return Task.FromResult($"Selected {string.Join(", ", savedRequests.Select(request => $"{request.Song.Metadata.SongName} ({request.RequestedBy})"))}");
+                return $"Selected {string.Join(", ", savedRequests.Select(request => $"{request.Song.Metadata.SongName} ({request.RequestedBy})"))}";
             }
 
-            return Task.FromResult("Help me help you! '!queuelottery [count]'");
+            return "Help me help you! '!queuelottery [count]'";
         }
     }
 }

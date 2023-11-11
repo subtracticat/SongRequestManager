@@ -9,6 +9,8 @@ namespace SongRequestManager.Commands
     public class QueueCommand : Command
     {
         public override List<string> Aliases { get; } = new List<string> { "queue", "q" };
+        public override string HelpText { get; } = "Context-dependent command to view status of the request queue. If the user has a request currently, its status is provided, otherwise the overall queue status is returned.";
+        public override string SampleUsage { get; } = "!queue";
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {

@@ -17,6 +17,8 @@ namespace SongRequestManager.Commands
         };
 
         public override List<string> Aliases { get; } = new List<string> { "modadd", "modaddfor" };
+        public override string HelpText { get; } = "Force-add a song into the queue, bypassing most request limitations, optionally on behalf of another user.";
+        public override string SampleUsage { get; } = "!modadd [id] [username?]";
 
         public override async Task<string> ExecuteAsync(ChatCommand command)
         {

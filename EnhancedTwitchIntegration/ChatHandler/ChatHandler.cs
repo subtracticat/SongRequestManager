@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SongRequestManager.ChatHandlers;
 using SongRequestManager.Commands;
 using SongRequestManager.Config;
 using TwitchLib.Client.Events;
@@ -15,7 +14,6 @@ namespace SongRequestManager
         bool initialized = false;
         private static TwitchLibUnityClient _chatClient;
         private static List<string> CensorList = new List<string>();
-        private static ChatUser _defaultSelf = new ChatUser("0", "SRM", "SRM", true, false, "#FFFFFF", null, false, false, false);
 
         public static string CurrentUsername => _chatClient?.TwitchUsername;
         public static bool IsConnected => _chatClient?.IsConnected == true;
@@ -46,8 +44,6 @@ namespace SongRequestManager
             new UnmapCommand(),
             new WhoCommand()
         };
-
-        public static ChatUser Self => _defaultSelf;
 
         private static readonly Dictionary<string, Command> CommandMap = new Dictionary<string, Command>();
 

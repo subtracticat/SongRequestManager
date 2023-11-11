@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SongRequestManager.Queue;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -68,7 +69,7 @@ namespace SongRequestManager.Commands
         {
             if (currentRequest.RequestedBy.Equals(message.Username, StringComparison.CurrentCultureIgnoreCase) || message.IsModerator || message.IsBroadcaster)
             {
-                GetSongResult result = await CommandUtils.GetRequestableSongAsync(newId, currentRequest.RequestedBy, Config);
+                GetSongResult result = await RequestUtils.GetRequestableSongAsync(newId, currentRequest.RequestedBy, Config);
                 if (result.Song != null)
                 {
                     var originalSong = currentRequest.Song;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using SongRequestManager.Config;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -19,7 +20,7 @@ namespace SongRequestManager.Commands
             string from = command.ArgumentsAsList[0];
             string to = command.ArgumentsAsList[1];
 
-            if (!CommandUtils.IsBeatSaverId(from) || !CommandUtils.IsBeatSaverId(to))
+            if (!RequestUtils.IsBeatSaverId(from) || !RequestUtils.IsBeatSaverId(to))
             {
                 return Task.FromResult("I'm confused, you sure those are song IDs? 🤔");
             }
@@ -43,7 +44,7 @@ namespace SongRequestManager.Commands
 
             string id = command.ArgumentsAsList[0];
 
-            if (!CommandUtils.IsBeatSaverId(id))
+            if (!RequestUtils.IsBeatSaverId(id))
             {
                 return Task.FromResult("I'm confused, you sure that's a song ID? 🤔");
             }

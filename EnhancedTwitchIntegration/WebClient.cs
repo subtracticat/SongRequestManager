@@ -6,7 +6,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SongRequestManager.SimpleJSON;
 
 namespace SongRequestManager
 {
@@ -39,11 +38,6 @@ namespace SongRequestManager
         public string ContentToString()
         {
             return Encoding.UTF8.GetString(_content);
-        }
-
-        public JSONNode ConvertToJsonNode()
-        {
-            return JSONNode.Parse(ContentToString());
         }
     }
 

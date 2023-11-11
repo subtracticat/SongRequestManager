@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -38,14 +39,14 @@ namespace SongRequestManager.Commands
 
             string id = command.ArgumentsAsList[0].ToLower();
 
-            GetSongResult result = await CommandUtils.GetRequestableSongAsync(id, command.ChatMessage.Username, Config);
+            GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, command.ChatMessage.Username, Config);
 
             if (result.Song != null)
             {
                 SongRequest request = new SongRequest(result.Song, command.ChatMessage.Username);
                 var queuePosition = QueueManager.Instance.Add(request);
 
-                return CommandUtils.GetSongAddedMessage(result.Song, queuePosition);
+                return StringUtils.GetSongAddedMessage(result.Song, queuePosition);
             }
             else
             {

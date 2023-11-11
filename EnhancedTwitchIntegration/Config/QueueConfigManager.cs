@@ -68,6 +68,8 @@ namespace SongRequestManager.Config
         public string BeatsaverRequestUIurl = "";
         public string BeatsaverRequestUIId = "";
         public bool BeatsaverRequestUIEnabled = false;
+
+        public float MinimumPriorityRequestValue = 4.99f;
     }
 
     public class QueueConfigManager : ConfigBase<QueueConfig>

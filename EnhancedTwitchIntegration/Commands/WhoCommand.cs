@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using SongRequestManager.Queue;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -18,7 +19,7 @@ namespace SongRequestManager.Commands
 
             string arg = command.ArgumentsAsList[0];
 
-            if (CommandUtils.IsBeatSaverId(arg))
+            if (RequestUtils.IsBeatSaverId(arg))
             {
                 var request = QueueManager.Instance.GetRequestById(arg);
 

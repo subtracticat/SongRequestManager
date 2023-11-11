@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using SongRequestManager.Queue;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -28,7 +29,7 @@ namespace SongRequestManager.Commands
             }
             else
             {
-                return Task.FromResult($"{messageRoot} behind {CommandUtils.GetDurationString(position.DurationAheadSeconds)} of requests");
+                return Task.FromResult($"{messageRoot} behind {StringUtils.GetDurationString(position.DurationAheadSeconds)} of requests");
             }
         }
     }

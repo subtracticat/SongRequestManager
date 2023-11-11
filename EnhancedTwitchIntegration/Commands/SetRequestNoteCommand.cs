@@ -28,7 +28,7 @@ namespace SongRequestManager.Commands
             }
 
             request.Comment = message;
-            return Task.FromResult($"Comment on request {request.Song.Name} updated!");
+            return Task.FromResult($"{request.Song.Metadata.SongName} comment updated!");
         }
     }
 }

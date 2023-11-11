@@ -37,6 +37,17 @@ namespace SongRequestManager.Queue
             }
         }
 
+        public override void UpdateSettings(Action<QueueData> updateFunc)
+        {
+            base.UpdateSettings(updateFunc);
+
+            if (RequestBotListViewController.Instance.isActivated)
+            {
+                RequestBotListViewController.Instance.UpdateRequestUI(true);
+                RequestBotListViewController.Instance.SetUIInteractivity();
+            }
+        }
+
         public SongRequest GetRequestById(string id)
         {
             return this.Config.Requests.FirstOrDefault(request => request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase));

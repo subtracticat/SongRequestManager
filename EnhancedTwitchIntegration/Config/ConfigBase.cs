@@ -51,7 +51,7 @@ namespace SongRequestManager.Config
             this.configWatcher.Changed -= this.OnFileChanged;
         }
 
-        public void UpdateSettings(Action<T> updateFunc)
+        public virtual void UpdateSettings(Action<T> updateFunc)
         {
             updateFunc(this.Config);
             this.Save();

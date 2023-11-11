@@ -5,7 +5,7 @@ using SongRequestManager.Config;
 using SongRequestManager.Queue;
 using SongRequestManager.Service;
 
-namespace SongRequestManager.Commands
+namespace SongRequestManager.Utils
 {
     public class SongRequestRuleConfig
     {
@@ -31,7 +31,7 @@ namespace SongRequestManager.Commands
         }
     }
 
-    public static class CommandUtils
+    public static class RequestUtils
     {
         private static Regex HexRegex = new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled);
 
@@ -42,7 +42,7 @@ namespace SongRequestManager.Commands
 
         public static async Task<GetSongResult> GetRequestableSongAsync(string id, string requestedBy, SongRequestRuleConfig config)
         {
-            if (!CommandUtils.IsBeatSaverId(id))
+            if (!RequestUtils.IsBeatSaverId(id))
             {
                 return new GetSongResult($"Hmm... I'm looking for a song ID and that doesn't look like one - are you sure you grabbed the right thing?");
             }
@@ -107,16 +107,6 @@ namespace SongRequestManager.Commands
             }
 
             return new GetSongResult(song);
-        }
-
-        public static string GetSongAddedMessage(Song song, QueuePosition position)
-        {
-            return $"{song.Name} [{song.Metadata.LevelAuthorName}] {(song.Stats.Score > 0 ? $"({(int)song.Stats.Score}%)" : "")} added at position #{position.Position}!";
-        }
-
-        public static string GetDurationString(int seconds)
-        {
-            return $"{seconds / 60}:{(seconds % 60):00}";
         }
     }
 }

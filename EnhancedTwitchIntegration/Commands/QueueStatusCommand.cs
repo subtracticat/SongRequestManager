@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -20,7 +19,12 @@ namespace SongRequestManager.Commands
             int songCount = queue.Count;
             float durationSeconds = queue.Sum(request => request.Song.Metadata.Duration);
 
-            return Task.FromResult($"Queue is {(isOpen ? "open!" : "closed.")} There are {songCount} songs ({CommandUtils.GetDurationString((int)durationSeconds)}) in the queue.");
+            string queueState = $"Queue is {(isOpen ? "open!" : "closed.")}";
+
+            // Include trailing space here instead of the host string to avoid ending up with a double space if this were to be empty.
+            string duration = songCount > 0 ? $"({StringUtils.GetDurationString((int)durationSeconds)}) " : string.Empty;
+
+            return Task.FromResult($"${queueState} There are {songCount} songs ${duration}in the queue.");
         }
     }
 }

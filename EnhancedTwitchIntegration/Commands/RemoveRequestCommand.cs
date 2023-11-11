@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SongRequestManager.Queue;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -33,7 +34,7 @@ namespace SongRequestManager.Commands
             else if (args.Count == 1)
             {
                 string id = args[0];
-                if (!CommandUtils.IsBeatSaverId(id))
+                if (!RequestUtils.IsBeatSaverId(id))
                 {
                     return Task.FromResult($"Expected a song ID: '!remove [id?]'");
                 }

@@ -191,22 +191,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bot\ChatCommands.cs" />
-    <Compile Include="Bot\commands.cs" />
     <Compile Include="Bot\Keyboard.cs" />
-    <Compile Include="Bot\ListManager.cs" />
     <Compile Include="Bot\RequestBot.cs" />
     <Compile Include="Bot\RequestBotListViewController.cs" />
     <Compile Include="Bot\RequestFlowCoordinator.cs" />
-    <Compile Include="Bot\RequestInfo.cs" />
-    <Compile Include="Bot\LegacyRequestManager.cs" />
-    <Compile Include="Bot\RequestUserTracker.cs" />
-    <Compile Include="Bot\songdatabase.cs" />
-    <Compile Include="Bot\LegacySongRequest.cs" />
-    <Compile Include="Bot\UnreleasedCode.cs" />
-    <Compile Include="Bot\util.cs" />
     <Compile Include="ChatHandler\ChatHandler.cs" />
-    <Compile Include="ChatHandler\ChatUser.cs" />
     <Compile Include="Commands\QueueCommand.cs" />
     <Compile Include="Commands\QueueLotteryCommand.cs" />
     <Compile Include="Commands\QueueStatusCommand.cs" />
@@ -215,7 +204,6 @@
     <Compile Include="Commands\BlockSongCommand.cs" />
     <Compile Include="Commands\ClearHistoryCommand.cs" />
     <Compile Include="Commands\ClearQueueCommand.cs" />
-    <Compile Include="Commands\CommandUtils.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\ModAddCommand.cs" />
     <Compile Include="Commands\MoveCommand.cs" />
@@ -242,8 +230,6 @@
     <Compile Include="Queue\Song.cs" />
     <Compile Include="Queue\SongRequest.cs" />
     <Compile Include="Service\BeatSaverService.cs" />
-    <Compile Include="SimpleJson.cs" />
-    <Compile Include="UdpListener.cs" />
     <Compile Include="UI\Base64Sprites.cs" />
     <Compile Include="UI\KeyboardViewController.cs" />
     <Compile Include="UI\UIHelper.cs" />
@@ -251,6 +237,9 @@
     <Compile Include="UI\Settings.cs" />
     <Compile Include="UI\SongListUtils.cs" />
     <Compile Include="UI\SongRequestManagerSettings.cs" />
+    <Compile Include="Bot\util.cs" />
+    <Compile Include="Utils\RequestUtils.cs" />
+    <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="WebClient.cs" />
     <EmbeddedResource Include="Views\SongRequestManagerSettings.bsml" />
   </ItemGroup>

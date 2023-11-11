@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using SongRequestManager.Queue;
+using SongRequestManager.Utils;
 using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
@@ -20,7 +21,7 @@ namespace SongRequestManager.Commands
 
             string id = args[0];
 
-            if (!CommandUtils.IsBeatSaverId(id))
+            if (!RequestUtils.IsBeatSaverId(id))
             {
                 return Task.FromResult($"That doesn't look like an ID 🤔");
             }

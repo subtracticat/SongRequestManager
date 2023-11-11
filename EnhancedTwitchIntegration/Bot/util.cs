@@ -23,63 +23,6 @@ namespace SongRequestManager
             }
         }
 
-        public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
-        {
-            foreach (DirectoryInfo dir in source.GetDirectories())
-            {
-                CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
-            }
-
-            foreach (FileInfo file in source.GetFiles())
-            {
-                string newFilePath = Path.Combine(target.FullName, file.Name);
-                try
-                {
-                    file.CopyTo(newFilePath);
-                }
-                catch (Exception)
-                {
-                }
-            }
-        }
-
-        public static string BackupStreamcore(ParseState state)
-        {
-            string errormsg = Backup();
-            if (errormsg == "")
-            {
-                state.msg("SRManager files backed up.");
-            }
-
-            return errormsg;
-        }
-        public static string Backup()
-        {
-            DateTime Now = DateTime.Now;
-            string BackupName = Path.Combine(QueueConfigManager.Instance.Config.backuppath, $"SRMBACKUP-{Now.ToString("yyyy-MM-dd-HHmm")}.zip");
-
-            Plugin.Log($"Backing up {Plugin.DataPath}");
-            try
-            {
-                if (!Directory.Exists(QueueConfigManager.Instance.Config.backuppath))
-                {
-                    Directory.CreateDirectory(QueueConfigManager.Instance.Config.backuppath);
-                }
-
-                ZipFile.CreateFromDirectory(Plugin.DataPath, BackupName, System.IO.Compression.CompressionLevel.Fastest, true);
-
-                QueueConfigManager.Instance.UpdateSettings(config => config.LastBackup = DateTime.Now.ToString());
-
-                Plugin.Log($"Backup success writing {BackupName}");
-                return success;
-            }
-            catch
-            {
-            }
-            Plugin.Log($"Backup failed writing {BackupName}");
-            return $"Failed to backup to {BackupName}";
-        }
-
         public class StringNormalization
         {
             public static HashSet<string> BeatsaverBadWords = new HashSet<string>();
@@ -110,7 +53,7 @@ namespace SongRequestManager
                 return o.ToString();
             }
 
-            public string RemoveDirectorySymbols(ref string text)
+            public string RemoveDirectorySymbols(string text)
             {
                 var mask = _SymbolsValidDirectory;
                 var o = new StringBuilder(text.Length);
@@ -220,6 +163,6 @@ namespace SongRequestManager
             }
         }
 
-        public static StringNormalization normalize = new StringNormalization();
+        public static StringNormalization StringNormalizer = new StringNormalization();
     }
 }

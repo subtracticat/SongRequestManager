@@ -423,35 +423,35 @@ namespace SongRequestManager
 
         void Newest(KEY key)
         {
-            ClearSearches();
-            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addnew/top",RequestBot.CmdFlags.Local);
+            //ClearSearches();
+            //RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addnew/top",RequestBot.CmdFlags.Local);
         }
 
         void Search(KEY key)
         {
-            if (key.kb.KeyboardText.text.StartsWith("!"))
-            {
-                Enter(key);
-            }
+//            if (key.kb.KeyboardText.text.StartsWith("!"))
+//            {
+//                Enter(key);
+//            }
 
-#if UNRELEASED
-            ClearSearches();
-            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addsongs/top {key.kb.KeyboardText.text}",RequestBot.CmdFlags.Local);
-            Clear(key);
-#endif
+//#if UNRELEASED
+//            ClearSearches();
+//            RequestBot.COMMAND.Parse(ChatHandler.Self, $"!addsongs/top {key.kb.KeyboardText.text}",RequestBot.CmdFlags.Local);
+//            Clear(key);
+//#endif
         }
 
         void ClearSearches()
         {
-            for (int i = 0; i < LegacyRequestQueue.Songs.Count; i++)
-            {
-                var entry = LegacyRequestQueue.Songs[i];
-                if (entry.status == RequestBot.RequestStatus.SongSearch)
-                {
-                    RequestBot.DequeueRequest(i, false);
-                    i--;
-                }
-            }
+            //for (int i = 0; i < LegacyRequestQueue.Songs.Count; i++)
+            //{
+            //    var entry = LegacyRequestQueue.Songs[i];
+            //    if (entry.status == RequestBot.RequestStatus.SongSearch)
+            //    {
+            //        RequestBot.DequeueRequest(i, false);
+            //        i--;
+            //    }
+            //}
         }
         void ClearSearch(KEY key)
         {
@@ -468,20 +468,20 @@ namespace SongRequestManager
 
         public void Enter(KEY key)
         {
-            var typedtext = key.kb.KeyboardText.text;
-            if (typedtext != "")
-            {
-                if (RequestBot.COMMAND.aliaslist.ContainsKey(RequestBot.ParseState.GetCommand(ref typedtext)))
-                {
-                    RequestBot.COMMAND.Parse(ChatHandler.Self, typedtext ,RequestBot.CmdFlags.Local);
-                }
-                else
-                {
-                    ChatHandler.Send(typedtext);
-                }
+            //var typedtext = key.kb.KeyboardText.text;
+            //if (typedtext != "")
+            //{
+            //    if (RequestBot.COMMAND.aliaslist.ContainsKey(RequestBot.ParseState.GetCommand(ref typedtext)))
+            //    {
+            //        RequestBot.COMMAND.Parse(ChatHandler.Self, typedtext ,RequestBot.CmdFlags.Local);
+            //    }
+            //    else
+            //    {
+            //        ChatHandler.Send(typedtext);
+            //    }
 
-                key.kb.KeyboardText.text = "";
-            }
+            //    key.kb.KeyboardText.text = "";
+            //}
         }
 
         void Backspace(KEY key)
@@ -521,10 +521,10 @@ namespace SongRequestManager
 
         void SABOTAGE(KEY key)
         {
-            SabotageState = !SabotageState;
-            key.mybutton.GetComponentInChildren<Image>().color = SabotageState ? Color.green : Color.red;
-            string text = "!sabotage "+ ( SabotageState ? "on" : "off");
-            RequestBot.COMMAND.Parse(ChatHandler.Self, text, RequestBot.CmdFlags.Local);
+            //SabotageState = !SabotageState;
+            //key.mybutton.GetComponentInChildren<Image>().color = SabotageState ? Color.green : Color.red;
+            //string text = "!sabotage "+ ( SabotageState ? "on" : "off");
+            //RequestBot.COMMAND.Parse(ChatHandler.Self, text, RequestBot.CmdFlags.Local);
         }
 
         void DrawCursor()

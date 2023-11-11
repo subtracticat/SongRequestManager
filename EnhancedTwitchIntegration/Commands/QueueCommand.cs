@@ -16,7 +16,7 @@ namespace SongRequestManager.Commands
         {
             var message = command.ChatMessage;
 
-            if (message.IsModerator)
+            if (message.IsModerator || message.IsBroadcaster)
             {
                 var entries = QueueManager.Instance.Config.Requests.Select((request, index) => $"{index + 1}{(request.PriorityValue > 0 ? "!" : string.Empty)}: {request.Song.ID} [{request.RequestedBy}]");
 

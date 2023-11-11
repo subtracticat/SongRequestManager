@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
-using SongRequestManager.Config;
 using UnityEngine;
 // Feature requests: Add Reason for being banned to banlist
 

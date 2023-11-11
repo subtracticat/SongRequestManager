@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-#if OLDVERSION
-using TMPro;
-#endif
-
 using UnityEngine;
 using UnityEngine.UI;
 using SongCore;
@@ -137,12 +133,6 @@ namespace SongRequestManager
             QueueManager.Instance.UpdateSettings(config => config.History.RemoveAll(request => request.RequestTimestamp.AddDays(14) < DateTime.Now));
             QueueConfigManager.Instance.OnChanged += OnConfigChangedEvent;
         }
-
-        //public bool MyChatMessageHandler(TwitchMessage msg)
-        //{
-        //    string excludefilename = "chatexclude.users";
-        //    return RequestBot.Instance && RequestBot.listcollection.contains(ref excludefilename, msg.user.DisplayName.ToLower(), RequestBot.ListFlags.Uncached);
-        //}
 
         private void OnConfigChangedEvent(QueueConfig config)
         {

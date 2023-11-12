@@ -9,7 +9,7 @@ namespace SongRequestManager.Queue
         public string Comment { get; set; }
         public DateTime RequestTimestamp { get; set; }
         public DateTime PlayedTimestamp { get; set; }
-        public double PriorityValue { get; set; }
+        public float PriorityValue { get; set; }
         public Song Song { get; set; }
 
         public SongRequest() { }

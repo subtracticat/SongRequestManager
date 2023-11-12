@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SongRequestManager.Config;
 
 namespace SongRequestManager.Queue
@@ -12,12 +10,13 @@ namespace SongRequestManager.Queue
         Subscription,
         GiftSubscription,
         Bits,
-        Other
+        Test,
+        Unknown
     }
 
     public class PriorityEvent
     {
-        public PriorityEvent Type { get; set; }
+        public PriorityEventType Type { get; set; }
         public float Value { get; set; }
         public DateTime Timestamp { get; set; }
     }
@@ -56,13 +55,14 @@ namespace SongRequestManager.Queue
 
         public static bool TryRedeemPrio(string username, out PriorityItem priority)
         {
+            var normalizedUsername = username.ToLower();
             var items = Current.Data.PriorityItems;
 
-            if (items.TryGetValue(username, out PriorityItem currentPrio))
+            if (items.TryGetValue(normalizedUsername, out PriorityItem currentPrio))
             {
                 if (currentPrio.GetTotalValue() >= RequestBotSettings.Current.Data.MinimumPriorityRequestValue)
                 {
-                    Current.Update(data => data.PriorityItems.Remove(username));
+                    Current.Update(data => data.PriorityItems.Remove(normalizedUsername));
                     priority = currentPrio;
                     return true;
                 }
@@ -70,6 +70,52 @@ namespace SongRequestManager.Queue
 
             priority = null;
             return false;
+        }
+
+        public static void RegisterPriorityEvent(string username, PriorityEvent item)
+        {
+            if (RequestBotSettings.Current.Data.EnableAutoPrio)
+            {
+                var normalizedUsername = username.ToLower();
+                var existingRequest = RequestQueue.Current.GetRequestByUsername(normalizedUsername);
+                QueuePosition originalPosition = RequestQueue.Current.GetPositionOf(existingRequest);
+                QueuePosition newPosition = originalPosition;
+
+                Current.Update(priorityData =>
+                {
+                    PriorityItem availablePriorityItem;
+
+                    // Use the existing entry if one exists, otherwise we'll make a new bucket
+                    if (!priorityData.PriorityItems.TryGetValue(normalizedUsername, out availablePriorityItem))
+                    {
+                        availablePriorityItem = new PriorityItem();
+                        priorityData.PriorityItems[normalizedUsername] = availablePriorityItem;
+                    }
+
+                    // Add the new event to the bucket
+                    availablePriorityItem.Events.Add(item);
+
+                    if (existingRequest != null)
+                    {
+                        var newPrioValue = availablePriorityItem.GetTotalValue();
+
+                        // With the combined existing and new values, is this request a prio request?
+                        if (existingRequest.PriorityValue + newPrioValue >= RequestBotSettings.Current.Data.MinimumPriorityRequestValue)
+                        {
+                            priorityData.PriorityItems.Remove(normalizedUsername);
+
+                            RequestQueue.Current.Remove(existingRequest.Song.ID, RequestStatus.Queued);
+                            existingRequest.PriorityValue += newPrioValue;
+                            newPosition = RequestQueue.Current.AddPrio(existingRequest);
+                        }
+                    }
+                });
+
+                if (originalPosition != null && newPosition.Position != originalPosition.Position)
+                {
+                    ChatHandler.Send($"Request for {existingRequest.RequestedBy} ({existingRequest.Song.ID}) updated to from position #{originalPosition.Position} to #{newPosition.Position}.");
+                }
+            }
         }
     }
 }

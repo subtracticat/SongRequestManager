@@ -196,6 +196,7 @@
     <Compile Include="Bot\RequestBotListViewController.cs" />
     <Compile Include="Bot\RequestFlowCoordinator.cs" />
     <Compile Include="ChatHandler\ChatHandler.cs" />
+    <Compile Include="Commands\AddPrioCommand.cs" />
     <Compile Include="Commands\HelpCommand.cs" />
     <Compile Include="Commands\QueueCommand.cs" />
     <Compile Include="Commands\QueueLotteryCommand.cs" />

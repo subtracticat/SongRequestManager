@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using SongRequestManager.Commands;
 using SongRequestManager.Config;
+using SongRequestManager.Queue;
+using TwitchLib.Client.Enums;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
 using TwitchLib.Unity;
@@ -21,6 +23,7 @@ namespace SongRequestManager
         private static readonly List<Command> Commands = new List<Command>
         {
             new AddToTopCommand(),
+            new AddPrioCommand(),
             new BlockSongCommand(),
             new ClearHistoryCommand(),
             new ClearQueueCommand(),
@@ -42,6 +45,7 @@ namespace SongRequestManager
             new SabotageCommand(),
             new SetRequestNoteCommand(),
             new SongRequestCommand(),
+            new ToggleAutoPrioCommand(),
             new UnblockSongCommand(),
             new UnmapCommand(),
             new WhoCommand()
@@ -110,6 +114,10 @@ namespace SongRequestManager
                 _chatClient = new TwitchLibUnityClient();
                 _chatClient.AutoReListenOnException = true;
                 _chatClient.OnChatCommandReceived += OnChatCommandReceived;
+                _chatClient.OnMessageReceived += OnMessageReceived;
+                _chatClient.OnNewSubscriber += OnNewSubscriber;
+                _chatClient.OnReSubscriber += OnReSubscriber;
+                _chatClient.OnGiftedSubscription += OnGiftedSubscription;
                 _chatClient.OnConnected += (sender, args) => Plugin.Log("Connected to chat!");
                 _chatClient.OnConnectionError += (sender, error) => Plugin.Log($"Error connecting to chat: {error.Error.Message}");
 
@@ -121,6 +129,57 @@ namespace SongRequestManager
             {
                 Plugin.Log($"Skipping Chat Client init due to missing config arguments");
             }
+        }
+
+        private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
+        {
+            if (e.ChatMessage.Bits > 0)
+            {
+                PriorityTracker.RegisterPriorityEvent(
+                    e.ChatMessage.DisplayName,
+                    new PriorityEvent
+                    {
+                        Type = PriorityEventType.Bits,
+                        Value = e.ChatMessage.Bits / 100.0f,
+                        Timestamp = DateTime.Now
+                    });
+            }
+        }
+
+        private void OnNewSubscriber(object sender, OnNewSubscriberArgs e)
+        {
+            PriorityTracker.RegisterPriorityEvent(
+                e.Subscriber.DisplayName,
+                new PriorityEvent
+                {
+                    Type = PriorityEventType.Subscription,
+                    Value = GetSubValue(e.Subscriber.SubscriptionPlan),
+                    Timestamp = DateTime.Now
+                });
+        }
+
+        private void OnReSubscriber(object sender, OnReSubscriberArgs e)
+        {
+            PriorityTracker.RegisterPriorityEvent(
+                e.ReSubscriber.DisplayName,
+                new PriorityEvent
+                {
+                    Type = PriorityEventType.Subscription,
+                    Value = GetSubValue(e.ReSubscriber.SubscriptionPlan),
+                    Timestamp = DateTime.Now
+                });
+        }
+
+        private void OnGiftedSubscription(object sender, OnGiftedSubscriptionArgs e)
+        {
+            PriorityTracker.RegisterPriorityEvent(
+                e.GiftedSubscription.DisplayName,
+                new PriorityEvent
+                {
+                    Type = PriorityEventType.GiftSubscription,
+                    Value = GetSubValue(e.GiftedSubscription.MsgParamSubPlan),
+                    Timestamp = DateTime.Now
+                });
         }
 
         private async void OnChatCommandReceived(object sender, OnChatCommandReceivedArgs chatCommand)
@@ -183,6 +242,25 @@ namespace SongRequestManager
             catch (Exception e)
             {
                 Plugin.Log($"Exception was caught when trying to send bot message. {e.ToString()}");
+            }
+        }
+
+        private static float GetSubValue(SubscriptionPlan plan)
+        {
+            switch (plan)
+            {
+                case SubscriptionPlan.Tier1:
+                case SubscriptionPlan.Prime:
+                    return 4.99f;
+
+                case SubscriptionPlan.Tier2:
+                    return 9.99f;
+
+                case SubscriptionPlan.Tier3:
+                    return 24.99f;
+
+                default:
+                    return 0;
             }
         }
     }

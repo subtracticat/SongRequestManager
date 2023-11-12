@@ -87,6 +87,35 @@ namespace SongRequestManager.Queue
             };
         }
 
+        public QueuePosition AddPrio(SongRequest request)
+        {
+            int index = -1;
+
+            this.Update(data =>
+            {
+                for (int i = 0; i < data.Requests.Count; i++)
+                {
+                    if (data.Requests[i].PriorityValue < request.PriorityValue)
+                    {
+                        data.Requests.Insert(i, request);
+                        index = i;
+                        return;
+                    }
+                }
+
+                // If we made it here without hitting the early return, then even though the request
+                // is now a prio, it didn't beat out any of the other requests, so it gets added back to the end.
+                index = data.Requests.Count;
+                data.Requests.Add(request);
+            });
+
+            return new QueuePosition
+            {
+                Position = index + 1,
+                DurationAheadSeconds = (int)this.Data.Requests.GetRange(0, index).Sum(r => r.Song.Metadata.Duration)
+            };
+        }
+
         public void Add(IEnumerable<SongRequest> requests)
         {
             this.Update(config => config.Requests.AddRange(requests));

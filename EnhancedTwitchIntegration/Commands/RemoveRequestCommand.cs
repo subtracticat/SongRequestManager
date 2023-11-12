@@ -23,6 +23,16 @@ namespace SongRequestManager.Commands
                 if (request != null)
                 {
                     RequestQueue.Current.Remove(request.Song.ID, RequestStatus.Deleted);
+                    if (request.PriorityValue > 0)
+                    {
+                        // Refund any prio points
+                        PriorityTracker.RegisterPriorityEvent(request.RequestedBy, new PriorityEvent
+                        {
+                            Type = PriorityEventType.Unknown,
+                            Value = request.PriorityValue,
+                            Timestamp = DateTime.Now
+                        });
+                    }
                     return $"Request {request.Song.Name} removed";
                 }
                 else
@@ -47,6 +57,16 @@ namespace SongRequestManager.Commands
                 if (request.RequestedBy.Equals(message.DisplayName, StringComparison.CurrentCultureIgnoreCase) || message.IsModerator || message.IsBroadcaster)
                 {
                     RequestQueue.Current.Remove(id, RequestStatus.Deleted);
+                    if (request.PriorityValue > 0)
+                    {
+                        // Refund any prio points
+                        PriorityTracker.RegisterPriorityEvent(request.RequestedBy, new PriorityEvent
+                        {
+                            Type = PriorityEventType.Unknown,
+                            Value = request.PriorityValue,
+                            Timestamp = DateTime.Now
+                        });
+                    }
                     return $"Request {request.Song.Name} removed";
                 }
                 else

@@ -30,26 +30,38 @@ namespace SongRequestManager.Commands
 
         public override async Task<string> ExecuteAsync(ChatCommand command)
         {
+            var args = command.ArgumentsAsList;
+            var message = command.ChatMessage;
+
             if (!RequestBotSettings.Current.Data.RequestQueueOpen)
             {
                 return "Sorry, the queue is closed :(";
             }
 
-            if (command.ArgumentsAsList.Count == 0 || command.ArgumentsAsList.Count > 1)
+            if (args.Count == 0 || args.Count > 1)
             {
                 return $"Please provide a BeatSaver song ID for your request (something like '!bsr 4e4e')";
             }
 
-            string id = command.ArgumentsAsList[0].ToLower();
+            string id = args[0].ToLower();
 
             GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, command.ChatMessage.DisplayName, Config);
 
             if (result.Song != null)
             {
                 SongRequest request = new SongRequest(result.Song, command.ChatMessage.DisplayName);
-                var queuePosition = RequestQueue.Current.Add(request);
 
-                return StringUtils.GetSongAddedMessage(result.Song, queuePosition);
+                if (PriorityTracker.TryRedeemPrio(message.DisplayName, out PriorityItem prioItem))
+                {
+                    request.PriorityValue = prioItem.GetTotalValue();
+                    QueuePosition position = RequestQueue.Current.AddPrio(request);
+                    return StringUtils.GetSongAddedMessage(result.Song, position, true);
+                }
+                else
+                {
+                    QueuePosition position = RequestQueue.Current.Add(request);
+                    return StringUtils.GetSongAddedMessage(result.Song, position);
+                }
             }
             else
             {

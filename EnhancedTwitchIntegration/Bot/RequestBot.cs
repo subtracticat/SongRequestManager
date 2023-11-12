@@ -192,25 +192,6 @@ namespace SongRequestManager
 
                 byte[] songZip = null;
 
-                if (!string.IsNullOrEmpty(RequestBotSettings.Current.Data.offlinepath))
-                {
-                    // build cache name to check
-                    var cacheName = $"{songId}_{songHash}.zip";
-                    Plugin.Log($"{RequestBotSettings.Current.Data.offlinepath} - {cacheName}");
-                    var cachePath = Path.Combine(RequestBotSettings.Current.Data.offlinepath, cacheName);
-
-                    // check if a local cache exists, if so, copy it
-                    if (File.Exists(cachePath))
-                    {
-                        Plugin.Log($"{songId} found in offline cache");
-                        using (var stream = File.Open(cachePath, FileMode.Open))
-                        {
-                            songZip = new byte[stream.Length];
-                            await stream.ReadAsync(songZip, 0, (int)stream.Length, System.Threading.CancellationToken.None);
-                        }
-                    }
-                }
-
                 if (songZip == null)
                 {
                     var downloadUrl = request.Song.Versions[0].DownloadURL;

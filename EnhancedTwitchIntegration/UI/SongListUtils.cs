@@ -125,26 +125,6 @@ namespace SongRequestManager
 
                     Plugin.Log("Selected song with index " + songIndex);
                     callback?.Invoke(true);
-
-                    if (RequestBotSettings.Current.Data.ClearNoFail)
-                    {
-                        try
-                        {
-                            // disable no fail gamepaly modifier
-                            var gameplayModifiersPanelController = Resources.FindObjectsOfTypeAll<GameplayModifiersPanelController>().First();
-                            var gamePlayModifierToggles = gameplayModifiersPanelController.GetField<GameplayModifierToggle[], GameplayModifiersPanelController>("_gameplayModifierToggles");
-                            foreach (var gamePlayModifierToggle in gamePlayModifierToggles)
-                            {
-                                if (gamePlayModifierToggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_NO_FAIL")
-                                {
-                                    gameplayModifiersPanelController.SetToggleValueWithGameplayModifierParams(gamePlayModifierToggle.gameplayModifier, false);
-                                }
-                            }
-                            gameplayModifiersPanelController.RefreshTotalMultiplierAndRankUI();
-                        }
-                        catch
-                        { }
-                    }
                     yield break;
                 }
             }

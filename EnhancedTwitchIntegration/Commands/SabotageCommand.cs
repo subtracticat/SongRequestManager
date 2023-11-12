@@ -37,7 +37,7 @@ namespace SongRequestManager.Commands
 
                     default:
                         return "🤔 Could I interest you in an 'on' or an 'off' instead?";
-                }                
+                }
             }
 
             Plugin.Log("Sabotage toggle attempted, but StreamerKit not detected");

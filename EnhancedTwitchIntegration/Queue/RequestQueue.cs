@@ -20,7 +20,7 @@ namespace SongRequestManager.Queue
 
     public class RequestQueue : PersistedStateManager<QueueData>
     {
-        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMQueue.json");
+        protected override string FileName => "SRMQueue.json";
 
         private static RequestQueue instance;
         public static RequestQueue Current

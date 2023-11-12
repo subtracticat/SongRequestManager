@@ -11,8 +11,8 @@ namespace SongRequestManager.Config
 
     public class TwitchConnectionSettings : PersistedStateManager<TwitchConnectionSettingsData>
     {
-        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMTwitchSettings.json");
-        protected override string LegacyFilePath => Path.Combine(Plugin.DataPath, "SRMChatConfig.ini");
+        protected override string FileName => "SRMTwitchSettings.json";
+        protected override string LegacyFileName => "SRMChatConfig.ini";
 
         private static TwitchConnectionSettings _instance = null;
         public static TwitchConnectionSettings Current

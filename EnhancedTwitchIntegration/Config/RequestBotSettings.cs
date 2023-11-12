@@ -13,12 +13,14 @@ namespace SongRequestManager.Config
         public bool UpdateQueueStatusFiles = true; // Create and update queue list and open/close status files for OBS *IMPLEMENTED*, needs UI
         
         public float MinimumPriorityRequestValue = 4.99f;
+        public int PriorityExpirationDays = 2;
+        public bool EnableAutoPrio = true;
     }
 
     public class RequestBotSettings : PersistedStateManager<RequestBotSettingsData>
     {
-        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMBotSettings.json");
-        protected override string LegacyFilePath => Path.Combine(Plugin.DataPath, "RequestBotSettings.ini");
+        protected override string FileName => "SRMBotSettings.json";
+        protected override string LegacyFileName => "RequestBotSettings.ini";
 
         private static RequestBotSettings _instance = null;
         public static RequestBotSettings Current

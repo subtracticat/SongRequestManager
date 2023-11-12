@@ -15,10 +15,13 @@ namespace SongRequestManager.Config
         public T Data { get; private set; }
         public event Action<T> OnChanged;
 
-        protected abstract string FilePath { get; }
-        protected virtual string LegacyFilePath { get; } = string.Empty;
+        protected abstract string FileName { get; }
+        protected virtual string LegacyFileName { get; } = string.Empty;
 
         private readonly FileSystemWatcher configWatcher = new FileSystemWatcher();
+
+        private string FilePath => Path.Combine(Plugin.DataPath, this.FileName);
+        private string LegacyFilePath => string.IsNullOrEmpty(this.LegacyFileName) ? string.Empty : Path.Combine(Plugin.DataPath, this.LegacyFileName);
 
         protected PersistedStateManager()
         {
@@ -38,9 +41,9 @@ namespace SongRequestManager.Config
                 this.Save();
             }
 
-            this.configWatcher.Path = Path.GetDirectoryName(FilePath);
+            this.configWatcher.Path = Plugin.DataPath;
             this.configWatcher.NotifyFilter = NotifyFilters.LastWrite;
-            this.configWatcher.Filter = Path.GetFileName(FilePath);
+            this.configWatcher.Filter = this.FileName;
             this.configWatcher.EnableRaisingEvents = true;
 
             this.configWatcher.Changed += this.OnFileChanged;
@@ -59,12 +62,12 @@ namespace SongRequestManager.Config
 
         private void Save()
         {
-            File.WriteAllText(FilePath, JsonConvert.SerializeObject(this.Data, SerializerSettings));
+            File.WriteAllText(this.FilePath, JsonConvert.SerializeObject(this.Data, SerializerSettings));
         }
 
         private void LoadData()
         {
-            this.Data = JsonConvert.DeserializeObject<T>(File.ReadAllText(FilePath));
+            this.Data = JsonConvert.DeserializeObject<T>(File.ReadAllText(this.FilePath));
         }
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)

@@ -11,7 +11,7 @@ namespace SongRequestManager.Config
 
     public class SongModerationSettings : PersistedStateManager<SongModerationSettingsData>
     {
-        protected override string FilePath => Path.Combine(Plugin.DataPath, "SRMSongSettings.json");
+        protected override string FileName => "SRMSongSettings.json";
 
         private static SongModerationSettings _instance = null;
         public static SongModerationSettings Current

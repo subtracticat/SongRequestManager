@@ -22,10 +22,12 @@ namespace SongRequestManager.Commands
 
             string queueState = $"Queue is {(isOpen ? "open!" : "closed.")}";
 
+            string songCountStr = songCount == 1 ? $"There is one song" : $"There are {songCount} songs";
+
             // Include trailing space here instead of the host string to avoid ending up with a double space if this were to be empty.
             string duration = songCount > 0 ? $"({StringUtils.GetDurationString((int)durationSeconds)}) " : string.Empty;
 
-            return $"{queueState} There are {songCount} songs {duration}in the queue.";
+            return $"{queueState} {songCountStr} {duration}in the queue.";
         }
     }
 }

@@ -74,6 +74,11 @@ namespace SongRequestManager.Queue
 
         public QueuePosition Add(SongRequest request)
         {
+            if (request.PriorityValue > 0)
+            {
+                return this.AddPrio(request);
+            }
+
             int previousCount = this.Data.Requests.Count;
             double previousDuration = this.Data.Requests.Sum(r => r.Song.Metadata.Duration);
 
@@ -95,7 +100,7 @@ namespace SongRequestManager.Queue
             {
                 for (int i = 0; i < data.Requests.Count; i++)
                 {
-                    if (data.Requests[i].PriorityValue < request.PriorityValue)
+                    if (data.Requests[i].PriorityValue < request.PriorityValue && !data.Requests[i].IsModPromoted)
                     {
                         data.Requests.Insert(i, request);
                         index = i;

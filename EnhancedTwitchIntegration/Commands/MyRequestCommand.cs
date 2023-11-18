@@ -18,7 +18,7 @@ namespace SongRequestManager.Commands
 
             if (request == null)
             {
-                return $"Couldn't find a request for user @{username} 🤔";
+                return $"Couldn't find a request for @{username} 🤔";
             }
 
             var position = RequestQueue.Current.GetPositionOf(request);

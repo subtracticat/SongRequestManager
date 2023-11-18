@@ -11,6 +11,7 @@ namespace SongRequestManager.Queue
         public DateTime PlayedTimestamp { get; set; }
         public float PriorityValue { get; set; }
         public Song Song { get; set; }
+        public bool IsModPromoted { get; set; }
 
         public SongRequest() { }
         public SongRequest(Song song, string requestedBy)

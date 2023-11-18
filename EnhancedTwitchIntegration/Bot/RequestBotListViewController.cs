@@ -482,6 +482,7 @@ namespace SongRequestManager
             UpdateSelectSongInfo();
 
             _songListTableView.ReloadData();
+            _songListTableView.RefreshCells(true, true);
 
             if (_selectedRow == -1)
             {
@@ -608,6 +609,11 @@ namespace SongRequestManager
             if (hasComment)
             {
                 tags.Add("MSG");
+            }
+
+            if (request.IsModPromoted)
+            {
+                tags.Add("MOD^");
             }
 
             tags.Add(request.Song.ID);

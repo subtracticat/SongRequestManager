@@ -17,14 +17,7 @@ namespace SongRequestManager.Commands
             EnforceMaxLength = true
         };
 
-        public override List<string> Aliases => new List<string> {
-            "add",
-            "bsr",
-            "request",
-            "sr",
-            "srm"
-        };
-
+        public override List<string> Aliases => new List<string> { "add", "bsr", "request", "sr", "srm" };
         public override string HelpText { get; } = "Adds a new song request to the queue - requests must be less than 6 minutes long, and please try to keep it clean! Search for songs on https://beatsaver.com/ then click the twitch icon to copy the !bsr command! (Please pay attention to the rating to find the best map for your request!)";
         public override string SampleUsage { get; } = "!bsr [id]";
 
@@ -40,7 +33,7 @@ namespace SongRequestManager.Commands
 
             if (args.Count == 0 || args.Count > 1)
             {
-                return $"Please provide a BeatSaver song ID for your request (something like '!bsr 4e4e')";
+                return $"Please provide a BeatSaver song ID for your request (something like '!bsr acbe')";
             }
 
             string id = args[0].ToLower();

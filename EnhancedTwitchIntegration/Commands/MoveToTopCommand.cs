@@ -35,6 +35,7 @@ namespace SongRequestManager.Commands
                 return Task.FromResult($"Couldn't find request {id} in the queue.");
             }
 
+            request.IsModPromoted = true;
             var result = RequestQueue.Current.InsertAt(0, request);
             return Task.FromResult($"{request.Song.Name} requested by {request.RequestedBy} moved to position #{result.Position}");
         }

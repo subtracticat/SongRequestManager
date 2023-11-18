@@ -36,7 +36,11 @@ namespace SongRequestManager.Commands
 
             if (result.Song != null)
             {
-                SongRequest request = new SongRequest(result.Song, username);
+                SongRequest request = new SongRequest(result.Song, username)
+                {
+                    IsModPromoted = true
+                };
+
                 var queuePosition = RequestQueue.Current.InsertAt(0, request);
 
                 return StringUtils.GetSongAddedMessage(result.Song, queuePosition);

@@ -1,0 +1,76 @@
+{
+    "id": "acde",
+    "name": "Lone Digger",
+    "description": "this took so long. \nfun vibro map :)\nbpm is just a bit off but its not very noticeable anymore",
+    "uploader": {
+        "id": 4287103,
+        "name": "mcnuggies",
+        "hash": "5ecd290f7abb000006dc9b55",
+        "avatar": "https://cdn.beatsaver.com/avatar/1896043cf35bb74f9ebc859cf4127b099f96cca6.png",
+        "type": "DISCORD",
+        "admin": false,
+        "curator": false,
+        "playlistUrl": "https://api.beatsaver.com/users/id/4287103/playlist"
+    },
+    "metadata": {
+        "bpm": 245,
+        "duration": 229,
+        "songName": "Lone Vibro",
+        "songSubName": "",
+        "songAuthorName": "Caravan Palace",
+        "levelAuthorName": "McNuggies"
+    },
+    "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 22,
+        "downvotes": 77,
+        "score": 0.2456
+    },
+    "uploaded": "2020-05-31T22:13:19.412Z",
+    "automapper": false,
+    "ranked": false,
+    "qualified": false,
+    "versions": [
+        {
+            "hash": "885e81e391f18faa5f54e6149e9dcf821f1209e4",
+            "key": "acde",
+            "state": "Published",
+            "createdAt": "2020-05-31T22:13:19.412Z",
+            "sageScore": 5,
+            "diffs": [
+                {
+                    "njs": 20,
+                    "offset": 0.1,
+                    "notes": 4871,
+                    "bombs": 52,
+                    "obstacles": 2,
+                    "nps": 22.513,
+                    "length": 883.475,
+                    "characteristic": "Standard",
+                    "difficulty": "ExpertPlus",
+                    "events": 0,
+                    "chroma": false,
+                    "me": false,
+                    "ne": false,
+                    "cinema": false,
+                    "seconds": 216.361,
+                    "paritySummary": {
+                        "errors": 24,
+                        "warns": 0,
+                        "resets": 17
+                    },
+                    "maxScore": 4474075,
+                    "label": "fun"
+                }
+            ],
+            "downloadURL": "https://r2cdn.beatsaver.com/885e81e391f18faa5f54e6149e9dcf821f1209e4.zip",
+            "coverURL": "https://na.cdn.beatsaver.com/885e81e391f18faa5f54e6149e9dcf821f1209e4.jpg",
+            "previewURL": "https://na.cdn.beatsaver.com/885e81e391f18faa5f54e6149e9dcf821f1209e4.mp3"
+        }
+    ],
+    "createdAt": "2020-05-31T22:13:19.412Z",
+    "updatedAt": "2020-05-31T22:13:19.412Z",
+    "lastPublishedAt": "2020-05-31T22:13:19.412Z",
+    "bookmarked": false
+}

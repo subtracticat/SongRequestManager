@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TwitchLib.Client.Models;
+using SongRequestManager.Chat;
 
 namespace SongRequestManager.Commands
 {
@@ -20,12 +20,12 @@ namespace SongRequestManager.Commands
 
             if (IsStreamerkitInstalled == true)
             {
-                if (command.ArgumentsAsList.Count != 1)
+                if (command.Arguments.Count != 1)
                 {
                     return "Expected 1 argument: '!sabotage [on/off]'";
                 }
 
-                switch (command.ArgumentsAsList[0].ToLower())
+                switch (command.Arguments[0].ToLower())
                 {
                     case "on":
                         this.SetSabotage(true);

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -12,11 +12,11 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
+            var args = command.Arguments;
 
             if (args.Count <= 1)
             {
-                return $"What would you like to say? '!{command.CommandText} [id] [message]";
+                return $"What would you like to say? '!{command.Verb} [id] [message]";
             }
 
             string id = args[0];

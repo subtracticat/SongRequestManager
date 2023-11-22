@@ -1,0 +1,76 @@
+{
+    "id": "acbe",
+    "name": "Built By Titan - The Darkness (ft. Svrcina)",
+    "description": "Duration: 4:10\nBPM: 126\n\nNJS: 19\nOffset: 0.3\nHalf Jump Duration: 1.3\nJump Distance: 23.524\n\nTotal NPS: 3.76\nMapped NPS: 4.34\nPeak NPS:\n16 beats: 12.73\n8 beats: 17.06\n4 beats: 17.33\n\nNotes: 941\nBombs: 50\nWalls: 261\nLighting: 4792\n\nRed/Blue Ratio: 0.92\nTop Notes: 21%\nMiddle Notes: 28%\nBottom Notes: 51%",
+    "uploader": {
+        "id": 4285383,
+        "name": "ryhme",
+        "hash": "5cff0b7498cc5a672c8503ef",
+        "avatar": "https://cdn.beatsaver.com/avatar/4e1d407577ba0208af115d17b8bb42b97218e227.png",
+        "type": "DISCORD",
+        "admin": false,
+        "curator": false,
+        "verifiedMapper": true,
+        "playlistUrl": "https://api.beatsaver.com/users/id/4285383/playlist"
+    },
+    "metadata": {
+        "bpm": 126,
+        "duration": 250,
+        "songName": "The Darkness",
+        "songSubName": "(ft. Svrcina)",
+        "songAuthorName": "Built By Titan",
+        "levelAuthorName": "Rune"
+    },
+    "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 58,
+        "downvotes": 2,
+        "score": 0.9132
+    },
+    "uploaded": "2020-05-31T16:14:01.854Z",
+    "automapper": false,
+    "ranked": false,
+    "qualified": false,
+    "versions": [
+        {
+            "hash": "474e7a87148270413532959ae5f1931b40fac6c5",
+            "key": "acbe",
+            "state": "Published",
+            "createdAt": "2020-05-31T16:14:01.854Z",
+            "sageScore": 4,
+            "diffs": [
+                {
+                    "njs": 19,
+                    "offset": 0.3,
+                    "notes": 941,
+                    "bombs": 50,
+                    "obstacles": 261,
+                    "nps": 4.336,
+                    "length": 455.75,
+                    "characteristic": "Standard",
+                    "difficulty": "Expert",
+                    "events": 4792,
+                    "chroma": false,
+                    "me": false,
+                    "ne": false,
+                    "cinema": false,
+                    "seconds": 217.024,
+                    "paritySummary": {
+                        "errors": 0,
+                        "warns": 0,
+                        "resets": 6
+                    },
+                    "maxScore": 858475
+                }
+            ],
+            "downloadURL": "https://r2cdn.beatsaver.com/474e7a87148270413532959ae5f1931b40fac6c5.zip",
+            "coverURL": "https://na.cdn.beatsaver.com/474e7a87148270413532959ae5f1931b40fac6c5.jpg",
+            "previewURL": "https://na.cdn.beatsaver.com/474e7a87148270413532959ae5f1931b40fac6c5.mp3"
+        }
+    ],
+    "createdAt": "2020-05-31T16:14:01.854Z",
+    "updatedAt": "2020-05-31T16:14:01.854Z",
+    "lastPublishedAt": "2020-05-31T16:14:01.854Z",
+    "bookmarked": false
+}

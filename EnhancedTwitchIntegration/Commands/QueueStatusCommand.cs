@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {

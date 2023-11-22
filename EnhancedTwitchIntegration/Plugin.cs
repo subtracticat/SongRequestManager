@@ -6,7 +6,9 @@ using IPA;
 using IPA.Utilities;
 using SongBrowser;
 using SongBrowser.UI;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
+using SongRequestManager.Queue;
 using SongRequestManager.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,8 +29,6 @@ namespace SongRequestManager
         public bool IsApplicationExiting = false;
         public static Plugin Instance { get; private set; }
 
-        private RequestBotSettingsData RequestBotConfig;
-
         internal static GameMode gameMode;
 
         //DataPath is typically "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\UserData\SRM"
@@ -47,7 +47,16 @@ namespace SongRequestManager
                         [CallerMemberName] string member = "",
                         [CallerLineNumber] int line = 0)
         {
-            Logger.Info($"{Path.GetFileName(file)}->{member}({line}): {text}");
+            var message = $"{Path.GetFileName(file)}->{member}({line}): {text}";
+
+            if (Logger != null)
+            {
+                Logger.Info(message);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine(message);
+            }
         }
 
         [OnStart]
@@ -73,10 +82,13 @@ namespace SongRequestManager
                 }
             }
 
-            // initialize config
-            RequestBotConfig = new RequestBotSettingsData();
-
             Dispatcher.Initialize();
+
+            RequestBotSettings.Current.Initialize();
+            SongModerationSettings.Current.Initialize();
+            TwitchConnectionSettings.Current.Initialize();
+            PriorityTracker.Current.Initialize();
+            RequestQueue.Current.Initialize();
 
             // create our internal webclient
             WebClient = new WebClient();
@@ -87,8 +99,17 @@ namespace SongRequestManager
             BS_Utils.Utilities.BSEvents.OnLoad();
             BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += OnLateMenuSceneLoadedFresh;
 
+            ChatHandler.Initialize();
+            TwitchConnectionSettings.Current.OnChanged += OnTwitchConnectionSettingsChanged;
+
             // init sprites
             Base64Sprites.Init();
+        }
+
+        private void OnTwitchConnectionSettingsChanged(TwitchConnectionSettingsData obj)
+        {
+            // Reinitialize the chat handler on twitch settings change
+            ChatHandler.Initialize();
         }
 
         private void OnLateMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransitionSetupData)

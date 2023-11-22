@@ -5,6 +5,7 @@ using System.Linq;
 using BeatSaberMarkupLanguage;
 using HMUI;
 using IPA.Utilities;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
 using SongRequestManager.UI;

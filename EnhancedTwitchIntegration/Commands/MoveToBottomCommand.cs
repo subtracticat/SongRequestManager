@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -13,11 +13,11 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
+            var args = command.Arguments;
 
             if (args.Count != 1)
             {
-                return $"Expected a song ID: '!{command.CommandText} [id]'";
+                return $"Expected a song ID: '!{command.Verb} [id]'";
             }
 
             string id = args[0];

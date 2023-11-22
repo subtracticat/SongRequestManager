@@ -195,7 +195,8 @@
     <Compile Include="Bot\RequestBot.cs" />
     <Compile Include="Bot\RequestBotListViewController.cs" />
     <Compile Include="Bot\RequestFlowCoordinator.cs" />
-    <Compile Include="ChatHandler\ChatHandler.cs" />
+    <Compile Include="Chat\ChatHandler.cs" />
+    <Compile Include="Chat\ChatProvider.cs" />
     <Compile Include="Commands\AddPrioCommand.cs" />
     <Compile Include="Commands\HelpCommand.cs" />
     <Compile Include="Commands\QueueCommand.cs" />
@@ -221,8 +222,9 @@
     <Compile Include="Commands\SongRequestCommand.cs" />
     <Compile Include="Commands\ToggleAutoPrioCommand.cs" />
     <Compile Include="Commands\WhoCommand.cs" />
+    <Compile Include="Config\StateManagerBase.cs" />
     <Compile Include="Config\TwitchConnectionSettings.cs" />
-    <Compile Include="Config\PersistedStateManager.cs" />
+    <Compile Include="Config\PersistedStateProvider.cs" />
     <Compile Include="Config\RequestBotSettings.cs" />
     <Compile Include="Config\SongModerationSettings.cs" />
     <Compile Include="Dispatcher.cs" />

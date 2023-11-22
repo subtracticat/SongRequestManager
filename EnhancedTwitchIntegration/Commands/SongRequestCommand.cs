@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -23,8 +23,7 @@ namespace SongRequestManager.Commands
 
         public override async Task<string> ExecuteAsync(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
-            var message = command.ChatMessage;
+            var args = command.Arguments;
 
             if (!RequestBotSettings.Current.Data.RequestQueueOpen)
             {
@@ -38,13 +37,13 @@ namespace SongRequestManager.Commands
 
             string id = args[0].ToLower();
 
-            GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, command.ChatMessage.DisplayName, Config);
+            GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, command.Username, Config);
 
             if (result.Song != null)
             {
-                SongRequest request = new SongRequest(result.Song, command.ChatMessage.DisplayName);
+                SongRequest request = new SongRequest(result.Song, command.Username);
 
-                if (PriorityTracker.TryRedeemPrio(message.DisplayName, out PriorityItem prioItem))
+                if (PriorityTracker.TryRedeemPrio(command.Username, out PriorityItem prioItem))
                 {
                     request.PriorityValue = prioItem.GetTotalValue();
                     QueuePosition position = RequestQueue.Current.AddPrio(request);

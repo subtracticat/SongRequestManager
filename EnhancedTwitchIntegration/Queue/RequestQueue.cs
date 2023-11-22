@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using SongRequestManager.Config;
 
@@ -18,7 +17,7 @@ namespace SongRequestManager.Queue
         public List<SongRequest> History = new List<SongRequest>();
     }
 
-    public class RequestQueue : PersistedStateManager<QueueData>
+    public class RequestQueue : StateManagerBase<QueueData>
     {
         protected override string FileName => "SRMQueue.json";
 
@@ -40,7 +39,7 @@ namespace SongRequestManager.Queue
         {
             base.Update(updateFunc);
 
-            if (RequestBotListViewController.Instance.isActivated)
+            if (RequestBotListViewController.Instance != null && RequestBotListViewController.Instance.isActivated)
             {
                 RequestBotListViewController.Instance.UpdateRequestUI(true);
                 RequestBotListViewController.Instance.SetUIInteractivity();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
 using SongRequestManager.Service;

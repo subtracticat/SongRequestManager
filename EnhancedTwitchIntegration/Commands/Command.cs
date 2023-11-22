@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using TwitchLib.Client.Models;
+using SongRequestManager.Chat;
 
 namespace SongRequestManager.Commands
 {

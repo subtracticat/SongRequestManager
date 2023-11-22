@@ -9,7 +9,7 @@ namespace SongRequestManager.Config
         public List<string> Bans = new List<string>();
     }
 
-    public class SongModerationSettings : PersistedStateManager<SongModerationSettingsData>
+    public class SongModerationSettings : StateManagerBase<SongModerationSettingsData>
     {
         protected override string FileName => "SRMSongSettings.json";
 

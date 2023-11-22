@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -13,12 +13,14 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            if (command.ArgumentsAsList.Count != 1)
+            var args = command.Arguments;
+
+            if (args.Count != 1)
             {
                 return "Expected a song ID: '!block [id]'";
             }
 
-            string id = command.ArgumentsAsList[0];
+            string id = args[0];
 
             if (!RequestUtils.IsBeatSaverId(id))
             {
@@ -45,12 +47,14 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            if (command.ArgumentsAsList.Count != 1)
+            var args = command.Arguments;
+
+            if (args.Count != 1)
             {
                 return "Expected a song ID: '!unblock [id]'";
             }
 
-            string id = command.ArgumentsAsList[0];
+            string id = args[0];
 
             if (!RequestUtils.IsBeatSaverId(id))
             {

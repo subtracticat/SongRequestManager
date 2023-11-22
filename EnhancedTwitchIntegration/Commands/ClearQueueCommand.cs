@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {

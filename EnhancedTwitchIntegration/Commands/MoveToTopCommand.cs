@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -14,7 +14,7 @@ namespace SongRequestManager.Commands
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
+            var args = command.Arguments;
 
             if (args.Count != 1)
             {

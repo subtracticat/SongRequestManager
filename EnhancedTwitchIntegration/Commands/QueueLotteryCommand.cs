@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -15,7 +15,7 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
+            var args = command.Arguments;
 
             if (args.Count == 1 && int.TryParse(args[0], out int count))
             {

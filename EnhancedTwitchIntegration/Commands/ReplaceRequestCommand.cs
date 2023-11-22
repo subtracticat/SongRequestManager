@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -23,8 +23,7 @@ namespace SongRequestManager.Commands
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
-            var message = command.ChatMessage;
+            var args = command.Arguments;
 
             if (args.Count == 2)
             {
@@ -35,7 +34,7 @@ namespace SongRequestManager.Commands
 
                 if (currentRequest != null)
                 {
-                    return this.ProcessReplace(message, currentRequest, newId);
+                    return this.ProcessReplace(command, currentRequest, newId);
                 }
                 else
                 {
@@ -46,20 +45,20 @@ namespace SongRequestManager.Commands
             {
                 string newId = args[0];
 
-                var currentRequest = RequestQueue.Current.GetRequestByUsername(message.DisplayName);
+                var currentRequest = RequestQueue.Current.GetRequestByUsername(command.Username);
                 if (currentRequest != null)
                 {
-                    return this.ProcessReplace(message, currentRequest, newId);
+                    return this.ProcessReplace(command, currentRequest, newId);
                 }
                 else
                 {
-                    return Task.FromResult($"Couldn't find a request for @{message.DisplayName}");
+                    return Task.FromResult($"Couldn't find a request for @{command.Username}");
                 }
             }
 
-            if (message.IsModerator || message.IsBroadcaster)
+            if (command.IsModerator)
             {
-                return Task.FromResult($"Please provide the new ID that you want to replace your request with! '!replace [oldId?] [newId]'");
+                return Task.FromResult($"Please provide the new ID that you want to replace the request with! '!replace [oldId?] [newId]'");
             }
             else
             {
@@ -67,9 +66,9 @@ namespace SongRequestManager.Commands
             }
         }
 
-        private async Task<string> ProcessReplace(ChatMessage message, SongRequest currentRequest, string newId)
+        private async Task<string> ProcessReplace(ChatCommand command, SongRequest currentRequest, string newId)
         {
-            if (currentRequest.RequestedBy.Equals(message.DisplayName, StringComparison.CurrentCultureIgnoreCase) || message.IsModerator || message.IsBroadcaster)
+            if (currentRequest.RequestedBy.Equals(command.Username, StringComparison.CurrentCultureIgnoreCase) || command.IsModerator)
             {
                 GetSongResult result = await RequestUtils.GetRequestableSongAsync(newId, currentRequest.RequestedBy, Config);
                 if (result.Song != null)

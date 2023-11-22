@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -14,13 +13,15 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            if (command.ArgumentsAsList.Count != 2)
+            var args = command.Arguments;
+
+            if (args.Count != 2)
             {
                 return "Expected two song IDs: '!remap [fromId] [toId]'";
             }
 
-            string from = command.ArgumentsAsList[0];
-            string to = command.ArgumentsAsList[1];
+            string from = args[0];
+            string to = args[1];
 
             if (!RequestUtils.IsBeatSaverId(from) || !RequestUtils.IsBeatSaverId(to))
             {
@@ -41,12 +42,13 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            if (command.ArgumentsAsList.Count != 1)
+            var args = command.Arguments;
+            if (args.Count != 1)
             {
                 return "Expected a song ID: '!unmap [id]'";
             }
 
-            string id = command.ArgumentsAsList[0];
+            string id = args[0];
 
             if (!RequestUtils.IsBeatSaverId(id))
             {

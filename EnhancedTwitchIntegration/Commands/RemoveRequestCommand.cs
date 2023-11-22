@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -14,18 +14,18 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
-            var message = command.ChatMessage;
+            var args = command.Arguments;
 
             if (args.Count == 0)
             {
-                SongRequest request = RequestQueue.Current.GetRequestByUsername(message.DisplayName);
+                SongRequest request = RequestQueue.Current.GetRequestByUsername(command.Username);
                 if (request != null)
                 {
                     RequestQueue.Current.Remove(request.Song.ID, RequestStatus.Deleted);
                     if (request.PriorityValue > 0)
                     {
                         // Refund any prio points
+                        Plugin.Log($"Refunding ${request.PriorityValue} to {request.RequestedBy}");
                         PriorityTracker.RegisterPriorityEvent(request.RequestedBy, new PriorityEvent
                         {
                             Type = PriorityEventType.Unknown,
@@ -37,7 +37,7 @@ namespace SongRequestManager.Commands
                 }
                 else
                 {
-                    return $"No requests found for user {message.DisplayName}";
+                    return $"No requests found for user {command.Username}";
                 }
             }
             else if (args.Count == 1)
@@ -54,12 +54,13 @@ namespace SongRequestManager.Commands
                     return $"No request found for ID {id}";
                 }
 
-                if (request.RequestedBy.Equals(message.DisplayName, StringComparison.CurrentCultureIgnoreCase) || message.IsModerator || message.IsBroadcaster)
+                if (request.RequestedBy.Equals(command.Username, StringComparison.CurrentCultureIgnoreCase) || command.IsModerator)
                 {
                     RequestQueue.Current.Remove(id, RequestStatus.Deleted);
                     if (request.PriorityValue > 0)
                     {
                         // Refund any prio points
+                        Plugin.Log($"Refunding ${request.PriorityValue} to {request.RequestedBy}");
                         PriorityTracker.RegisterPriorityEvent(request.RequestedBy, new PriorityEvent
                         {
                             Type = PriorityEventType.Unknown,

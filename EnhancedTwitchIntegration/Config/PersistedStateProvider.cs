@@ -4,8 +4,14 @@ using Newtonsoft.Json;
 
 namespace SongRequestManager.Config
 {
+    public interface IStateProvider<T>
+    {
+        T Data { get; }
+        event Action<T> OnChanged;
+        void Update(Action<T> updateFunc);
+    }
 
-    public abstract class PersistedStateManager<T> where T : new()
+    public class PersistedStateProvider<T> : IStateProvider<T> where T : new()
     {
         public static JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
@@ -15,16 +21,19 @@ namespace SongRequestManager.Config
         public T Data { get; private set; }
         public event Action<T> OnChanged;
 
-        protected abstract string FileName { get; }
-        protected virtual string LegacyFileName { get; } = string.Empty;
+        private readonly string fileName;
+        private readonly string legacyFileName;
 
         private readonly FileSystemWatcher configWatcher = new FileSystemWatcher();
 
-        private string FilePath => Path.Combine(Plugin.DataPath, this.FileName);
-        private string LegacyFilePath => string.IsNullOrEmpty(this.LegacyFileName) ? string.Empty : Path.Combine(Plugin.DataPath, this.LegacyFileName);
+        private string FilePath => Path.Combine(Plugin.DataPath, this.fileName);
+        private string LegacyFilePath => string.IsNullOrEmpty(this.legacyFileName) ? string.Empty : Path.Combine(Plugin.DataPath, this.legacyFileName);
 
-        protected PersistedStateManager()
+        public PersistedStateProvider(string fileName, string legacyFileName)
         {
+            this.fileName = fileName;
+            this.legacyFileName = legacyFileName;
+
             if (File.Exists(FilePath))
             {
                 this.LoadData();
@@ -43,13 +52,13 @@ namespace SongRequestManager.Config
 
             this.configWatcher.Path = Plugin.DataPath;
             this.configWatcher.NotifyFilter = NotifyFilters.LastWrite;
-            this.configWatcher.Filter = this.FileName;
+            this.configWatcher.Filter = this.fileName;
             this.configWatcher.EnableRaisingEvents = true;
 
             this.configWatcher.Changed += this.OnFileChanged;
         }
 
-        ~PersistedStateManager()
+        ~PersistedStateProvider()
         {
             this.configWatcher.Changed -= this.OnFileChanged;
         }

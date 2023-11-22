@@ -9,7 +9,7 @@ namespace SongRequestManager.Config
         public string ChatChannel = "";
     }
 
-    public class TwitchConnectionSettings : PersistedStateManager<TwitchConnectionSettingsData>
+    public class TwitchConnectionSettings : StateManagerBase<TwitchConnectionSettingsData>
     {
         protected override string FileName => "SRMTwitchSettings.json";
         protected override string LegacyFileName => "SRMChatConfig.ini";

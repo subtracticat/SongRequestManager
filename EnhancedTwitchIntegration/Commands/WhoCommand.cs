@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -13,12 +13,14 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            if (command.ArgumentsAsList.Count != 1)
+            var args = command.Arguments;
+
+            if (args.Count != 1)
             {
                 return "What would you like to know? '!who [id/username]`";
             }
 
-            string arg = command.ArgumentsAsList[0];
+            string arg = args[0];
 
             if (RequestUtils.IsBeatSaverId(arg))
             {

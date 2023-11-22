@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using SongRequestManager.Queue;
-using TwitchLib.Client.Models;
+using SongRequestManager.Chat;
 
 namespace SongRequestManager.Commands
 {
@@ -14,9 +14,7 @@ namespace SongRequestManager.Commands
 
         public override Task<string> ExecuteAsync(ChatCommand command)
         {
-            var message = command.ChatMessage;
-
-            if (message.IsModerator || message.IsBroadcaster)
+            if (command.IsModerator)
             {
                 var queue = RequestQueue.Current.Data.Requests;
                 if (queue.Count == 0)
@@ -28,7 +26,7 @@ namespace SongRequestManager.Commands
                 return Task.FromResult(string.Join(", ", entries));
             }
 
-            var currentRequest = RequestQueue.Current.GetRequestByUsername(message.DisplayName);
+            var currentRequest = RequestQueue.Current.GetRequestByUsername(command.Username);
 
             if (currentRequest != null)
             {

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TwitchLib.Client.Models;
+using SongRequestManager.Chat;
 
 namespace SongRequestManager.Commands
 {
@@ -11,8 +11,7 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            var message = command.ChatMessage;
-            var args = command.ArgumentsAsList;
+            var args = command.Arguments;
             if (args.Count != 1)
             {
                 return $"What can I help you with? '{this.SampleUsage}'";
@@ -20,7 +19,7 @@ namespace SongRequestManager.Commands
 
             if (ChatHandler.TryGetCommand(args[0], out Command targetCommand))
             {
-                if (!targetCommand.IsModOnly || message.IsModerator || message.IsBroadcaster)
+                if (!targetCommand.IsModOnly || command.IsModerator)
                 {
                     var modPrefix = targetCommand.IsModOnly ? "[Mod Only] " : string.Empty;
                     return $"{modPrefix}{targetCommand.HelpText} - Usage: \"{targetCommand.SampleUsage}\"";

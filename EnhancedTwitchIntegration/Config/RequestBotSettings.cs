@@ -17,7 +17,7 @@ namespace SongRequestManager.Config
         public bool EnableAutoPrio = true;
     }
 
-    public class RequestBotSettings : PersistedStateManager<RequestBotSettingsData>
+    public class RequestBotSettings : StateManagerBase<RequestBotSettingsData>
     {
         protected override string FileName => "SRMBotSettings.json";
         protected override string LegacyFileName => "RequestBotSettings.ini";

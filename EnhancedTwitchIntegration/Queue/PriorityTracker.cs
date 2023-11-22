@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SongRequestManager.Chat;
 using SongRequestManager.Config;
 
 namespace SongRequestManager.Queue
@@ -35,7 +36,7 @@ namespace SongRequestManager.Queue
         public Dictionary<string, PriorityItem> PriorityItems = new Dictionary<string, PriorityItem>();
     }
 
-    public class PriorityTracker : PersistedStateManager<PriorityTrackerData>
+    public class PriorityTracker : StateManagerBase<PriorityTrackerData>
     {
         protected override string FileName { get; } = "SRMPrioCache.json";
 

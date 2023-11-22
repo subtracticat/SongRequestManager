@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -13,7 +13,7 @@ namespace SongRequestManager.Commands
 
         protected override string Execute(ChatCommand command)
         {
-            var username = command.ChatMessage.DisplayName;
+            var username = command.Username;
             var request = RequestQueue.Current.GetRequestByUsername(username);
 
             if (request == null)

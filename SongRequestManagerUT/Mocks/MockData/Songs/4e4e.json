@@ -1,0 +1,89 @@
+{
+    "id": "4e4e",
+    "name": "Swingrowers - No Strings Attached",
+    "description": "An update to my first map!\r\n\r\nFixed some vision issues and updated the verses and bridge.",
+    "uploader": {
+        "id": 35973,
+        "name": "millennium",
+        "hash": "5cff0b7698cc5a672c85489a",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7698cc5a672c85489a?d=retro",
+        "type": "SIMPLE",
+        "admin": false,
+        "curator": false,
+        "playlistUrl": "https://api.beatsaver.com/users/id/35973/playlist"
+    },
+    "metadata": {
+        "bpm": 128,
+        "duration": 247,
+        "songName": "No Strings Attached",
+        "songSubName": "Swingrowers",
+        "songAuthorName": "Millennium",
+        "levelAuthorName": "Millennium"
+    },
+    "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 440,
+        "downvotes": 5,
+        "score": 0.9727,
+        "reviews": 2
+    },
+    "uploaded": "2019-05-21T11:13:19Z",
+    "automapper": false,
+    "ranked": false,
+    "qualified": false,
+    "versions": [
+        {
+            "hash": "905053756c3e22f660a29f27adf9a61bbd56b07d",
+            "key": "4e4e",
+            "state": "Published",
+            "createdAt": "2019-05-21T11:13:19Z",
+            "sageScore": 5,
+            "diffs": [
+                {
+                    "njs": 15,
+                    "offset": 0,
+                    "notes": 947,
+                    "bombs": 32,
+                    "obstacles": 28,
+                    "nps": 4.326,
+                    "length": 467,
+                    "characteristic": "Standard",
+                    "difficulty": "Expert",
+                    "events": 9563,
+                    "chroma": false,
+                    "me": false,
+                    "ne": false,
+                    "cinema": false,
+                    "seconds": 218.906,
+                    "paritySummary": {
+                        "errors": 62,
+                        "warns": 44,
+                        "resets": 2
+                    },
+                    "maxScore": 863995,
+                    "label": "Dance Dance Dance!"
+                }
+            ],
+            "downloadURL": "https://r2cdn.beatsaver.com/905053756c3e22f660a29f27adf9a61bbd56b07d.zip",
+            "coverURL": "https://na.cdn.beatsaver.com/905053756c3e22f660a29f27adf9a61bbd56b07d.jpg",
+            "previewURL": "https://na.cdn.beatsaver.com/905053756c3e22f660a29f27adf9a61bbd56b07d.mp3"
+        }
+    ],
+    "curator": {
+        "id": 4316945,
+        "name": "BeastSaber",
+        "avatar": "https://cdn.beatsaver.com/avatar/4316945.jpg",
+        "type": "SIMPLE",
+        "admin": false,
+        "curator": true,
+        "curatorTab": true,
+        "playlistUrl": "https://api.beatsaver.com/users/id/4316945/playlist"
+    },
+    "curatedAt": "2019-05-21T11:13:19Z",
+    "createdAt": "2019-05-21T11:13:19Z",
+    "updatedAt": "2019-05-21T11:13:19Z",
+    "lastPublishedAt": "2019-05-21T11:13:19Z",
+    "tags": ["electronic", "swing"],
+    "bookmarked": false
+}

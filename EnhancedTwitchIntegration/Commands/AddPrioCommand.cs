@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
-using TwitchLib.Client.Models;
+using SongRequestManager.Chat;
 
 namespace SongRequestManager.Commands
 {
@@ -19,7 +19,7 @@ namespace SongRequestManager.Commands
                 return $"Auto-prio system is currently disabled.";
             }
 
-            var args = command.ArgumentsAsList;
+            var args = command.Arguments;
 
             if (args.Count != 2)
             {
@@ -31,7 +31,7 @@ namespace SongRequestManager.Commands
 
             if (float.TryParse(value, out float parsedValue))
             {
-                ChatHandler.Send($"Registering ${parsedValue:0.00} credit for {username}", command.ChatMessage.Id);
+                ChatHandler.Send($"Registering ${parsedValue:0.00} credit for {username}", command.MessageId);
 
                 PriorityTracker.RegisterPriorityEvent(username, new PriorityEvent
                 {

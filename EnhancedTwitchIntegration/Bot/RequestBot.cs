@@ -14,6 +14,7 @@ using System.IO.Compression;
 using HMUI;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
+using SongRequestManager.Chat;
 
 namespace SongRequestManager
 {
@@ -94,8 +95,6 @@ namespace SongRequestManager
             }
 
             SongListUtils.Initialize();
-
-            ChatHandler.instance.Init();
 
             // WriteQueueSummaryToFile();
             // WriteQueueStatusToFile(QueueMessage(QueueConfigManager.Instance.Config.RequestQueueOpen));

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 using SongRequestManager.Utils;
-using TwitchLib.Client.Models;
 
 namespace SongRequestManager.Commands
 {
@@ -22,7 +22,7 @@ namespace SongRequestManager.Commands
 
         public override async Task<string> ExecuteAsync(ChatCommand command)
         {
-            var args = command.ArgumentsAsList;
+            var args = command.Arguments;
 
             if (args.Count == 0 || args.Count > 2)
             {
@@ -30,7 +30,7 @@ namespace SongRequestManager.Commands
             }
 
             string id = args[0].ToLower();
-            string username = args.Count == 1 ? command.ChatMessage.DisplayName : args[1];
+            string username = args.Count == 1 ? command.Username : args[1];
 
             GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, username, Config);
 

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongRequestManager", "Enhan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TwitchLib.Unity", "TwitchLib.Unity\TwitchLib.Unity\TwitchLib.Unity.csproj", "{D0BD2C3F-21F5-42B4-9F5E-ADEA0ED4B4C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongRequestManagerUT", "SongRequestManagerUT\SongRequestManagerUT.csproj", "{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{D0BD2C3F-21F5-42B4-9F5E-ADEA0ED4B4C6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D0BD2C3F-21F5-42B4-9F5E-ADEA0ED4B4C6}.Release|x64.ActiveCfg = Release|Any CPU
 		{D0BD2C3F-21F5-42B4-9F5E-ADEA0ED4B4C6}.Release|x64.Build.0 = Release|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Debug|x64.Build.0 = Debug|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Release|x64.ActiveCfg = Release|Any CPU
+		{B27AF095-AB4D-4C14-8D60-88C3A53A0E5A}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

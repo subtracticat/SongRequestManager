@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongRequestManager", "EnhancedTwitchIntegration\SongRequestManager.csproj", "{CDBD5008-0F51-408E-B89C-6142CB5C70E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongRequestManager", "SongRequestManager\SongRequestManager.csproj", "{CDBD5008-0F51-408E-B89C-6142CB5C70E5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TwitchLib.Unity", "TwitchLib.Unity\TwitchLib.Unity\TwitchLib.Unity.csproj", "{D0BD2C3F-21F5-42B4-9F5E-ADEA0ED4B4C6}"
 EndProject

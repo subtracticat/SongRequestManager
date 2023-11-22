@@ -6,7 +6,7 @@ using SongRequestManager.Queue;
 using TwitchLib.Client.Enums;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
-using TwitchLib.Unity;
+using TwitchLibUnityClient = TwitchLib.Unity.Client;
 
 namespace SongRequestManager.Chat
 {

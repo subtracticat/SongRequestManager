@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
 using SongRequestManager.Chat;
+using SongRequestManager.Utils;
 
 namespace SongRequestManager.Commands
 {
@@ -26,7 +27,7 @@ namespace SongRequestManager.Commands
                 return $"Who? How much? '{this.SampleUsage}";
             }
 
-            string username = args[0];
+            string username = RequestUtils.GetUsernameParameter(args[0]);
             string value = args[1];
 
             if (float.TryParse(value, out float parsedValue))

@@ -30,7 +30,7 @@ namespace SongRequestManager.Commands
             }
 
             string id = args[0].ToLower();
-            string username = args.Count == 1 ? command.Username : args[1];
+            string username = args.Count >= 1 ? command.Username : RequestUtils.GetUsernameParameter(args[1]);
 
             GetSongResult result = await RequestUtils.GetRequestableSongAsync(id, username, Config);
 

@@ -41,6 +41,11 @@ namespace SongRequestManager.Utils
             return HexRegex.Match(arg).Success;
         }
 
+        public static string GetUsernameParameter(string input)
+        {
+            return input.Trim().Replace("@", string.Empty);
+        }
+
         public static async Task<GetSongResult> GetRequestableSongAsync(string id, string requestedBy, SongRequestRuleConfig config)
         {
             if (!RequestUtils.IsBeatSaverId(id))

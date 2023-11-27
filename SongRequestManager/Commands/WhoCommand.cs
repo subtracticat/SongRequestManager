@@ -36,7 +36,8 @@ namespace SongRequestManager.Commands
             }
             else
             {
-                var request = RequestQueue.Current.GetRequestByUsername(arg.Replace("@", string.Empty));
+                var username = RequestUtils.GetUsernameParameter(arg);
+                var request = RequestQueue.Current.GetRequestByUsername(username);
 
                 if (request != null)
                 {

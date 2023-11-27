@@ -30,7 +30,7 @@ namespace SongRequestManager.Commands
             }
 
             string id = args[0].ToLower();
-            string username = args.Count > 1 ? args[1] : command.Username;
+            string username = args.Count > 1 ? RequestUtils.GetUsernameParameter(args[1]) : command.Username;
             float prioValue = 0f;
 
             if (args.Count > 2)

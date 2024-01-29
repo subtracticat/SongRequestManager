@@ -22,7 +22,7 @@ namespace SongRequestManager.Commands
             }
 
             var position = RequestQueue.Current.GetPositionOf(request);
-            string messageRoot = $"Request {request.Song.Name} is in position #{position.Position}";
+            string messageRoot = $"Request {request.Song.Name} ({request.Song.ID}) is in position #{position.Position}";
 
             if (position.Position == 1)
             {

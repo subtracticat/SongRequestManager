@@ -68,7 +68,7 @@ namespace SongRequestManager.Commands
                             Timestamp = DateTime.Now
                         });
                     }
-                    return $"Request {request.Song.Name} removed";
+                    return $"Request {request.Song.Name} ({request.Song.ID}) removed";
                 }
                 else
                 {

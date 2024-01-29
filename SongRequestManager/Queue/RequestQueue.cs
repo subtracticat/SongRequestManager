@@ -218,7 +218,7 @@ namespace SongRequestManager.Queue
             return this.Data.History.Any(request => 
                 request.Status == RequestStatus.Played && 
                 request.Song.ID.Equals(id, StringComparison.OrdinalIgnoreCase) && 
-                request.PlayedTimestamp.AddHours(lastPlayedTimeoutHours) < DateTime.Now
+                request.PlayedTimestamp.AddHours(lastPlayedTimeoutHours) > DateTime.Now
             );
         }
     }

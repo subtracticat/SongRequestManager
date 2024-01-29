@@ -87,7 +87,7 @@ namespace SongRequestManager.Utils
             {
                 if (RequestQueue.Current.HasPlayed(id))
                 {
-                    return new GetSongResult($"Sorry, we've already already been played that song! :(");
+                    return new GetSongResult($"Sorry, we've already played that song! :(");
                 }
             }
 

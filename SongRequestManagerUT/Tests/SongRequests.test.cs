@@ -101,5 +101,23 @@ namespace SongRequestManagerUT.Tests
             Assert.AreEqual(1, MockChat.Messages.Count);
             Assert.IsTrue(MockChat.Messages.Last().Message.Contains("double check the ID and try again"));
         }
+
+        [TestMethod]
+        public void TestExtraWhitespace()
+        {
+            MockChat.SendCommand(CommandCreator.Create("!bsr  4e4e ").Build());
+
+            Assert.AreEqual(1, MockRequestQueue.Data.Requests.Count);
+            Assert.AreEqual("4e4e", MockRequestQueue.Data.Requests[0].Song.ID);
+
+            Assert.AreEqual(1, MockChat.Messages.Count);
+            Assert.IsTrue(MockChat.Messages.Last().Message.Contains("No Strings Attached"));
+
+            MockChat.SendCommand(CommandCreator.Create("!replace  acbe ").Build());
+            Assert.AreEqual("acbe", MockRequestQueue.Data.Requests[0].Song.ID);
+
+            Assert.AreEqual(2, MockChat.Messages.Count);
+            Assert.IsTrue(MockChat.Messages.Last().Message.Contains("The Darkness"));
+        }
     }
 }

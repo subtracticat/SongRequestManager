@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using SongRequestManager.Chat;
 using SongRequestManager.Queue;
 
@@ -20,11 +21,13 @@ namespace SongRequestManagerUT.Mocks
 
         public void SendMessage(string message, string replyToId = null)
         {
+            Debug.WriteLine($"Sending chat message: {message}");
             this.Messages.Add((message, replyToId));
         }
 
         public void SendCommand(ChatCommand command)
         {
+            Debug.WriteLine($"Received command: {command.FullText}");
             this.OnChatCommand?.Invoke(command);
         }
 

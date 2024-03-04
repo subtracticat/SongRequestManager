@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SongRequestManager.Commands;
 using SongRequestManager.Queue;
 
@@ -77,6 +78,7 @@ namespace SongRequestManager.Chat
                 {
                     if (chatCommand.IsModerator || !command.IsModOnly)
                     {
+                        chatCommand.Arguments = chatCommand.Arguments.Where(arg => !string.IsNullOrEmpty(arg)).ToList();
                         string response = await command.ExecuteAsync(chatCommand);
                         if (!string.IsNullOrEmpty(response))
                         {

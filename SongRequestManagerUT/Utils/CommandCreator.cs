@@ -26,7 +26,7 @@ namespace SongRequestManagerUT.Utils
                 MessageId = $"{CommandId++}",
                 Username = username,
                 Verb = match.Groups["verb"].Value,
-                Arguments = match.Groups["args"].Value.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList(),
+                Arguments = match.Groups["args"].Value.Split(new char[] { ' ' }).ToList(),
                 FullText = message
             };
         }

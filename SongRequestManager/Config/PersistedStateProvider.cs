@@ -26,6 +26,8 @@ namespace SongRequestManager.Config
 
         private readonly FileSystemWatcher configWatcher = new FileSystemWatcher();
 
+        private readonly object fileSyncLock = new object();
+
         private string FilePath => Path.Combine(Plugin.DataPath, this.fileName);
         private string LegacyFilePath => string.IsNullOrEmpty(this.legacyFileName) ? string.Empty : Path.Combine(Plugin.DataPath, this.legacyFileName);
 
@@ -71,12 +73,18 @@ namespace SongRequestManager.Config
 
         private void Save()
         {
-            File.WriteAllText(this.FilePath, JsonConvert.SerializeObject(this.Data, SerializerSettings));
+            lock (this.fileSyncLock)
+            {
+                File.WriteAllText(this.FilePath, JsonConvert.SerializeObject(this.Data, SerializerSettings));
+            }
         }
 
         private void LoadData()
         {
-            this.Data = JsonConvert.DeserializeObject<T>(File.ReadAllText(this.FilePath));
+            lock (this.fileSyncLock)
+            {
+                this.Data = JsonConvert.DeserializeObject<T>(File.ReadAllText(this.FilePath));
+            }
         }
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)

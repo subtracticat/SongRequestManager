@@ -299,5 +299,111 @@ namespace SongRequestManagerUT.Tests
             Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
             Assert.AreEqual(9.99f, MockPriorityTracker.Data.PriorityItems["user1"].GetTotalValue());
         }
+
+        [TestMethod]
+        public void TestPrioTransferWithoutPrio()
+        {
+            MockChat.SendCommand(CommandCreator.Create("!bsr acde").FromUser("User3").Build());
+            MockChat.SendCommand(CommandCreator.Create("!bsr 4e4e").FromUser("User2").Build());
+
+            var requests = MockRequestQueue.Data.Requests;
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[1].Song.ID);
+            Assert.AreEqual(0, requests[1].PriorityValue);
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+
+            MockChat.SendCommand(CommandCreator.Create("!bump @User2").FromUser("User1").Build());
+
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[1].Song.ID);
+            Assert.AreEqual(0, requests[1].PriorityValue);
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+        }
+
+        [TestMethod]
+        public void TestPrioTransferById()
+        {
+            MockChat.SendPrioEvent("User1", new PriorityEvent { Type = PriorityEventType.Test, Timestamp = DateTime.Now, Value = 9.99f });
+            MockChat.SendCommand(CommandCreator.Create("!bsr acde").FromUser("User2").Build());
+            MockChat.SendCommand(CommandCreator.Create("!bsr 4e4e").FromUser("User3").Build());
+
+            var requests = MockRequestQueue.Data.Requests;
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[1].Song.ID);
+            Assert.AreEqual(0, requests[1].PriorityValue);
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+
+            MockChat.SendCommand(CommandCreator.Create("!bump 4e4e").FromUser("User1").Build());
+
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[0].Song.ID);
+            Assert.AreEqual(9.99f, requests[0].PriorityValue);
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+        }
+
+        [TestMethod]
+        public void TestPrioTransferByUsername()
+        {
+            MockChat.SendPrioEvent("User1", new PriorityEvent { Type = PriorityEventType.Test, Timestamp = DateTime.Now, Value = 9.99f });
+            MockChat.SendCommand(CommandCreator.Create("!bsr acde").FromUser("User2").Build());
+            MockChat.SendCommand(CommandCreator.Create("!bsr 4e4e").FromUser("User3").Build());
+
+            var requests = MockRequestQueue.Data.Requests;
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[1].Song.ID);
+            Assert.AreEqual(0, requests[1].PriorityValue);
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+
+            MockChat.SendCommand(CommandCreator.Create("!bump @User3").FromUser("User1").Build());
+
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[0].Song.ID);
+            Assert.AreEqual(9.99f, requests[0].PriorityValue);
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+        }
+
+        [TestMethod]
+        public void TestPrioTransferByHexUsername()
+        {
+            MockChat.SendPrioEvent("User1", new PriorityEvent { Type = PriorityEventType.Test, Timestamp = DateTime.Now, Value = 9.99f });
+            MockChat.SendCommand(CommandCreator.Create("!bsr acde").FromUser("User2").Build());
+            MockChat.SendCommand(CommandCreator.Create("!bsr 4e4e").FromUser("deadbeef").Build());
+
+            var requests = MockRequestQueue.Data.Requests;
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[1].Song.ID);
+            Assert.AreEqual(0, requests[1].PriorityValue);
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+
+            MockChat.SendCommand(CommandCreator.Create("!bump @deadbeef").FromUser("User1").Build());
+
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[0].Song.ID);
+            Assert.AreEqual(9.99f, requests[0].PriorityValue);
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+        }
+
+        [TestMethod]
+        public void TestPrioTransferWithFutureRequest()
+        {
+            MockChat.SendCommand(CommandCreator.Create("!bsr acde").FromUser("User2").Build());
+
+            MockChat.SendPrioEvent("User1", new PriorityEvent { Type = PriorityEventType.Test, Timestamp = DateTime.Now, Value = 9.99f });
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+
+            MockChat.SendCommand(CommandCreator.Create("!bump @User3").FromUser("User1").Build());
+
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user3"));
+
+            MockChat.SendCommand(CommandCreator.Create("!bsr 4e4e").FromUser("User3").Build());
+
+            var requests = MockRequestQueue.Data.Requests;
+            Assert.AreEqual(2, requests.Count);
+            Assert.AreEqual("4e4e", requests[0].Song.ID);
+            Assert.AreEqual(9.99f, requests[0].PriorityValue);
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+            Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user3"));
+        }
     }
 }

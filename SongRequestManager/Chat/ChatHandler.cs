@@ -15,6 +15,7 @@ namespace SongRequestManager.Chat
             new AddToTopCommand(),
             new AddPrioCommand(),
             new BlockSongCommand(),
+            new BumpCommand(),
             new ClearHistoryCommand(),
             new ClearQueueCommand(),
             new CloseQueueCommand(),

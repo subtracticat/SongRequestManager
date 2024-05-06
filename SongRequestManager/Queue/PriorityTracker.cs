@@ -12,6 +12,7 @@ namespace SongRequestManager.Queue
         GiftSubscription,
         Bits,
         Test,
+        Transfer,
         Unknown
     }
 

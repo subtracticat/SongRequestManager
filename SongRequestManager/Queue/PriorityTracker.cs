@@ -55,7 +55,7 @@ namespace SongRequestManager.Queue
             }
         }
 
-        public static bool TryRedeemPrio(string username, out PriorityItem priority)
+        public static bool TryRedeemPrio(string username, out PriorityItem priority, bool dryRun = false)
         {
             var normalizedUsername = username.ToLower();
             var items = Current.Data.PriorityItems;
@@ -64,7 +64,11 @@ namespace SongRequestManager.Queue
             {
                 if (currentPrio.GetTotalValue() >= RequestBotSettings.Current.Data.MinimumPriorityRequestValue)
                 {
-                    Current.Update(data => data.PriorityItems.Remove(normalizedUsername));
+                    if (!dryRun)
+                    {
+                        Current.Update(data => data.PriorityItems.Remove(normalizedUsername));
+                    }
+
                     priority = currentPrio;
                     return true;
                 }

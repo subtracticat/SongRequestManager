@@ -405,5 +405,56 @@ namespace SongRequestManagerUT.Tests
             Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
             Assert.IsFalse(MockPriorityTracker.Data.PriorityItems.ContainsKey("user3"));
         }
+
+        [TestMethod]
+        public void TestMyPrioWithoutPrio()
+        {
+            MockChat.SendCommand(CommandCreator.Create("!myprio").FromUser("User1").Build());
+            Assert.AreEqual(1, MockChat.Messages.Count);
+            Assert.AreEqual("As far as I know, it doesn't look like @User1 has a prio available. :(", MockChat.Messages[0].Message);
+        }
+
+        [TestMethod]
+        public void TestMyPrioWithPrio()
+        {
+            MockChat.SendPrioEvent("User1", new PriorityEvent { Type = PriorityEventType.Test, Timestamp = DateTime.Now, Value = 9.99f });
+            MockChat.SendCommand(CommandCreator.Create("!myprio").FromUser("User1").Build());
+
+            Assert.AreEqual(1, MockChat.Messages.Count);
+            Assert.AreEqual("Prio found! Yes, @User1 has a stored prio request!", MockChat.Messages[0].Message);
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user1"));
+        }
+
+        [TestMethod]
+        public void TestHasPrioWithoutPrio()
+        {
+            MockChat.SendCommand(CommandCreator.Create("!hasprio @User2").FromUser("User1").AsModerator().Build());
+
+            Assert.AreEqual(1, MockChat.Messages.Count);
+            Assert.AreEqual("As far as I know, it doesn't look like @User2 has a prio available. :(", MockChat.Messages[0].Message);
+        }
+
+        [TestMethod]
+        public void TestHasPrioNonMod()
+        {
+            MockChat.SendCommand(CommandCreator.Create("!hasprio @User2").FromUser("User1").Build());
+            Assert.AreEqual(0, MockChat.Messages.Count);
+        }
+
+        [TestMethod]
+        public void TestHasPrioWithPrio()
+        {
+            MockChat.SendPrioEvent("User2", new PriorityEvent { Type = PriorityEventType.Test, Timestamp = DateTime.Now, Value = 9.99f });
+
+            MockChat.SendCommand(CommandCreator.Create("!hasprio @User2").FromUser("User1").AsModerator().Build());
+            Assert.AreEqual(1, MockChat.Messages.Count);
+            Assert.AreEqual("Prio found! Yes, @User2 has a stored prio request!", MockChat.Messages[0].Message);
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user2"));
+
+            MockChat.SendCommand(CommandCreator.Create("!hasprio User2").FromUser("User1").AsModerator().Build());
+            Assert.AreEqual(2, MockChat.Messages.Count);
+            Assert.AreEqual("Prio found! Yes, @User2 has a stored prio request!", MockChat.Messages[1].Message);
+            Assert.IsTrue(MockPriorityTracker.Data.PriorityItems.ContainsKey("user2"));
+        }
     }
 }

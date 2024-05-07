@@ -199,6 +199,7 @@
     <Compile Include="Chat\ChatProvider.cs" />
     <Compile Include="Commands\AddPrioCommand.cs" />
     <Compile Include="Commands\BumpCommand.cs" />
+    <Compile Include="Commands\HasPrioCommand.cs" />
     <Compile Include="Commands\HelpCommand.cs" />
     <Compile Include="Commands\QueueCommand.cs" />
     <Compile Include="Commands\QueueLotteryCommand.cs" />

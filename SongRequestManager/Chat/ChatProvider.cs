@@ -160,7 +160,7 @@ namespace SongRequestManager.Chat
             {
                 case SubscriptionPlan.Tier1:
                 case SubscriptionPlan.Prime:
-                    return 4.99f;
+                    return 5.99f;
 
                 case SubscriptionPlan.Tier2:
                     return 9.99f;

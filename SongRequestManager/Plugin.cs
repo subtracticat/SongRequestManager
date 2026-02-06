@@ -4,11 +4,13 @@ using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage.Settings;
 using IPA;
 using IPA.Utilities;
+using SiraUtil.Zenject;
 using SongBrowser;
 using SongBrowser.UI;
 using SongRequestManager.Chat;
 using SongRequestManager.Config;
 using SongRequestManager.Queue;
+using SongRequestManager.SongData;
 using SongRequestManager.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,9 +39,12 @@ namespace SongRequestManager
         public static bool SongBrowserPluginPresent;
 
         [Init]
-        public void Init(IPALogger log)
+        public Plugin(Zenjector zenjector, IPALogger logger)
         {
-            Logger = log;
+            Logger = logger;
+            zenjector.UseLogger(logger);
+
+            zenjector.Install(Location.Player, container => container.BindInterfacesTo<BeatmapCollector>().AsSingle());
         }
 
         public static void Log(string text,

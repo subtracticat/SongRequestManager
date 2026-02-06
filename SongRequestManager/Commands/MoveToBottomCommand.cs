@@ -7,7 +7,7 @@ namespace SongRequestManager.Commands
 {
     public class MoveToBottomCommand : ModeratorCommand
     {
-        public override List<string> Aliases { get; } = new List<string> { "mtb", "last", "demote" };
+        public override List<string> Aliases { get; } = new List<string> { "mtb", "demote" };
         public override string HelpText { get; } = "Move an existing request to the end of the request queue.";
         public override string SampleUsage { get; } = "!demote [id]";
 

@@ -102,12 +102,18 @@
     <Reference Include="SemVer">
       <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
     </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
+    </Reference>
     <Reference Include="SongBrowser">
       <HintPath>$(BeatSaberDir)\Plugins\SongBrowser.dll</HintPath>
     </Reference>
     <Reference Include="SongCore, Version=2.9.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+    </Reference>
+    <Reference Include="SongDetailsCache">
+      <HintPath>$(BeatSaberDir)\Libs\SongDetailsCache.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -218,6 +224,14 @@
     <Reference Include="websocket-sharp, Version=1.0.2.1803, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
       <HintPath>$(BeatSaberDir)\Libs\websocket-sharp.dll</HintPath>
     </Reference>
+    <Reference Include="Zenject, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
+    </Reference>
+    <Reference Include="Zenject-usage, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bot\Keyboard.cs" />
@@ -230,6 +244,7 @@
     <Compile Include="Commands\BumpCommand.cs" />
     <Compile Include="Commands\HasPrioCommand.cs" />
     <Compile Include="Commands\HelpCommand.cs" />
+    <Compile Include="Commands\CurrentSongCommand.cs" />
     <Compile Include="Commands\QueueCommand.cs" />
     <Compile Include="Commands\QueueLotteryCommand.cs" />
     <Compile Include="Commands\QueueStatusCommand.cs" />
@@ -267,6 +282,7 @@
     <Compile Include="Queue\Song.cs" />
     <Compile Include="Queue\SongRequest.cs" />
     <Compile Include="Service\BeatSaverService.cs" />
+    <Compile Include="SongData\BeatmapCollector.cs" />
     <Compile Include="UI\Base64Sprites.cs" />
     <Compile Include="UI\KeyboardViewController.cs" />
     <Compile Include="UI\UIHelper.cs" />
@@ -276,6 +292,7 @@
     <Compile Include="UI\SongRequestManagerSettings.cs" />
     <Compile Include="Bot\util.cs" />
     <Compile Include="Utils\RequestUtils.cs" />
+    <Compile Include="SongData\SongDataManager.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="WebClient.cs" />
     <EmbeddedResource Include="Views\SongRequestManagerSettings.bsml" />

@@ -19,6 +19,7 @@ namespace SongRequestManager.Chat
             new ClearHistoryCommand(),
             new ClearQueueCommand(),
             new CloseQueueCommand(),
+            new CurrentSongCommand(),
             new HasPrioCommand(),
             new HelpCommand(),
             new ModAddCommand(),
@@ -29,6 +30,7 @@ namespace SongRequestManager.Chat
             new MyRequestCommand(),
             new OopsCommand(),
             new OpenQueueCommand(),
+            new PreviousSongCommand(),
             new QueueCommand(),
             new QueueLotteryCommand(),
             new QueueStatusCommand(),
@@ -92,7 +94,7 @@ namespace SongRequestManager.Chat
                 catch (Exception e)
                 {
                     Plugin.Log($"Error handling command [{chatCommand.FullText}]");
-                    Plugin.Log($"Error: {e.ToString()}");
+                    Plugin.Log($"Error: {e}");
                 }
             }
         }

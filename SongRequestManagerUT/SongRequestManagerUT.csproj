@@ -70,6 +70,7 @@
     <Content Include="Mocks\MockData\Songs\acde.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

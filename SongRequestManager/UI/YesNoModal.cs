@@ -2,6 +2,7 @@
 using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Util;
 using HMUI;
 using TMPro;
 
@@ -53,7 +54,7 @@ namespace SongRequestManager
 
         internal void Setup()
         {
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongRequestManager.Views.YesNoModal.bsml"), RequestBotListViewController.Instance.gameObject, this);
+            BSMLParser.Instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongRequestManager.Views.YesNoModal.bsml"), RequestBotListViewController.Instance.gameObject, this);
         }
     }
 }

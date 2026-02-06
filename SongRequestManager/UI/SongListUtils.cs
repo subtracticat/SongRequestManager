@@ -13,13 +13,11 @@ namespace SongRequestManager
     {
         private static LevelCollectionViewController _levelCollectionViewController;
         private static bool _initialized = false;
-        private static bool _pre120 = false;
 
         public static void Initialize()
         {
             _levelCollectionViewController = Resources.FindObjectsOfTypeAll<LevelCollectionViewController>().FirstOrDefault();
             
-            //_pre120 = IPA.Utilities.UnityGame.GameVersion.SemverValue.Minor < 20;
             if (!_initialized)
             {
                 try
@@ -54,18 +52,18 @@ namespace SongRequestManager
                 iconSegmentedControl.SelectCellWithNumber(idx);
 
                 // since the select event is not bubbled, force it
-                selectLevelCategoryViewController.LevelFilterCategoryIconSegmentedControlDidSelectCell(iconSegmentedControl, idx);
+                selectLevelCategoryViewController.InvokeMethod<object, SelectLevelCategoryViewController>("LevelFilterCategoryIconSegmentedControlDidSelectCell", iconSegmentedControl, idx);
             }
 
             // Clear currently possibly applied filters
             var levelSearchViewController = Resources.FindObjectsOfTypeAll<LevelSearchViewController>().FirstOrDefault();
-            levelSearchViewController?.ResetCurrentFilterParams();
+            levelSearchViewController?.ResetFilter(false);
 
             // get the level filtering nev controller
             var levelFilteringNavigationController = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First();
 
             // update custom songs
-            levelFilteringNavigationController.UpdateCustomSongs();
+            levelFilteringNavigationController.InvokeMethod<object, LevelFilteringNavigationController>("UpdateCustomSongs");
 
             // arbitrary wait for catch-up
             yield return 0;
@@ -97,12 +95,8 @@ namespace SongRequestManager
                 var tableView = levelsTableView.GetField<TableView, LevelCollectionTableView>("_tableView");
 
                 // get list of beatmaps, this is pre-sorted, etc
-                List<IPreviewBeatmapLevel> beatmaps;
-                if(_pre120)
-                    beatmaps = levelsTableView.GetField<IPreviewBeatmapLevel[], LevelCollectionTableView>("_previewBeatmapLevels").ToList();
-                else
-                    beatmaps = levelsTableView.GetField<IReadOnlyList<IPreviewBeatmapLevel>, LevelCollectionTableView>("_previewBeatmapLevels").ToList();
-                
+                List<BeatmapLevel> beatmaps = levelsTableView.GetField<IReadOnlyList<BeatmapLevel>, LevelCollectionTableView>("_beatmapLevels").ToList();
+
                 // get the row number for the song we want
                 songIndex = beatmaps.FindIndex(x => (x.levelID.StartsWith("custom_level_" + levelID)));
 

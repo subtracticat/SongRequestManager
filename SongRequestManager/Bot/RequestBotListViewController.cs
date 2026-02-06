@@ -110,7 +110,6 @@ namespace SongRequestManager
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-
             if (firstActivation)
             {
                 if (!SongCore.Loader.AreSongsLoaded)
@@ -159,8 +158,7 @@ namespace SongRequestManager
                 scrollView.SetField("_viewport", viewport);
 
                 _songListTableView.SetDataSource(this, false);
-
-                _songListTableView.LazyInit();
+                _songListTableView.RefreshCellsContent();
 
                 go.SetActive(true);
 
@@ -174,7 +172,7 @@ namespace SongRequestManager
                     "PracticeButton",
                     new Vector2(0f, 38.5f),
                     new Vector2(15f, 7f),
-                    () => { scrollView.PageUpButtonPressed(); },
+                    () => { scrollView.InvokeMethod<object, ScrollView>("PageUpButtonPressed"); },
                     "˄");
                 Destroy(_pageUpButton.GetComponentsInChildren<ImageView>().FirstOrDefault(x => x.name == "Underline"));
 
@@ -183,9 +181,10 @@ namespace SongRequestManager
                     "PracticeButton",
                     new Vector2(0f, -38.5f),
                     new Vector2(15f, 7f),
-                    () => { scrollView.PageDownButtonPressed(); },
+                    () => { scrollView.InvokeMethod<object, ScrollView>("PageDownButtonPressed"); },
                     "˅");
                 Destroy(_pageDownButton.GetComponentsInChildren<ImageView>().FirstOrDefault(x => x.name == "Underline"));
+
                 #endregion
 
                 CenterKeys = new KEYBOARD(container, "", false, -15, 15);
@@ -483,7 +482,7 @@ namespace SongRequestManager
             UpdateSelectSongInfo();
 
             _songListTableView.ReloadData();
-            _songListTableView.RefreshCells(true, true);
+            _songListTableView.RefreshCellsContent();
 
             if (_selectedRow == -1)
             {
@@ -514,7 +513,7 @@ namespace SongRequestManager
             SetUIInteractivity();
         }
 
-        private void SongLoader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> arg2)
+        private void SongLoader_SongsLoadedEvent(SongCore.Loader loader, ConcurrentDictionary<string, BeatmapLevel> dictionary)
         {
             _songListTableView?.ReloadData();
         }
@@ -549,7 +548,7 @@ namespace SongRequestManager
             _historyButton.interactable = true;
         }
 
-        private CustomPreviewBeatmapLevel CustomLevelForRow(int row)
+        private BeatmapLevel CustomLevelForRow(int row)
         {
             // get level id from hash
             var request = GetRequest(row, _isShowingHistory);
@@ -565,7 +564,7 @@ namespace SongRequestManager
             return SongCore.Loader.CustomLevels.FirstOrDefault(s => string.Equals(s.Value.levelID, levelIds.First(), StringComparison.OrdinalIgnoreCase)).Value ?? null;
         }
 
-        private void PlayPreview(CustomPreviewBeatmapLevel level)
+        private void PlayPreview(BeatmapLevel level)
         {
             //_songPreviewPlayer.CrossfadeTo(level.previewAudioClip, level.previewStartTime, level.previewDuration);
         }
@@ -573,7 +572,7 @@ namespace SongRequestManager
         private static Dictionary<string, Texture2D> _cachedTextures = new Dictionary<string, Texture2D>();
 
         #region TableView.IDataSource interface
-        public float CellSize() { return 10f; }
+        public float CellSize(int idx) { return 10f; }
 
         public int NumberOfCells()
         {
@@ -653,7 +652,7 @@ namespace SongRequestManager
                 if (level != null)
                 {
                     // set image from song's cover image
-                    var sprite = await level.GetCoverImageAsync(System.Threading.CancellationToken.None);
+                    var sprite = await level.previewMediaData.GetCoverSpriteAsync();
                     image.sprite = sprite;
                     imageSet = true;
                 }

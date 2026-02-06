@@ -111,18 +111,13 @@ namespace SongRequestManager
 
         public void SetAction(string keyname, Action<KEY> action)
         {
-            bool found = false;
             foreach (KEY key in keys)
             {
                 if (key.name == keyname)
                 {
-                    found = true;
                     key.keyaction = action;
                 }
             }
-
-            // BUG: This message was annoying if the keyboard didn't include those keys.
-            //if (!found) Plugin.Log($"Keyboard: Unable to set action of Key  [{keyname}]");
         }
 
         KEY AddKey(string keylabel, float width = 12, float height = 10, int color = 0xffffff)

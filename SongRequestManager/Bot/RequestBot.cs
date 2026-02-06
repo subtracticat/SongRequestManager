@@ -83,15 +83,15 @@ namespace SongRequestManager
                     Plugin.Log("Created request button!");
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Plugin.Log("Unable to create request button");
+                Plugin.Log($"Unable to create request button: {ex.ToString()}");
             }
 
             // check if flow coordinator has been setup yet
             if (_flowCoordinator == null)
             {
-                _flowCoordinator = BeatSaberMarkupLanguage.BeatSaberUI.CreateFlowCoordinator<RequestFlowCoordinator>();
+                _flowCoordinator = BeatSaberUI.CreateFlowCoordinator<RequestFlowCoordinator>();
             }
 
             SongListUtils.Initialize();

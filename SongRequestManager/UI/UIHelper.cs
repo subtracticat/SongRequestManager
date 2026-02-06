@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BeatSaberMarkupLanguage;
+using BGLib.Polyglot;
 using HMUI;
 using IPA.Utilities;
 using TMPro;
@@ -27,7 +28,7 @@ namespace SongRequestManager.UI
             btn.name = name;
             btn.interactable = true;
 
-            var localizer = btn.GetComponentInChildren<Polyglot.LocalizedTextMeshProUGUI>();
+            var localizer = btn.GetComponentInChildren<LocalizedTextMeshProUGUI>();
             if (localizer != null)
             {
                 GameObject.Destroy(localizer);
@@ -35,7 +36,7 @@ namespace SongRequestManager.UI
             BeatSaberMarkupLanguage.Components.ExternalComponents externalComponents = btn.gameObject.AddComponent<BeatSaberMarkupLanguage.Components.ExternalComponents>();
             var textMesh = btn.GetComponentInChildren<TextMeshProUGUI>();
             textMesh.richText = true;
-            externalComponents.components.Add(textMesh);
+            externalComponents.Components.Add(textMesh);
 
             var contentTransform = btn.transform.Find("Content").GetComponent<LayoutElement>();
             if (contentTransform != null)
@@ -50,7 +51,7 @@ namespace SongRequestManager.UI
             var stackLayoutGroup = btn.GetComponentInChildren<LayoutGroup>();
             if (stackLayoutGroup != null)
             {
-                externalComponents.components.Add(stackLayoutGroup);
+                externalComponents.Components.Add(stackLayoutGroup);
             }
             
             btn.onClick.RemoveAllListeners();
